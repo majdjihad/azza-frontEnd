@@ -6,9 +6,9 @@ import BasePassword from "@/components/form/BasePassword.vue";
 useHead({
   title: "تسجيل الدخول",
 });
-// definePageMeta({
-//   middleware: ["guest"],
-// });
+definePageMeta({
+  middleware: ["guest"],
+});
 const { login } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);

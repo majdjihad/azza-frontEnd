@@ -1,6 +1,6 @@
 <script setup>
+import moment from "moment";
 
-middleware
 const route = useRoute();
 useHead({
   title: route.params.slug,
@@ -8,13 +8,8 @@ useHead({
 import { useCategoryStore } from "~/stores/categoryStore";
 
 const categoryStore = useCategoryStore();
-
-import { useMainStore } from "~/stores/mainStore";
-
-const mainStore = useMainStore();
-
 onMounted(async () => {
-  await mainStore.getAds();
+  await categoryStore.getCategory(route.params.slug);
 });
 
 const filtersState = ref({});
@@ -84,7 +79,7 @@ function onFiltersChange(f) {
       <div class="d-flex align-items-start justify-content-between">
         <div class="collapse collapse-horizontal show" id="collapseExample">
           <SidebarFilters
-            v-if="mainStore?.adsData"
+            v-if="categoryStore?.categoryData?.ads?.items"
             style="width: 350px"
             @update:filters="onFiltersChange"
           />
@@ -92,14 +87,14 @@ function onFiltersChange(f) {
         </div>
 
         <section class="ads-section px-4">
-          <template v-if="mainStore?.adsData">
+          <template v-if="categoryStore?.categoryData?.ads?.items">
             <div class="row g-4">
               <div
-                v-for="ad in mainStore?.adsData"
+                v-for="ad in categoryStore?.categoryData?.ads?.items"
                 :key="ad.id"
                 class="col-12 col-md-6 col-xl-4"
               >
-                <AdsCard :ad="ad" />
+                <AdsCard :ad="ad" :category="route.params.slug" />
               </div>
             </div>
           </template>

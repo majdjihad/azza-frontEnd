@@ -2,351 +2,37 @@
 useHead({
   title: "الرئيسية",
 });
-// definePageMeta({
-//   middleware: ["auth"],
-// });
+definePageMeta({
+  middleware: ["auth"],
+});
 
-import { useCategoryStore } from "~/stores/categoryStore";
+import { useMainStore } from "~/stores/mainStore";
 
-const categoryStore = useCategoryStore();
-categoryStore?.getCategories();
-const category = ref([
-  { name: "جميع الفئات", value: "all" },
-  { name: "عقارات", value: "real-estate" },
-  { name: "سيارات", value: "cars" },
-  { name: "أثاث", value: "furniture" },
-  { name: "خدمات", value: "services" },
-]);
-const cities = ref([
-  { name: "مدينة غزة", value: "all" },
-  { name: "جباليا", value: "real-estate" },
-  { name: "بيت لاهيا", value: "cars" },
-  { name: "بيت حانون", value: "furniture" },
-  { name: "خانيونس", value: "services" },
-  { name: "دير البلح", value: "services" },
-  { name: "النصيرات", value: "services" },
-  { name: "رفح", value: "services" },
-]);
-const categories = [
-  { name: "خدمات" },
-  { name: "أثاث" },
-  { name: "أجهزة" },
-  { name: "سيارات" },
-  { name: "عقارات" },
-  { name: "وظائف" },
-  { name: "أطعمة" },
-  { name: "مفقودات" },
-];
+const mainStore = useMainStore();
 
-const ads = [
-  {
-    id: 1,
-    category: "عقارات",
-    title: "iPhone 14 Pro Max للبيع",
-    description:
-      "نص لعرض البيع وصيغ موجزة تشرح قرب من الخدمات بحي راقٍ، مناسب للعائلة.",
-    price: "شيكل 5,000",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 6,
-    views: 92,
-    image: "/media/bg-home/bg7.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 2,
-    category: "عقارات",
-    title: "سماعة بلوتوث لاسلكية أصلية",
-    description:
-      "نص بسيط عن المواصفات والجودة العالية مع عمر بطارية كبير جدًا وخدمة ممتازة.",
-    price: "شيكل 300",
-    time: "15 دقيقة",
-    location: "خان يونس - فلسطين",
-    comments: 4,
-    views: 68,
-    image: "/media/bg-home/bg4.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 3,
-    category: "عقارات",
-    title: "دراجة هوائية خفاش 26 بحالة ممتازة",
-    description:
-      "إطار ألومنيوم، سرعات متعددة، مكابح قرصية، مناسبة للطريق والجبال مع صيانة حديثة.",
-    price: "شيكل 3,500",
-    time: "15 دقيقة",
-    location: "رفح - فلسطين",
-    comments: 10,
-    views: 120,
-    image: "/media/bg-home/bg1.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 4,
-    category: "عقارات",
-    title: "فلت سياحية فخمة بسعر مغري",
-    description:
-      "مساحة واسعة، غرف نوم عديدة مع قرب من الخدمات العامة وموقع مميز للغاية.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 7,
-    views: 140,
-    image: "/media/bg-home/bg3.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 5,
-    category: "عقارات",
-    title: "فلت سياحية وسكنية بعرض مميز",
-    description:
-      "سعر منافس وموقع قريب من الخدمات بحي راقٍ مناسب للعائلة والرفاهية.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 5,
-    views: 77,
-    image: "/media/bg-home/bg2.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 6,
-    category: "عقارات",
-    title: "جهاز للاعتناء المنزلية بالأسرة",
-    description:
-      "منتج عملي أنيق مع ضمان وخدمة ما بعد البيع، مواصفات ممتازة ومستويات أمان عالية.",
-    price: "شيكل 300",
-    time: "15 دقيقة",
-    location: "خان يونس - فلسطين",
-    comments: 8,
-    views: 91,
-    image: "/media/bg-home/bg7.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 7,
-    category: "عقارات",
-    title: "كاميرا احترافية بحالة ممتازة للبيع",
-    description:
-      "عدسة أساسية 50mm، تصوير بدقة عالية 4K، مثالية للهواة والمحترفين مع إكسسوارات.",
-    price: "شيكل 3,500",
-    time: "15 دقيقة",
-    location: "رفح - فلسطين",
-    comments: 9,
-    views: 200,
-    image: "/media/bg-home/bg9.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 8,
-    category: "عقارات",
-    title: "عطر فخم برائحة العود وثابت قوي",
-    description:
-      "ثبات عالٍ ولمسة فاخرة تناسب المناسبات، عبوة أصلية وتوصيل متاح داخل المدينة.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 2,
-    views: 55,
-    image: "/media/bg-home/bg2.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 9,
-    category: "عقارات",
-    title: "iPhone 14 Pro Max للبيع",
-    description:
-      "نص لعرض البيع وصيغ موجزة تشرح قرب من الخدمات بحي راقٍ، مناسب للعائلة.",
-    price: "شيكل 5,000",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 6,
-    views: 92,
-    image: "/media/bg-home/bg7.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 10,
-    category: "عقارات",
-    title: "سماعة بلوتوث لاسلكية أصلية",
-    description:
-      "نص بسيط عن المواصفات والجودة العالية مع عمر بطارية كبير جدًا وخدمة ممتازة.",
-    price: "شيكل 300",
-    time: "15 دقيقة",
-    location: "خان يونس - فلسطين",
-    comments: 4,
-    views: 68,
-    image: "/media/bg-home/bg4.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 11,
-    category: "عقارات",
-    title: "دراجة هوائية خفاش 26 بحالة ممتازة",
-    description:
-      "إطار ألومنيوم، سرعات متعددة، مكابح قرصية، مناسبة للطريق والجبال مع صيانة حديثة.",
-    price: "شيكل 3,500",
-    time: "15 دقيقة",
-    location: "رفح - فلسطين",
-    comments: 10,
-    views: 120,
-    image: "/media/bg-home/bg1.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 12,
-    category: "عقارات",
-    title: "فلت سياحية فخمة بسعر مغري",
-    description:
-      "مساحة واسعة، غرف نوم عديدة مع قرب من الخدمات العامة وموقع مميز للغاية.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 7,
-    views: 140,
-    image: "/media/bg-home/bg3.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 13,
-    category: "عقارات",
-    title: "فلت سياحية وسكنية بعرض مميز",
-    description:
-      "سعر منافس وموقع قريب من الخدمات بحي راقٍ مناسب للعائلة والرفاهية.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 5,
-    views: 77,
-    image: "/media/bg-home/bg2.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 14,
-    category: "عقارات",
-    title: "جهاز للاعتناء المنزلية بالأسرة",
-    description:
-      "منتج عملي أنيق مع ضمان وخدمة ما بعد البيع، مواصفات ممتازة ومستويات أمان عالية.",
-    price: "شيكل 300",
-    time: "15 دقيقة",
-    location: "خان يونس - فلسطين",
-    comments: 8,
-    views: 91,
-    image: "/media/bg-home/bg7.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 15,
-    category: "عقارات",
-    title: "كاميرا احترافية بحالة ممتازة للبيع",
-    description:
-      "عدسة أساسية 50mm، تصوير بدقة عالية 4K، مثالية للهواة والمحترفين مع إكسسوارات.",
-    price: "شيكل 3,500",
-    time: "15 دقيقة",
-    location: "رفح - فلسطين",
-    comments: 9,
-    views: 200,
-    image: "/media/bg-home/bg9.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-  {
-    id: 16,
-    category: "عقارات",
-    title: "عطر فخم برائحة العود وثابت قوي",
-    description:
-      "ثبات عالٍ ولمسة فاخرة تناسب المناسبات، عبوة أصلية وتوصيل متاح داخل المدينة.",
-    price: "شيكل ألاف 560",
-    time: "15 دقيقة",
-    location: "غزة - فلسطين",
-    comments: 2,
-    views: 55,
-    image: "/media/bg-home/bg2.png",
-    owner: { name: "ليث", avatar: "/media/avatars/user.png" },
-  },
-];
+onMounted(async () => {
+  if (!mainStore?.homePageData) {
+    await mainStore.getHomeData();
+  }
+});
 
 const chunkedAds = computed(() => {
   const size = 8;
   const chunks = [];
-  for (let i = 0; i < ads.length; i += size)
-    chunks.push(ads.slice(i, i + size));
+  for (let i = 0; i < mainStore?.homePageData?.ads_section.length; i += size)
+    chunks.push(mainStore?.homePageData?.ads_section.slice(i, i + size));
   return chunks;
 });
-const offers = ref([
-  {
-    id: 1,
-    title: "أجهزة للعناية المنزلية بالبشرة",
-    city: "البلح",
-    region: "فلسطين",
-    price: 750,
-    image: "/media/bg-home/bg1.png",
-  },
-  {
-    id: 2,
-    title: "كاميرا احترافية بحالة ممتازة للبيع",
-    city: "غزة",
-    region: "فلسطين",
-    price: 2300,
-    image: "/media/bg-home/bg2.png",
-  },
-  {
-    id: 3,
-    title: "قميص ستايل عصري",
-    city: "النصر",
-    region: "فلسطين",
-    price: 240,
-    image: "/media/bg-home/bg3.png",
-  },
-  {
-    id: 4,
-    title: "عطر خليجي برائحة العود وثابت قوي",
-    city: "جباليا",
-    region: "فلسطين",
-    price: 560,
-    image: "/media/bg-home/bg4.png",
-  },
-  {
-    id: 5,
-    title: "أجهزة تنظيف وتعقيم منزلية",
-    city: "غزة",
-    region: "فلسطين",
-    price: 420,
-    image: "/media/bg-home/bg5.png",
-  },
-  {
-    id: 6,
-    title: "عدسة 85mm فتحة 1.8",
-    city: "غزة",
-    region: "فلسطين",
-    price: 1150,
-    image: "/media/bg-home/bg6.png",
-  },
-  {
-    id: 7,
-    title: "حذاء جلد طبيعي كلاسيك",
-    city: "النصر",
-    region: "فلسطين",
-    price: 330,
-    image: "/media/bg-home/bg7.png",
-  },
-  {
-    id: 8,
-    title: "بخور عود فاخر",
-    city: "جباليا",
-    region: "فلسطين",
-    price: 199,
-    image: "/media/bg-home/bg8.png",
-  },
-]);
 
-const currency = "شيكل";
 const perSlide = 4;
 const chunk = (arr, size) => {
   const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  for (let i = 0; i < arr?.length; i += size) out.push(arr.slice(i, i + size));
   return out;
 };
-const slides = computed(() => chunk(offers.value, perSlide));
+const slides = computed(() =>
+  chunk(mainStore?.homePageData?.products_section, perSlide)
+);
 const carouselId = "offersCarousel";
 </script>
 <template>
@@ -409,7 +95,7 @@ const carouselId = "offersCarousel";
             </div>
           </div>
         </div>
-              </div>
+      </div>
       <div
         class="hero-overlay position-absolute top-0 start-0 w-100 h-100 z-0 bg-dark opacity-50"
       ></div>
@@ -456,7 +142,8 @@ const carouselId = "offersCarousel";
                 >
                   <option selected>اختر القسم</option>
                   <option
-                    v-for="category in categoryStore.Allcategories"
+                    v-for="category in mainStore?.homePageData
+                      ?.categories_section"
                     :key="category.value"
                     :value="category.name"
                   >
@@ -484,7 +171,8 @@ const carouselId = "offersCarousel";
                   <option selected>اختر المدينة</option>
                   <option
                     :value="city.name"
-                    v-for="city in cities"
+                    v-for="city in mainStore?.homePageData?.search_section
+                      .search_fields[2]?.options"
                     :key="city.id"
                   >
                     {{ city.name }}
@@ -504,27 +192,26 @@ const carouselId = "offersCarousel";
         </div>
       </section>
     </section>
-    <section class="categories-section bg-white">
+    <section class="categories-section">
       <div class="container my-5">
-        <div class="row g-3 py-4" v-if="!categoryStore.Allcategories">
-          <NuxtLink
-            v-for="(cat, index) in categoryStore.Allcategories"
+        <div
+          class="row g-3 py-4"
+          v-if="mainStore?.homePageData?.categories_section"
+        >
+          <div
+            v-for="(cat, index) in mainStore?.homePageData?.categories_section"
             :key="index"
-            class="col-6 col-md-3 my-9 position-relative"
-            :to="`ads/category/${cat.slug}`"
+            class="col-6 col-md-3 my-9 position-relative p-0"
           >
-            <div
+            <NuxtLink
+              :to="`ads/category/${cat.slug}`"
               class="category-card h-150px text-center border rounded d-flex flex-column align-items-center justify-content-between mx-3"
             >
               <div
                 class="bg-white w-25 px-2"
                 style="position: relative; top: -25px"
               >
-                <img
-                  :src="`/media/categories/${cat.image_url}.png`"
-                  class="w-100"
-                  :alt="cat.name"
-                />
+                <img :src="cat.image_url" class="w-100" :alt="cat.name" />
               </div>
               <div class="position-absolute bottom-0">
                 <h4>{{ cat.name }}</h4>
@@ -536,8 +223,8 @@ const carouselId = "offersCarousel";
                   </button>
                 </div>
               </div>
-            </div>
-          </NuxtLink>
+            </NuxtLink>
+          </div>
         </div>
         <div v-else class="text-center py-9">
           <icon name="svg-spinners:ring-resize" class="indicator-label fs-1" />
@@ -559,66 +246,77 @@ const carouselId = "offersCarousel";
         </div>
       </div>
     </section>
-    <section
-      class="offers-section container my-4 py-4 px-3 px-sm-4 bg-secandary"
-    >
+    <section class="offers-section my-4 py-4 px-3 px-sm-4 bg-muted">
       <!-- Bootstrap Carousel -->
-      <div class="d-flex justify-content-between offers-header mb-3">
-        <div>
-          <h2 class="fs-1 fw-bold mb-1">عروضنا الخاصة</h2>
-          <div class="fs-3 offers-subtitle">عروض حصرية من إدارة الموقع</div>
-        </div>
-        <div class="d-flex align-items-center gap-2 offers-toolbar">
-          <!-- Prev -->
-          <button
-            class="btn-carousel"
-            :data-bs-target="`#${carouselId}`"
-            data-bs-slide="prev"
-            aria-label="السابق"
-          >
-            <Icon name="line-md:arrow-right" size="20" />
-          </button>
+      <div class="container">
+        <div class="d-flex justify-content-between offers-header mb-3">
+          <div>
+            <h2 class="fs-1 fw-bold mb-1">عروضنا الخاصة</h2>
+            <div class="fs-3 offers-subtitle">عروض حصرية من إدارة الموقع</div>
+          </div>
+          <div class="d-flex align-items-center gap-2 offers-toolbar">
+            <!-- Prev -->
+            <button
+              class="btn-carousel"
+              :data-bs-target="`#${carouselId}`"
+              data-bs-slide="prev"
+              aria-label="السابق"
+            >
+              <Icon name="line-md:arrow-right" size="20" />
+            </button>
 
-          <!-- Next -->
-          <button
-            class="btn-carousel"
-            :data-bs-target="`#${carouselId}`"
-            data-bs-slide="next"
-            aria-label="التالي"
-          >
-            <Icon name="line-md:arrow-left" size="20" />
-          </button>
-          <NuxtLink to="/products" class="btn-view-all">
-            <h5 class="mb-0 text-white">عرض الكل</h5>
-            <Icon
-              name="material-symbols:arrow-back-rounded"
-              class="text-white"
-              size="20"
-            />
-          </NuxtLink>
+            <!-- Next -->
+            <button
+              class="btn-carousel"
+              :data-bs-target="`#${carouselId}`"
+              data-bs-slide="next"
+              aria-label="التالي"
+            >
+              <Icon name="line-md:arrow-left" size="20" />
+            </button>
+            <NuxtLink to="/products" class="btn-view-all">
+              <h5 class="mb-0 text-white">عرض الكل</h5>
+              <Icon
+                name="material-symbols:arrow-back-rounded"
+                class="text-white"
+                size="20"
+              />
+            </NuxtLink>
+          </div>
         </div>
-      </div>
-      <div
-        class="carousel slide"
-        :id="carouselId"
-        data-bs-ride="false"
-        data-bs-interval="0"
-      >
-        <div class="carousel-inner">
-          <div
-            v-for="(group, idx) in slides"
-            :key="idx"
-            :class="['carousel-item', { active: idx === 0 }]"
-          >
-            <div class="row g-3 g-md-4">
+        <div
+          class="carousel slide"
+          :id="carouselId"
+          data-bs-ride="false"
+          data-bs-interval="0"
+        >
+          <div class="carousel-inner">
+            <template v-if="mainStore?.homePageData?.products_section">
               <div
-                v-for="item in group"
-                :key="item.id"
-                class="col-12 col-sm-6 col-lg-3"
+                v-for="(group, idx) in slides"
+                :key="idx"
+                :class="['carousel-item', { active: idx === 0 }]"
               >
-                <ProductCard :item="item" :currency="currency" />
+                <div class="row g-3 g-md-4">
+                  <div
+                    v-for="item in group"
+                    :key="item.id"
+                    class="col-12 col-sm-6 col-lg-3"
+                  >
+                    <ProductCard :item="item" />
+                  </div>
+                </div>
               </div>
-            </div>
+            </template>
+            <template v-else>
+              <div class="carousel-item active">
+                <div class="row g-3 g-md-4">
+                  <div v-for="n in 4" :key="n" class="col-12 col-sm-6 col-lg-3">
+                    <SkeletonProductCard />
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -666,25 +364,50 @@ const carouselId = "offersCarousel";
           </NuxtLink>
         </div>
       </div>
+
       <!-- Bootstrap Carousel -->
       <div id="adsCarousel" class="carousel slide" data-bs-interval="false">
         <div class="carousel-inner">
-          <div
-            v-for="(group, idx) in chunkedAds"
-            :key="'slide-' + idx"
-            class="carousel-item"
-            :class="{ active: idx === 0 }"
-          >
-            <div class="row g-4">
-              <div
-                v-for="ad in group"
-                :key="ad.id"
-                class="col-12 col-md-6 col-xl-3"
-              >
-                <AdsCard :ad="ad" />
+          <template v-if="mainStore?.homePageData?.ads_section">
+            <div
+              v-for="(group, idx) in chunkedAds"
+              :key="'slide-' + idx"
+              class="carousel-item"
+              :class="{ active: idx === 0 }"
+            >
+              <div class="row g-4">
+                <div
+                  v-for="ad in group"
+                  :key="ad.id"
+                  class="col-12 col-md-6 col-xl-3 shadow-sm"
+                >
+                  <AdsCard :ad="ad" />
+                </div>
               </div>
             </div>
-          </div>
+          </template>
+          <template v-else>
+            <div class="carousel-item active">
+              <div class="row g-4 my-4">
+                <div
+                  v-for="n in 4"
+                  :key="'skeleton-' + n"
+                  class="col-12 col-md-6 col-xl-3"
+                >
+                  <SkeletonAdCard />
+                </div>
+              </div>
+              <div class="row g-4 my-4">
+                <div
+                  v-for="n in 4"
+                  :key="'skeleton-' + n"
+                  class="col-12 col-md-6 col-xl-3"
+                >
+                  <SkeletonAdCard />
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </section>

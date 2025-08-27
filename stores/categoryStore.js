@@ -3,13 +3,23 @@ import { useCategory } from "~/composables/useCategory";
 
 export const useCategoryStore = defineStore("useCategory", () => {
   // declear all category variables
-  let Allcategories = ref(null);
-  const { getAllCategories } = useCategory();
+  let categoryData = ref(null);
+  let citiesData = ref(null);
+  const { getCategoryBySlug, getCities } = useCategory();
   // get categories details
-  const getCategories = async () => {
+  const getCategory = async (slug) => {
     try {
-      const categoriesResponse = await getAllCategories();
-      Allcategories.value = categoriesResponse.data;
+      const response = await getCategoryBySlug(slug);
+      categoryData.value = response.data;
+    } catch (error) {
+      console.log(error);
+      return navigateTo(`/`, { replace: true });
+    }
+  };
+  const getCitiesData = async () => {
+    try {
+      const response = await getCities();
+      citiesData.value = response.data;
     } catch (error) {
       console.log(error);
       return navigateTo(`/`, { replace: true });
@@ -17,7 +27,9 @@ export const useCategoryStore = defineStore("useCategory", () => {
   };
 
   return {
-    Allcategories,
-    getCategories,
+    citiesData,
+    getCitiesData,
+    categoryData,
+    getCategory,
   };
 });

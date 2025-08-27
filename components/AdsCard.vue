@@ -1,46 +1,76 @@
+<script setup>
+import moment from "moment";
+
+defineProps({
+  ad: {
+    type: Object,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+});
+</script>
+
+
 <template>
-  <div class="card ad-card overflow-hidden position-relative my-2">
+  <div class="card ad-card overflow-hidden p-0 position-relative my-2">
     <!-- Top Image + Chips + Avatar -->
     <div class="position-relative">
-      <img :src="ad.image" class="card-img-top" :alt="ad.title" />
+      <NuxtLink :to="`ads/category/${ad.id}`">
+        <img :src="ad.image" class="card-img-top" :alt="ad.title" />
+      </NuxtLink>
       <span
         class="badge badge-chip position-absolute top-0 end-0 m-3 px-3 py-2"
       >
-        {{ ad.category }}
+        {{ category }}
       </span>
-      <div class="avatar-holder">
-        <div class="avatar-ring">
-          <i class="bi bi-person fs-1 text-secondary"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Body -->
-    <div class="card-body pt-5">
-      <NuxtLink to="ads/details">
-        <div class="text-muted small mb-1">منذ {{ ad.time }}</div>
-        <h5 class="ad-title mb-2">
-          {{ ad.title }} <span class="fw-bold">للبيع</span>
-        </h5>
-        <p class="ad-desc mb-3">{{ ad.description }}</p>
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="ad-price fs-5">{{ ad.price }}</div>
-        </div>
+      <NuxtLink :to="`/profile/${ad.user_id}/show`" class="avatar-holder">
+        <img :src="ad.user_photo" width="50px" class="rounded-circle" alt="" />
       </NuxtLink>
+    </div>
+    <div class="card-body pt-5">
+      <NuxtLink :to="`ads/category/${ad.id}`" class="text-decoration-none">
+        <div class="text-muted small mb-1">
+          منذ {{ moment(ad.created_at).calendar() }}
+        </div>
+        <h5 class="ad-title mb-2">
+          {{ ad.title }}
+        </h5>
+      </NuxtLink>
+      <p class="ad-desc mb-3">
+        {{ ad?.description?.split(" ").slice(0, 15).join(" ")
+        }}{{ ad?.description?.split(" ").length > 15 ? "..." : "" }}
+      </p>
+      <div class="d-flex align-items-center justify-content-start">
+        <span class="fs-5 text-primary">{{ ad.price }}</span>
+        <span class="fs-5 text-primary">{{ ad.currency }}</span>
+      </div>
       <div class="mt-3 d-flex align-items-center justify-content-between">
         <div class="text-muted small d-flex align-items-center gap-1">
-          <Icon name="material-symbols:location-on-outline" />
-          <span>{{ ad.location }}</span>
+          <Icon name="material-symbols:location-on-outline" size="18" />
+          <span>{{ ad.city }}</span>
         </div>
         <div class="meta d-flex align-items-center gap-1 fs-5">
-          <button class="btn text-secondary btn-sm p-1" aria-label="تواصل">
-            <Icon name="akar-icons:whatsapp-fill" size="18" />
-          </button>
+          <NuxtLink
+            :to="`https://wa.me/${ad.whatsapp}`"
+            class="btn text-secondary btn-sm p-1"
+            aria-label="تواصل"
+          >
+            <Icon name="akar-icons:whatsapp-fill" size="22" />
+          </NuxtLink>
           <button class="btn text-secondary btn-sm p-1" aria-label="مفضلة">
-            <Icon name="mdi:heart-outline" size="18" />
+            <Icon
+              v-if="ad.featured"
+              class="text-primary"
+              name="mdi:cards-heart"
+              size="22"
+            />
+            <Icon v-else name="mdi:heart-outline" size="22" />
           </button>
           <button class="btn text-secondary btn-sm p-1" aria-label="مشاركة">
-            <Icon name="mdi:share-variant-outline" size="18" />
+            <Icon name="mdi:share-variant-outline" size="22" />
           </button>
         </div>
       </div>
@@ -48,23 +78,17 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  ad: {
-    type: Object,
-    required: true,
-  },
-});
-</script>
-
 <style scoped>
 .ad-card {
   border: 0;
   border-radius: 15px;
   transition: box-shadow 0.2s ease;
 }
-.ad-card:hover {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+.ad-card:hover img {
+  filter: grayscale(0.5);
+}
+.ad-card:hover .ad-title {
+  text-decoration: underline;
 }
 .ad-card .card-img-top {
   height: 230px;
@@ -92,10 +116,6 @@ defineProps({
 .ad-desc {
   color: #6b7280;
   line-height: 1.9;
-}
-.ad-price {
-  color: #195bdb;
-  font-weight: 900;
 }
 .meta i {
   opacity: 0.6;

@@ -1,9 +1,14 @@
 <script setup>
-import { reactive, ref, computed, watch } from "vue";
+import { useCategoryStore } from "~/stores/categoryStore";
 
+const categoryStore = useCategoryStore();
+onMounted(async () => {
+  if (!categoryStore?.citiesData) {
+    await categoryStore.getCitiesData();
+  }
+});
+const currencies = ref(["شيكل", "دولار", "يورو", "دينار"]);
 const props = defineProps({
-  categories: { type: Array, default: () => [] },
-  currencies: { type: Array, default: () => ["شيكل", "دولار", "يورو"] },
   defaultFilters: {
     type: Object,
     default: () => ({
@@ -31,7 +36,7 @@ const filters = reactive({
   region: props.defaultFilters.region || "",
   priceMin: props.defaultFilters.priceMin ?? null,
   priceMax: props.defaultFilters.priceMax ?? null,
-  currency: props.defaultFilters.currency || props.currencies[0],
+  currency: props.defaultFilters.currency || currencies.value[0],
 });
 
 const selectedCategories = ref([...filters.categories]);
@@ -40,7 +45,7 @@ const expanded = reactive({});
 
 const totalCount = computed(() => {
   let sum = 0;
-  for (const p of props.categories) {
+  for (const p of currencies.value) {
     if (p.children?.length)
       sum += p.children.reduce((s, ch) => s + (Number(ch.count) || 0), 0);
     else sum += Number(p.count) || 0;
@@ -96,7 +101,7 @@ function isParentIndeterminate(p) {
 
 const allValues = computed(() => {
   const vals = [];
-  for (const p of props.categories) {
+  for (const p of currencies.value) {
     if (p?.children?.length) {
       vals.push(...p.children.map((ch) => ch.value));
     } else if (p?.value) {
@@ -139,7 +144,7 @@ watch(
 
 <template>
   <aside class="filters-sidebar mx-2 position-relative top-0">
-    <div class="card border-0 mb-3">
+    <div class="card border-0 mb-3 bg-muted">
       <div class="card-body">
         <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
         <div class="form-check form-check-reverse mb-2">
@@ -221,44 +226,33 @@ watch(
         </div>
       </div>
     </div>
-    <div class="border bg-white my-5 rounded">
-      <div class="card border-0 my-9">
+    <div class="border bg-muted my-5 rounded">
+      <div class="card bg-muted border-0 my-9">
         <div class="card-body py-0">
           <h4 class="fw-bold mb-3">المدينة</h4>
           <div class="input-group">
             <span
-              class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0"
-            >
-              <i class="bi bi-search"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control rounded-0 border-end-0 rounded-start p-0"
-              placeholder="ابحث عن المدينة.."
-              v-model.trim="filters.city"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="card border-0 my-9">
-        <div class="card-body py-0">
-          <h4 class="fw-bold mb-3">المنطقة</h4>
-          <div class="input-group">
-            <span
               class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
             >
-              <i class="bi bi-search"></i>
+              <Icon name="material-symbols:location-on-outline" size="18" />
             </span>
-            <input
-              type="text"
-              class="form-control rounded-0 border-end-0 rounded-start p-0"
-              placeholder="ابحث عن المنطقة.."
-              v-model.trim="filters.region"
-            />
+            <select
+              class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
+              id="inputCityGroup"
+            >
+              <option selected>اختر المدينة</option>
+              <option
+                :value="city.name"
+                v-for="city in categoryStore?.citiesData?.cities"
+                :key="city.id"
+              >
+                {{ city.name }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="card border-0 my-9">
+      <div class="card bg-muted border-0 my-9">
         <div class="card-body py-0">
           <div class="d-flex justify-content-between align-items-center">
             <h4 class="fw-bold mb-3">السعر</h4>
@@ -274,9 +268,12 @@ watch(
                 <!-- up -->
                 <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
               </button>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu shadow-none">
                 <li v-for="(cur, i) in currencies" :key="i">
-                  <button class="dropdown-item" @click="filters.currency = cur">
+                  <button
+                    class="dropdown-item btn text-end"
+                    @click="filters.currency = cur"
+                  >
                     {{ cur }}
                   </button>
                 </li>
@@ -292,7 +289,7 @@ watch(
               <input
                 type="text"
                 inputmode="numeric"
-                class="form-control rounded-0 border-end-0 rounded-start p-0"
+                class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                 v-model="priceMinText"
                 @input="sanitizePrice('min')"
               />
@@ -305,7 +302,7 @@ watch(
               <input
                 type="text"
                 inputmode="numeric"
-                class="form-control rounded-0 border-end-0 rounded-start p-0"
+                class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                 v-model="priceMaxText"
                 @input="sanitizePrice('max')"
               />
@@ -313,6 +310,11 @@ watch(
           </div>
         </div>
       </div>
+      <button
+        class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
+      >
+        بحث
+      </button>
     </div>
     <div class="text-center">
       <img

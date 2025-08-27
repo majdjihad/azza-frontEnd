@@ -11,7 +11,7 @@ useHead({
   title: "تسجيل",
 });
 
-const { register } = useAuth();
+const { register, registerWithGoogle } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);
 
@@ -49,6 +49,17 @@ function resetErrors() {
   Object.keys(errors).forEach((k) => (errors[k] = ""));
 }
 
+const registerGoogle = async () => {
+  try {
+    await registerWithGoogle();
+  } catch (error) {
+    if (!error?.data?.message) {
+      showToast("error", "فشل التسجيل");
+    }
+  } finally {
+    inProgress.value = false;
+  }
+};
 // validation errors form
 function onSubmit() {
   resetErrors();
@@ -262,21 +273,13 @@ const formHandle = async () => {
                   <button
                     type="button"
                     class="btn btn-light border shadow-sm px-5"
+                    @click="registerGoogle"
                   >
                     <img
                       src="/media/bg-home/google-icon.png"
                       class="img-fluid"
                       style="width: 22px"
                       alt="google-icon"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-light border shadow-sm px-5"
-                  >
-                    <Icon
-                      name="ic:round-facebook"
-                      class="text-center fs-1 p-0 text-primary"
                     />
                   </button>
                 </div>

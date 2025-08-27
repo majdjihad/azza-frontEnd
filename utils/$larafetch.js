@@ -42,13 +42,7 @@ export async function $larafetch(
       referer: frontendUrl,
     };
   }
-  if (process.client) {
-    console.debug(
-      "[larafetch] ->",
-      options?.method || "GET",
-      (backendUrl || "") + path
-    );
-  }
+
   try {
     return await $fetch(path, {
       baseURL: backendUrl,
@@ -65,11 +59,12 @@ export async function $larafetch(
     const status = error.response?.status ?? -1;
 
     if (redirectIfNotAuthenticated && [401, 419].includes(status)) {
-      if (process.client) {
-        // ✅ لا تعمل push أثناء SSR
-        await router.push("/login");
-      }
+      await router.push("/login");
     }
+
+    // if (redirectIfNotVerified && [409].includes(status)) {
+    //     await router.push("/verify-email");
+    // }
 
     if ([500, 403].includes(status)) {
       showError({ statusCode: status, message: error.data?.message });

@@ -1,7 +1,9 @@
 // Value is initialized in: ~/plugins/auth.js
 import { $larafetch } from "~/utils/$larafetch";
 
-export const useUser = () => useState("user", () => null);
+export const useUser = () => {
+  return useState("user", () => undefined);
+};
 
 export const useAuth = () => {
   const user = useUser();
@@ -19,6 +21,13 @@ export const useAuth = () => {
     const response = await $larafetch("/api/register", {
       method: "post",
       body: credentials,
+    });
+    return response;
+  }
+
+  async function registerWithGoogle() {
+    const response = await $larafetch("/api/google/redirect", {
+      method: "get",
     });
     return response;
   }
@@ -84,6 +93,7 @@ export const useAuth = () => {
     isLoggedIn,
     login,
     register,
+    registerWithGoogle,
     verify,
     resendVerification,
     forgetPassword,
@@ -91,7 +101,6 @@ export const useAuth = () => {
     logout,
   };
 };
-
 export const fetchCurrentUser = async () => {
   try {
     return await $larafetch("/api/user", {
