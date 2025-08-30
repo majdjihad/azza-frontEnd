@@ -74,6 +74,9 @@ body { background-color: white; }
   background: var(--bs-primary-hover) !important;
   color: #fff !important;
 }
+.btn:hover {
+  color: var(--bs-primary) !important;
+}
 .btn-outline-main {
   display: flex;
   align-items: center;

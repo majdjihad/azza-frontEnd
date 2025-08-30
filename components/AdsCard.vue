@@ -32,9 +32,7 @@ defineProps({
     </div>
     <div class="card-body pt-5">
       <NuxtLink :to="`ads/category/${ad.id}`" class="text-decoration-none">
-        <div class="text-muted small mb-1">
-          منذ {{ moment(ad.created_at).calendar() }}
-        </div>
+        <div class="text-muted small mb-1">منذ {{ ad?.created_at }}</div>
         <h5 class="ad-title mb-2">
           {{ ad.title }}
         </h5>

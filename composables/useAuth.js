@@ -18,7 +18,7 @@ export const useAuth = () => {
   }
 
   async function register(credentials) {
-    const response = await $larafetch("/api/register", {
+    const response = await $larafetch("/register", {
       method: "post",
       body: credentials,
     });
@@ -33,7 +33,7 @@ export const useAuth = () => {
   }
 
   async function verify(credentials) {
-    const response = await $larafetch("/api/verify", {
+    const response = await $larafetch("/verify", {
       method: "post",
       body: credentials,
     });
@@ -50,14 +50,13 @@ export const useAuth = () => {
 
   async function login(credentials) {
     if (isLoggedIn.value) return;
-
-    const response = await $larafetch("/api/login", {
+    const response = await $larafetch("/login", {
       method: "post",
       body: credentials,
     });
-    return [response, await refresh()];
+    await refresh();
+    return response; // ← رجّع كائن واحد، ليس مصفوفة
   }
-
   // async function checkToken(credentials) {
   //   const response = await $larafetch("/check-token", {
   //     method: "post",
@@ -103,7 +102,7 @@ export const useAuth = () => {
 };
 export const fetchCurrentUser = async () => {
   try {
-    return await $larafetch("/api/user", {
+    return await $larafetch("/api/check-auth", {
       redirectIfNotAuthenticated: false,
     });
   } catch (error) {

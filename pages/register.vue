@@ -11,6 +11,10 @@ useHead({
   title: "تسجيل",
 });
 
+definePageMeta({
+  middleware: ["guest"],
+});
+
 const { register, registerWithGoogle } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);

@@ -1,64 +1,116 @@
 <script setup>
+/* مكوّن الفلاتر
+   - يحمل المدن والتصنيفات من المتجر
+   - يرسل update:filters عند أي تغيير
+   - يرسل city_id و subcategory_ids وأسعار
+*/
 import { useCategoryStore } from "~/stores/categoryStore";
+import { useMainStore } from "~/stores/mainStore";
 
 const categoryStore = useCategoryStore();
+const mainStore = useMainStore();
+
+// تحميل بيانات المدن والتصنيفات مرة واحدة
 onMounted(async () => {
   if (!categoryStore?.citiesData) {
     await categoryStore.getCitiesData();
   }
+  if (!mainStore?.filterData) {
+    // يجب أن تكون لديك دالة في المتجر تجلب استجابة التصنيفات (response.data.categories)
+    // وتضعها في mainStore.filterData = { categories: [...] }
+    await mainStore.getFilterData();
+  }
 });
+
+// العملات (غير مستخدمة في API الفلترة الحالي لكنها متاحة في الواجهة)
 const currencies = ref(["شيكل", "دولار", "يورو", "دينار"]);
+
+// خصائص (يمكن تمرير defaultFilters إن رغبت)
 const props = defineProps({
   defaultFilters: {
     type: Object,
     default: () => ({
-      categories: [],
-      city: "",
+      categories: [], // subcategory_ids
+      city_id: "", // معرّف المدينة
       region: "",
       priceMin: null,
       priceMax: null,
       currency: "شيكل",
+      category_id: "", // لو ترغب بإرسال تصنيف رئيسي معيّن (اختياري)
     }),
   },
   sticky: { type: Boolean, default: true },
 });
 
+// إرسال التحديثات للخارج
 const emit = defineEmits(["update:filters"]);
 
+// تنسيق رقم (لو أردت لاحقًا عرض أعداد)
 const formatNum = (n) =>
   new Intl.NumberFormat("en-us", { maximumFractionDigits: 0 }).format(
     Number(n ?? 0)
   );
 
+// حالة الفلاتر داخل المكوّن
 const filters = reactive({
-  categories: [...(props.defaultFilters.categories || [])],
-  city: props.defaultFilters.city || "",
+  categories: [...(props.defaultFilters.categories || [])], // subcategory_ids
+  city_id: props.defaultFilters.city_id || "",
   region: props.defaultFilters.region || "",
   priceMin: props.defaultFilters.priceMin ?? null,
   priceMax: props.defaultFilters.priceMax ?? null,
   currency: props.defaultFilters.currency || currencies.value[0],
+  category_id: props.defaultFilters.category_id || "", // اختياري
 });
 
-const selectedCategories = ref([...filters.categories]);
+// حقولا السعر نصية لتطبيع الإدخال
+const priceMinText = ref(
+  filters.priceMin !== null ? String(filters.priceMin) : ""
+);
+const priceMaxText = ref(
+  filters.priceMax !== null ? String(filters.priceMax) : ""
+);
+function sanitizePrice(which) {
+  if (which === "min") {
+    priceMinText.value = (priceMinText.value || "").replace(/[^\d]/g, "");
+    filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
+  } else if (which === "max") {
+    priceMaxText.value = (priceMaxText.value || "").replace(/[^\d]/g, "");
+    filters.priceMax = priceMaxText.value ? Number(priceMaxText.value) : null;
+  }
+  // ضمان min <= max (اختياري)
+  if (filters.priceMin !== null && filters.priceMax !== null) {
+    if (filters.priceMin > filters.priceMax) {
+      const tmp = filters.priceMin;
+      filters.priceMin = filters.priceMax;
+      filters.priceMax = tmp;
+      priceMinText.value = String(filters.priceMin);
+      priceMaxText.value = String(filters.priceMax);
+    }
+  }
+}
 
+/* تحويل استجابة التصنيفات إلى هيكل (أب/أبناء) للمكوّن */
+const categories = computed(() => {
+  const raw = mainStore?.filterData?.categories || [];
+  return raw.map((cat) => ({
+    name: cat.name,
+    value: cat.id, // category_id (اختياري للاستخدام)
+    count: 0, // لا يوجد counts في الرد الحالي
+    children: Array.isArray(cat.subcategories)
+      ? cat.subcategories.map((sc) => ({
+          name: sc.name,
+          value: sc.id, // هذا هو subcategory_id المهم للفلترة
+          count: 0,
+        }))
+      : [],
+  }));
+});
+
+// إدارة اختيار التصنيفات الفرعية
+const selectedCategories = ref([...filters.categories]);
 const expanded = reactive({});
 
-const totalCount = computed(() => {
-  let sum = 0;
-  for (const p of currencies.value) {
-    if (p.children?.length)
-      sum += p.children.reduce((s, ch) => s + (Number(ch.count) || 0), 0);
-    else sum += Number(p.count) || 0;
-  }
-  return sum;
-});
-
-const parentCount = (p) => {
-  if (p.children?.length)
-    return p.children.reduce((s, ch) => s + (Number(ch.count) || 0), 0);
-  return Number(p.count) || 0;
-};
-
+// تبديل اختيار الأب
 function toggleParent(p) {
   const childVals = (p.children || []).map((ch) => ch.value);
   if (!childVals.length) {
@@ -82,6 +134,7 @@ function toggleParent(p) {
   }
 }
 
+// حالات اختيار الأب (checked/indeterminate)
 function isParentChecked(p) {
   const childVals = (p.children || []).map((ch) => ch.value);
   if (!childVals.length) return selectedCategories.value.includes(p.value);
@@ -99,24 +152,20 @@ function isParentIndeterminate(p) {
   return hit > 0 && hit < childVals.length;
 }
 
+// تحديد الكل/إلغاء الكل
 const allValues = computed(() => {
   const vals = [];
-  for (const p of currencies.value) {
-    if (p?.children?.length) {
-      vals.push(...p.children.map((ch) => ch.value));
-    } else if (p?.value) {
-      vals.push(p.value);
-    }
+  for (const p of categories.value) {
+    if (p?.children?.length) vals.push(...p.children.map((ch) => ch.value));
+    else if (p?.value) vals.push(p.value);
   }
   return vals;
 });
-
 const allChecked = computed(
   () =>
     allValues.value.length > 0 &&
     allValues.value.every((v) => selectedCategories.value.includes(v))
 );
-
 const isIndeterminate = computed(
   () => selectedCategories.value.length > 0 && !allChecked.value
 );
@@ -125,18 +174,28 @@ function toggleAll(e) {
   selectedCategories.value = checked ? [...allValues.value] : [];
 }
 
+// إرسال الفلاتر للخارج عند أي تغيير
 watch(
   [
     selectedCategories,
-    () => filters.city,
+    () => filters.city_id,
     () => filters.region,
     () => filters.priceMin,
     () => filters.priceMax,
     () => filters.currency,
+    () => filters.category_id,
   ],
   () => {
     filters.categories = [...selectedCategories.value];
-    emit("update:filters", { ...filters });
+    // نرسل القيم المهمة للواجهة (العملة غير مستخدمة الآن في الـ API لكن نبقيها للاستخدام اللاحق)
+    emit("update:filters", {
+      categories: filters.categories,
+      city_id: filters.city_id || undefined,
+      priceMin: filters.priceMin ?? undefined,
+      priceMax: filters.priceMax ?? undefined,
+      currency: filters.currency,
+      category_id: filters.category_id || undefined,
+    });
   },
   { deep: true }
 );
@@ -147,6 +206,8 @@ watch(
     <div class="card border-0 mb-3 bg-muted">
       <div class="card-body">
         <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
+
+        <!-- تحديد الكل -->
         <div class="form-check form-check-reverse mb-2">
           <input
             class="form-check-input"
@@ -161,9 +222,10 @@ watch(
             for="cat-all"
           >
             <span>جميع الأقسام</span>
-            <span class="text-muted">({{ formatNum(totalCount) }})</span>
           </label>
         </div>
+
+        <!-- قائمة الأقسام -->
         <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
           <div
             class="d-flex align-items-center justify-content-between app-item"
@@ -182,13 +244,11 @@ watch(
                 :for="`p-${i}`"
               >
                 <span>{{ p.name }}</span>
-                <span class="text-muted"
-                  >({{ formatNum(parentCount(p)) }})</span
-                >
               </label>
             </div>
 
             <button
+              v-if="p.children && p.children.length"
               class="btn btn-sm btn-link text-decoration-none"
               type="button"
               @click="expanded[p.value] = !expanded[p.value]"
@@ -198,9 +258,12 @@ watch(
                 :name="
                   expanded[p.value] ? 'mdi:chevron-up' : 'mdi:chevron-down'
                 "
+                size="18"
               />
             </button>
           </div>
+
+          <!-- أبناء التصنيف -->
           <div
             v-if="p.children && p.children.length && expanded[p.value]"
             class="mt-2 ps-4"
@@ -219,13 +282,14 @@ watch(
               />
               <label class="form-check-label w-100 d-flex" :for="`c-${i}-${j}`">
                 <span>{{ ch.name }}</span>
-                <span class="text-muted me-2">({{ formatNum(ch.count) }})</span>
               </label>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- المدينة -->
     <div class="border bg-muted my-5 rounded">
       <div class="card bg-muted border-0 my-9">
         <div class="card-body py-0">
@@ -239,11 +303,12 @@ watch(
             <select
               class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
               id="inputCityGroup"
+              v-model="filters.city_id"
             >
-              <option selected>اختر المدينة</option>
+              <option value="">اختر المدينة</option>
               <option
-                :value="city.name"
-                v-for="city in categoryStore?.citiesData?.cities"
+                :value="city.id"
+                v-for="city in categoryStore?.citiesData?.cities || []"
                 :key="city.id"
               >
                 {{ city.name }}
@@ -252,6 +317,8 @@ watch(
           </div>
         </div>
       </div>
+
+      <!-- السعر + العملة -->
       <div class="card bg-muted border-0 my-9">
         <div class="card-body py-0">
           <div class="d-flex justify-content-between align-items-center">
@@ -265,7 +332,6 @@ watch(
               >
                 {{ filters.currency }}
                 <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-                <!-- up -->
                 <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
               </button>
               <ul class="dropdown-menu shadow-none">
@@ -280,6 +346,7 @@ watch(
               </ul>
             </div>
           </div>
+
           <div class="d-flex align-items-stretch gap-2 w-75">
             <div class="input-group">
               <span
@@ -310,12 +377,24 @@ watch(
           </div>
         </div>
       </div>
+
+      <!-- زر بحث (اختياري لأننا نرسل تلقائياً عبر watch)
+           لو أردت الإرسال عند الضغط فقط، احذف الـ watch واستعمل هذا الزر: -->
+
       <button
         class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
+        @click="
+          emit('update:filters', {
+            ...filters,
+            categories: [...selectedCategories.value],
+          })
+        "
       >
         بحث
       </button>
     </div>
+
+    <!-- صور جانبية -->
     <div class="text-center">
       <img
         src="~/public/media/bg-home/jawwal1.jpg"
@@ -330,7 +409,6 @@ watch(
     </div>
   </aside>
 </template>
-
 <style scoped>
 .filters-sidebar {
   width: 100%;
