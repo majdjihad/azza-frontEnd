@@ -12,6 +12,11 @@ export const useMain = () => {
       method: "get",
     });
   }
+  async function getAllProducts(pageId) {
+    return await $larafetch(`api/products?page=${pageId}`, {
+      method: "get",
+    });
+  }
   async function getDataFilter() {
     return await $larafetch(`api/filter/category`, {
       method: "get",
@@ -32,7 +37,7 @@ export const useMain = () => {
   async function filterAds(params = {}) {
     const {
       category_id,
-      subcategory_ids = [], // Array<number|string>
+      subcategory_ids = [],
       city_id,
       min_price,
       max_price,
@@ -54,6 +59,7 @@ export const useMain = () => {
   return {
     getHomePageData,
     getAllAds,
+    getAllProducts,
     getDataFilter,
     getAdsFavorites,
     toggleFavoriteAds,

@@ -1,9 +1,4 @@
 <script setup>
-/* صفحة الإعلانات
-   - تقرأ الفلاتر والصفحة من route.query
-   - تستدعي mainStore.getFilteredAds(params)
-   - تحدّث الـ pagination وتعيد التمرير للأعلى
-*/
 import { useMainStore } from "~/stores/mainStore";
 import { useCategoryStore } from "~/stores/categoryStore";
 
@@ -14,21 +9,77 @@ const categoryStore = useCategoryStore();
 
 useHead({ title: "الإعلانات" });
 
-/* الصفحة الحالية مأخوذة من الاستعلام */
+/* ========= الترتيب (JS فقط بدون أي طلبات/استعلامات) ========= */
+const sortKey = ref("created_at"); // created_at | price
+const sortDir = ref("desc"); // asc | desc
+
+const sortLabel = computed(() => {
+  if (sortKey.value === "created_at" && sortDir.value === "desc")
+    return "الأحدث";
+  if (sortKey.value === "created_at" && sortDir.value === "asc")
+    return "الأقدم";
+  if (sortKey.value === "price" && sortDir.value === "asc") return "الأرخص سعر";
+  if (sortKey.value === "price" && sortDir.value === "desc")
+    return "الأغلى سعر";
+  return "الترتيب حسب";
+});
+
+function setSort(key, dir) {
+  sortKey.value = key;
+  sortDir.value = dir;
+}
+
+/* دوال مقارنة عامة */
+function toNumber(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+function toTime(v) {
+  const t = new Date(v).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+function compareValues(a, b, key, dir) {
+  let va, vb;
+  if (key === "price") {
+    va = toNumber(a?.price, 0);
+    vb = toNumber(b?.price, 0);
+  } else {
+    // created_at افتراض
+    va = toTime(a?.created_at);
+    vb = toTime(b?.created_at);
+  }
+  const diff = va - vb;
+  return dir === "asc" ? diff : -diff;
+}
+
+/* مصادر البيانات الخام من المتجر (لا نغيّرها) */
+const productsRaw = computed(
+  () => mainStore?.adsPageData?.data?.products?.data ?? []
+);
+const adsRaw = computed(() => mainStore?.adsPageData?.data?.ads?.data ?? []);
+
+/* القوائم بعد الفرز محليًا */
+const sortedProducts = computed(() => {
+  const list = [...productsRaw.value];
+  list.sort((a, b) => compareValues(a, b, sortKey.value, sortDir.value));
+  return list;
+});
+const sortedAds = computed(() => {
+  const list = [...adsRaw.value];
+  list.sort((a, b) => compareValues(a, b, sortKey.value, sortDir.value));
+  return list;
+});
+
+/* ========= بقية منطق الصفحة ========= */
 const currentPage = computed(() => {
   const p = Number(route.query.page || 1);
   return Number.isNaN(p) || p < 1 ? 1 : p;
 });
 
-/* تحويل الاستعلام إلى باراميترات API للفلترة */
 function buildParamsFromQuery(query = {}) {
-  // subcategory_ids[] قد تأتي كـ string أو array
   let subIds = query["subcategory_ids[]"] ?? query.subcategory_ids ?? [];
   if (!Array.isArray(subIds)) subIds = [subIds].filter(Boolean);
-
-  // city_id: نعتمد مباشرة على الاستعلام (الآن SidebarFilters يرسل id)
   const city_id = query.city_id ? Number(query.city_id) : undefined;
-
   return {
     category_id: query.category_id ? Number(query.category_id) : undefined,
     subcategory_ids: subIds
@@ -38,10 +89,10 @@ function buildParamsFromQuery(query = {}) {
     min_price: query.min_price ? Number(query.min_price) : undefined,
     max_price: query.max_price ? Number(query.max_price) : undefined,
     page: query.page ? Math.max(1, Number(query.page)) : 1,
+    // ملاحظة: لا نرسل أي مفاتيح للترتيب — الفرز محلي فقط
   };
 }
 
-/* اجلب البيانات عند أي تغيير في الاستعلام */
 watch(
   () => route.query,
   async () => {
@@ -52,7 +103,6 @@ watch(
   { immediate: true, deep: true }
 );
 
-/* عدد الصفحات من استجابة السيرفر */
 const lastPage = computed(() => {
   const pager = mainStore?.adsPageData?.data?.ads;
   if (!pager) return 1;
@@ -70,11 +120,7 @@ const lastPage = computed(() => {
   return 1;
 });
 
-/* استلام الفلاتر من SidebarFilters ودفعها للـ query */
 function onFiltersChange(f) {
-  // f.categories: مصفوفة subcategory_ids
-  // f.city_id: معرّف المدينة (رقم)
-  // f.priceMin, f.priceMax, f.currency: (العملة غير مستخدمة في API الفلترة لديك)
   const q = {
     ...route.query,
     page: 1,
@@ -83,11 +129,9 @@ function onFiltersChange(f) {
     city_id: f.city_id || undefined,
   };
 
-  // إن رغبت بإرسال category_id (تصنيف رئيسي) من المكوّن: أضِفه هنا
   if (f.category_id) q.category_id = f.category_id;
   else delete q.category_id;
 
-  // subcategory_ids[] كمصفوفة في الاستعلام
   delete q["subcategory_ids[]"];
   if (Array.isArray(f.categories) && f.categories.length) {
     q["subcategory_ids[]"] = f.categories.map(String);
@@ -113,29 +157,70 @@ function onFiltersChange(f) {
         class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
       >
         <span class="fs-3">بيع وشراء أي شيء في فلسطين (10,000)</span>
-        <div>
-          <div class="btn-group">
-            <button
-              type="button"
-              class="dropdown-toggle fs-3"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <span> الترتيب حسب </span>
-              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">أحدث</a></li>
-              <li><a class="dropdown-item" href="#">الأقل سعرًا</a></li>
-              <li><a class="dropdown-item" href="#">الأعلى سعرًا</a></li>
-            </ul>
-          </div>
+
+        <!-- زر الترتيب (فرز محلي بدون أي استدعاء API) -->
+        <div class="btn-group">
+          <button
+            type="button"
+            class="dropdown-toggle fs-3"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <span>{{ sortLabel }}</span>
+            <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+            <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+          </button>
+
+          <ul class="dropdown-menu">
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{
+                  active: sortKey === 'created_at' && sortDir === 'desc',
+                }"
+                @click="setSort('created_at', 'desc')"
+              >
+                الأحدث
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{
+                  active: sortKey === 'created_at' && sortDir === 'asc',
+                }"
+                @click="setSort('created_at', 'asc')"
+              >
+                الأقدم
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
+                @click="setSort('price', 'asc')"
+              >
+                الأعلى سعر
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
+                @click="setSort('price', 'desc')"
+              >
+                الأرخص سعر
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
 
       <div class="d-flex align-items-start justify-content-between">
-        <!-- لوحة الفلاتر -->
         <div class="collapse collapse-horizontal show" id="collapseExample">
           <SidebarFilters
             style="width: 350px"
@@ -143,85 +228,100 @@ function onFiltersChange(f) {
           />
         </div>
 
-        <!-- قائمة الإعلانات -->
-        <section class="ads-section px-4">
-          <template v-if="mainStore?.adsPageData?.data?.ads?.data?.length">
-            <div class="row g-4">
-              <div
-                v-for="ad in mainStore.adsPageData.data.ads.data"
-                :key="ad.id"
-                class="col-12 col-md-6 col-xl-4"
-              >
-                <AdsCard :ad="ad" />
+        <div class="d-flex flex-column">
+          <section class="product-section px-4">
+            <template v-if="sortedProducts?.length">
+              <div class="row g-4">
+                <div
+                  v-for="pro in sortedProducts.slice(0, 3)"
+                  :key="pro.id"
+                  class="col-12 col-md-6 col-xl-4"
+                >
+                  <ProductCard :item="pro" />
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </section>
 
-          <template v-else>
-            <div class="row g-4 my-4">
-              <div
-                v-for="n in 12"
-                :key="'skeleton-' + n"
-                class="col-12 col-md-6 col-xl-4"
-              >
-                <SkeletonAdCard />
+          <!-- الإعلانات (نرتّب محليًا القائمة الحالية فقط) -->
+          <section class="ads-section px-4">
+            <template v-if="sortedAds?.length">
+              <div class="row g-4">
+                <div
+                  v-for="ad in sortedAds"
+                  :key="ad.id"
+                  class="col-12 col-md-6 col-xl-4"
+                >
+                  <AdsCard :ad="ad" />
+                </div>
               </div>
-            </div>
-          </template>
-
-          <!-- ترقيم الصفحات -->
-          <nav aria-label="Page navigation example" v-if="lastPage > 1">
-            <ul class="pagination my-9">
-              <!-- السابق -->
-              <li class="page-item" :class="{ disabled: currentPage <= 1 }">
-                <NuxtLink
-                  class="page-link"
-                  :to="{
-                    path: route.path,
-                    query: {
-                      ...route.query,
-                      page: Math.max(1, currentPage - 1),
-                    },
-                  }"
-                  aria-label="Previous"
+            </template>
+            <template v-else>
+              <div class="row g-4 my-4">
+                <div
+                  v-for="n in 12"
+                  :key="'skeleton-' + n"
+                  class="col-12 col-md-6 col-xl-4"
                 >
-                  <span class="fs-1" aria-hidden="true">&laquo;</span>
-                </NuxtLink>
-              </li>
+                  <SkeletonAdCard />
+                </div>
+              </div>
+            </template>
 
-              <!-- الأرقام -->
-              <li v-for="n in lastPage" :key="'p-' + n" class="page-item">
-                <NuxtLink
-                  class="page-link fs-3"
-                  :class="{ active: n === currentPage }"
-                  :to="{ path: route.path, query: { ...route.query, page: n } }"
-                >
-                  {{ n }}
-                </NuxtLink>
-              </li>
+            <!-- ترقيم الصفحات (يبقى كما هو، فالفرز محلي لا يغيّر بيانات الـ pager) -->
+            <nav aria-label="Page navigation example" v-if="lastPage > 1">
+              <ul class="pagination my-9">
+                <li class="page-item" :class="{ disabled: currentPage <= 1 }">
+                  <NuxtLink
+                    class="page-link"
+                    :to="{
+                      path: route.path,
+                      query: {
+                        ...route.query,
+                        page: Math.max(1, currentPage - 1),
+                      },
+                    }"
+                    aria-label="Previous"
+                  >
+                    <span class="fs-1" aria-hidden="true">&laquo;</span>
+                  </NuxtLink>
+                </li>
 
-              <!-- التالي -->
-              <li
-                class="page-item"
-                :class="{ disabled: currentPage >= lastPage }"
-              >
-                <NuxtLink
-                  class="page-link"
-                  :to="{
-                    path: route.path,
-                    query: {
-                      ...route.query,
-                      page: Math.min(lastPage, currentPage + 1),
-                    },
-                  }"
-                  aria-label="Next"
+                <li v-for="n in lastPage" :key="'p-' + n" class="page-item">
+                  <NuxtLink
+                    class="page-link fs-3"
+                    :class="{ active: n === currentPage }"
+                    :to="{
+                      path: route.path,
+                      query: { ...route.query, page: n },
+                    }"
+                  >
+                    {{ n }}
+                  </NuxtLink>
+                </li>
+
+                <li
+                  class="page-item"
+                  :class="{ disabled: currentPage >= lastPage }"
                 >
-                  <span class="fs-1" aria-hidden="true">&raquo;</span>
-                </NuxtLink>
-              </li>
-            </ul>
-          </nav>
-        </section>
+                  <NuxtLink
+                    class="page-link"
+                    :to="{
+                      path: route.path,
+                      query: {
+                        ...route.query,
+                        page: Math.min(lastPage, currentPage + 1),
+                      },
+                    }"
+                    aria-label="Next"
+                  >
+                    <span class="fs-1" aria-hidden="true">&raquo;</span>
+                  </NuxtLink>
+                </li>
+              </ul>
+            </nav>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -257,5 +357,14 @@ function onFiltersChange(f) {
 }
 .collapse-horizontal {
   transition: 0.2s ease-in-out;
+}
+
+/* تمييز الخيار النشط في القائمة */
+.dropdown-menu .dropdown-item.active {
+  font-weight: 600;
+}
+.dropdown-item:hover,
+.dropdown-item.active {
+  color: var(--bs-primary);
 }
 </style>

@@ -1,57 +1,45 @@
 <script setup>
-/* مكوّن الفلاتر
-   - يحمل المدن والتصنيفات من المتجر
-   - يرسل update:filters عند أي تغيير
-   - يرسل city_id و subcategory_ids وأسعار
-*/
+/* SidebarFilters — يُظهر تصنيف المسار فقط إن وُجد، وإلا كل التصنيفات.
+   يُرسل update:filters عند أي تغيير (city_id, subcategory_ids, price range, category_id). */
 import { useCategoryStore } from "~/stores/categoryStore";
 import { useMainStore } from "~/stores/mainStore";
+import SkeletonSidebar from "./Skeleton/SkeletonSidebar.vue";
 
 const categoryStore = useCategoryStore();
 const mainStore = useMainStore();
+const route = useRoute();
 
-// تحميل بيانات المدن والتصنيفات مرة واحدة
+/* تحميل بيانات المدن + بيانات التصنيفات مرة واحدة */
 onMounted(async () => {
-  if (!categoryStore?.citiesData) {
-    await categoryStore.getCitiesData();
-  }
-  if (!mainStore?.filterData) {
-    // يجب أن تكون لديك دالة في المتجر تجلب استجابة التصنيفات (response.data.categories)
-    // وتضعها في mainStore.filterData = { categories: [...] }
-    await mainStore.getFilterData();
-  }
+  if (!categoryStore?.citiesData) await categoryStore.getCitiesData();
+  if (!mainStore?.filterData) await mainStore.getFilterData();
+  // بعد التحميل الأوّلي، أرسل الفلاتر الحالية فورًا
+  nextTick(() => emitFilters());
 });
 
-// العملات (غير مستخدمة في API الفلترة الحالي لكنها متاحة في الواجهة)
+/* عملات (واجهية) */
 const currencies = ref(["شيكل", "دولار", "يورو", "دينار"]);
 
-// خصائص (يمكن تمرير defaultFilters إن رغبت)
+/* Props */
 const props = defineProps({
   defaultFilters: {
     type: Object,
     default: () => ({
       categories: [], // subcategory_ids
-      city_id: "", // معرّف المدينة
+      city_id: "",
       region: "",
       priceMin: null,
       priceMax: null,
       currency: "شيكل",
-      category_id: "", // لو ترغب بإرسال تصنيف رئيسي معيّن (اختياري)
+      category_id: "",
     }),
   },
   sticky: { type: Boolean, default: true },
 });
 
-// إرسال التحديثات للخارج
 const emit = defineEmits(["update:filters"]);
 
-// تنسيق رقم (لو أردت لاحقًا عرض أعداد)
-const formatNum = (n) =>
-  new Intl.NumberFormat("en-us", { maximumFractionDigits: 0 }).format(
-    Number(n ?? 0)
-  );
-
-// حالة الفلاتر داخل المكوّن
+/* الحالة الداخلية للفلاتر */
 const filters = reactive({
   categories: [...(props.defaultFilters.categories || [])], // subcategory_ids
   city_id: props.defaultFilters.city_id || "",
@@ -59,10 +47,10 @@ const filters = reactive({
   priceMin: props.defaultFilters.priceMin ?? null,
   priceMax: props.defaultFilters.priceMax ?? null,
   currency: props.defaultFilters.currency || currencies.value[0],
-  category_id: props.defaultFilters.category_id || "", // اختياري
+  category_id: props.defaultFilters.category_id || "",
 });
 
-// حقولا السعر نصية لتطبيع الإدخال
+/* حقولا السعر النصية */
 const priceMinText = ref(
   filters.priceMin !== null ? String(filters.priceMin) : ""
 );
@@ -73,44 +61,81 @@ function sanitizePrice(which) {
   if (which === "min") {
     priceMinText.value = (priceMinText.value || "").replace(/[^\d]/g, "");
     filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
-  } else if (which === "max") {
+  } else {
     priceMaxText.value = (priceMaxText.value || "").replace(/[^\d]/g, "");
     filters.priceMax = priceMaxText.value ? Number(priceMaxText.value) : null;
   }
-  // ضمان min <= max (اختياري)
-  if (filters.priceMin !== null && filters.priceMax !== null) {
-    if (filters.priceMin > filters.priceMax) {
-      const tmp = filters.priceMin;
-      filters.priceMin = filters.priceMax;
-      filters.priceMax = tmp;
-      priceMinText.value = String(filters.priceMin);
-      priceMaxText.value = String(filters.priceMax);
-    }
+  if (
+    filters.priceMin !== null &&
+    filters.priceMax !== null &&
+    filters.priceMin > filters.priceMax
+  ) {
+    const tmp = filters.priceMin;
+    filters.priceMin = filters.priceMax;
+    filters.priceMax = tmp;
+    priceMinText.value = String(filters.priceMin);
+    priceMaxText.value = String(filters.priceMax);
   }
 }
 
-/* تحويل استجابة التصنيفات إلى هيكل (أب/أبناء) للمكوّن */
-const categories = computed(() => {
+/* ====== تحديد تصنيف المسار ====== */
+const slugify = (s) =>
+  String(s || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "");
+
+const routeCategorySlug = computed(() => {
+  if (route?.params?.slug) return String(route.params.slug);
+  const m = String(route?.path || "").match(/\/ads\/category\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : "";
+});
+const isCategoryRoute = computed(
+  () =>
+    /\/ads\/category\//i.test(String(route?.path || "")) &&
+    !!routeCategorySlug.value
+);
+
+/* الحصول على كائن تصنيف الصفحة (إن أمكن) */
+const pageCategory = computed(() => {
+  const slug = routeCategorySlug.value;
+  if (!slug) return null;
+
+  const fromCategoryStore = categoryStore?.categoryData?.category;
+  if (
+    fromCategoryStore &&
+    slugify(fromCategoryStore?.slug || fromCategoryStore?.name) ===
+      slugify(slug)
+  ) {
+    return fromCategoryStore;
+  }
   const raw = mainStore?.filterData?.categories || [];
-  return raw.map((cat) => ({
-    name: cat.name,
-    value: cat.id, // category_id (اختياري للاستخدام)
-    count: 0, // لا يوجد counts في الرد الحالي
-    children: Array.isArray(cat.subcategories)
-      ? cat.subcategories.map((sc) => ({
-          name: sc.name,
-          value: sc.id, // هذا هو subcategory_id المهم للفلترة
-          count: 0,
-        }))
-      : [],
-  }));
+  return raw.find((c) => slugify(c?.slug || c?.name) === slugify(slug)) || null;
 });
 
-// إدارة اختيار التصنيفات الفرعية
+/* تحويل استجابة التصنيفات لبنية المكوّن */
+const categories = computed(() => {
+  const raw = mainStore?.filterData?.categories || [];
+  const mapCat = (cat) => ({
+    name: cat?.name,
+    value: cat?.id, // category_id
+    children: Array.isArray(cat?.subcategories)
+      ? cat.subcategories.map((sc) => ({ name: sc?.name, value: sc?.id }))
+      : [],
+  });
+
+  if (isCategoryRoute.value && pageCategory.value) {
+    return [mapCat(pageCategory.value)]; // تصنيف واحد + أبناؤه
+  }
+  // لا يوجد تصنيف من المسار (أو لم نجد مطابقًا) => أعرض الكل
+  return raw.map(mapCat);
+});
+
+/* اختيار التصنيفات الفرعية */
 const selectedCategories = ref([...filters.categories]);
 const expanded = reactive({});
 
-// تبديل اختيار الأب
 function toggleParent(p) {
   const childVals = (p.children || []).map((ch) => ch.value);
   if (!childVals.length) {
@@ -123,18 +148,11 @@ function toggleParent(p) {
   const allSelected = childVals.every((v) =>
     selectedCategories.value.includes(v)
   );
-  if (allSelected) {
-    selectedCategories.value = selectedCategories.value.filter(
-      (v) => !childVals.includes(v)
-    );
-  } else {
-    selectedCategories.value = Array.from(
-      new Set([...selectedCategories.value, ...childVals])
-    );
-  }
+  selectedCategories.value = allSelected
+    ? selectedCategories.value.filter((v) => !childVals.includes(v))
+    : Array.from(new Set([...selectedCategories.value, ...childVals]));
 }
 
-// حالات اختيار الأب (checked/indeterminate)
 function isParentChecked(p) {
   const childVals = (p.children || []).map((ch) => ch.value);
   if (!childVals.length) return selectedCategories.value.includes(p.value);
@@ -152,7 +170,7 @@ function isParentIndeterminate(p) {
   return hit > 0 && hit < childVals.length;
 }
 
-// تحديد الكل/إلغاء الكل
+/* تحديد الكل/إلغاء الكل */
 const allValues = computed(() => {
   const vals = [];
   for (const p of categories.value) {
@@ -170,11 +188,48 @@ const isIndeterminate = computed(
   () => selectedCategories.value.length > 0 && !allChecked.value
 );
 function toggleAll(e) {
-  const checked = e.target.checked;
-  selectedCategories.value = checked ? [...allValues.value] : [];
+  selectedCategories.value = e.target.checked ? [...allValues.value] : [];
 }
 
-// إرسال الفلاتر للخارج عند أي تغيير
+/* ====== تهيئة category_id وتنظيف subcategory_ids عند تغيّر تصنيف الصفحة ====== */
+watch(
+  () => pageCategory.value?.id,
+  (id) => {
+    // اضبط category_id كي يرسَل مع الفلاتر — هذا ما كان يمنع الطلب في وضع تصنيف واحد
+    filters.category_id = id ?? "";
+
+    // دع فقط التصنيفات الفرعية المسموحة لهذا التصنيف
+    const allowed = new Set(
+      (pageCategory.value?.subcategories || []).map((sc) => Number(sc?.id))
+    );
+    selectedCategories.value = selectedCategories.value.filter((sid) =>
+      allowed.has(Number(sid))
+    );
+
+    // افتح التصنيف الوحيد تلقائيًا
+    if (id) expanded[id] = true;
+
+    // أعد الإرسال فورًا
+    emitFilters();
+  },
+  { immediate: true }
+);
+
+/* إرسال الفلاتر للخارج */
+function emitFilters() {
+  filters.categories = [...selectedCategories.value];
+  emit("update:filters", {
+    categories: filters.categories,
+    city_id: filters.city_id || undefined,
+    priceMin: filters.priceMin ?? undefined,
+    priceMax: filters.priceMax ?? undefined,
+    currency: filters.currency,
+    // مهم: category_id من تصنيف الصفحة إن وُجد
+    category_id: filters.category_id || undefined,
+  });
+}
+
+/* أرسل على أي تغيير (مع immediate لضمان أول إرسال) */
 watch(
   [
     selectedCategories,
@@ -184,231 +239,227 @@ watch(
     () => filters.priceMax,
     () => filters.currency,
     () => filters.category_id,
+    () => routeCategorySlug.value, // تغيّر المسار
   ],
-  () => {
-    filters.categories = [...selectedCategories.value];
-    // نرسل القيم المهمة للواجهة (العملة غير مستخدمة الآن في الـ API لكن نبقيها للاستخدام اللاحق)
-    emit("update:filters", {
-      categories: filters.categories,
-      city_id: filters.city_id || undefined,
-      priceMin: filters.priceMin ?? undefined,
-      priceMax: filters.priceMax ?? undefined,
-      currency: filters.currency,
-      category_id: filters.category_id || undefined,
-    });
-  },
-  { deep: true }
+  () => emitFilters(),
+  { deep: true, immediate: true }
 );
 </script>
 
 <template>
   <aside class="filters-sidebar mx-2 position-relative top-0">
-    <div class="card border-0 mb-3 bg-muted">
-      <div class="card-body">
-        <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
+    <div
+      v-if="
+        mainStore?.filterData?.categories && categoryStore?.citiesData?.cities
+      "
+    >
+      <div class="card border-0 mb-3 bg-muted">
+        <div class="card-body">
+          <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
 
-        <!-- تحديد الكل -->
-        <div class="form-check form-check-reverse mb-2">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            :checked="allChecked"
-            :indeterminate.prop="isIndeterminate"
-            @change="toggleAll($event)"
-            id="cat-all"
-          />
-          <label
-            class="form-check-label w-100 d-inline-flex gap-2"
-            for="cat-all"
-          >
-            <span>جميع الأقسام</span>
-          </label>
-        </div>
-
-        <!-- قائمة الأقسام -->
-        <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
-          <div
-            class="d-flex align-items-center justify-content-between app-item"
-          >
-            <div class="form-check form-check-reverse m-0">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                :id="`p-${i}`"
-                :checked="isParentChecked(p)"
-                :indeterminate.prop="isParentIndeterminate(p)"
-                @change="toggleParent(p)"
-              />
-              <label
-                class="form-check-label d-inline-flex gap-2"
-                :for="`p-${i}`"
-              >
-                <span>{{ p.name }}</span>
-              </label>
-            </div>
-
-            <button
-              v-if="p.children && p.children.length"
-              class="btn btn-sm btn-link text-decoration-none"
-              type="button"
-              @click="expanded[p.value] = !expanded[p.value]"
-              :aria-expanded="!!expanded[p.value]"
+          <!-- تحديد الكل -->
+          <div class="form-check form-check-reverse mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :checked="allChecked"
+              :indeterminate.prop="isIndeterminate"
+              @change="toggleAll($event)"
+              id="cat-all"
+            />
+            <label
+              class="form-check-label w-100 d-inline-flex gap-2"
+              for="cat-all"
             >
-              <Icon
-                :name="
-                  expanded[p.value] ? 'mdi:chevron-up' : 'mdi:chevron-down'
-                "
-                size="18"
-              />
-            </button>
+              <span>{{
+                isCategoryRoute ? "جميع الأقسام الفرعية" : "جميع الأقسام"
+              }}</span>
+            </label>
           </div>
 
-          <!-- أبناء التصنيف -->
-          <div
-            v-if="p.children && p.children.length && expanded[p.value]"
-            class="mt-2 ps-4"
-          >
+          <!-- قائمة الأقسام (تصنيف المسار فقط إن وُجد، وإلا الكل) -->
+          <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
             <div
-              v-for="(ch, j) in p.children"
-              :key="ch.value || j"
-              class="form-check child-item form-check-reverse mb-2"
+              class="d-flex align-items-center justify-content-between app-item"
             >
-              <input
-                class="form-check-input ms-2"
-                type="checkbox"
-                :id="`c-${i}-${j}`"
-                :value="ch.value"
-                v-model="selectedCategories"
-              />
-              <label class="form-check-label w-100 d-flex" :for="`c-${i}-${j}`">
-                <span>{{ ch.name }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              <div class="form-check form-check-reverse m-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :id="`p-${i}`"
+                  :checked="isParentChecked(p)"
+                  :indeterminate.prop="isParentIndeterminate(p)"
+                  @change="toggleParent(p)"
+                />
+                <label
+                  class="form-check-label d-inline-flex gap-2"
+                  :for="`p-${i}`"
+                >
+                  <span>{{ p.name }}</span>
+                </label>
+              </div>
 
-    <!-- المدينة -->
-    <div class="border bg-muted my-5 rounded">
-      <div class="card bg-muted border-0 my-9">
-        <div class="card-body py-0">
-          <h4 class="fw-bold mb-3">المدينة</h4>
-          <div class="input-group">
-            <span
-              class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
-            >
-              <Icon name="material-symbols:location-on-outline" size="18" />
-            </span>
-            <select
-              class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
-              id="inputCityGroup"
-              v-model="filters.city_id"
-            >
-              <option value="">اختر المدينة</option>
-              <option
-                :value="city.id"
-                v-for="city in categoryStore?.citiesData?.cities || []"
-                :key="city.id"
-              >
-                {{ city.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- السعر + العملة -->
-      <div class="card bg-muted border-0 my-9">
-        <div class="card-body py-0">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="fw-bold mb-3">السعر</h4>
-            <div class="btn-group">
               <button
+                v-if="p.children && p.children.length"
+                class="btn btn-sm btn-link text-decoration-none"
                 type="button"
-                class="btn btn-currency p-1 dropdown-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+                @click="expanded[p.value] = !expanded[p.value]"
+                :aria-expanded="!!expanded[p.value]"
               >
-                {{ filters.currency }}
-                <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-                <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+                <Icon
+                  :name="
+                    expanded[p.value] ? 'mdi:chevron-up' : 'mdi:chevron-down'
+                  "
+                  size="18"
+                />
               </button>
-              <ul class="dropdown-menu shadow-none">
-                <li v-for="(cur, i) in currencies" :key="i">
-                  <button
-                    class="dropdown-item btn text-end"
-                    @click="filters.currency = cur"
-                  >
-                    {{ cur }}
-                  </button>
-                </li>
-              </ul>
             </div>
-          </div>
 
-          <div class="d-flex align-items-stretch gap-2 w-75">
-            <div class="input-group">
-              <span
-                class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
-                >من...</span
+            <!-- أبناء التصنيف -->
+            <div
+              v-if="p.children && p.children.length && expanded[p.value]"
+              class="mt-2 ps-4"
+            >
+              <div
+                v-for="(ch, j) in p.children"
+                :key="ch.value || j"
+                class="form-check child-item form-check-reverse mb-2"
               >
-              <input
-                type="text"
-                inputmode="numeric"
-                class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
-                v-model="priceMinText"
-                @input="sanitizePrice('min')"
-              />
-            </div>
-            <div class="input-group">
-              <span
-                class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
-                >إلى...</span
-              >
-              <input
-                type="text"
-                inputmode="numeric"
-                class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
-                v-model="priceMaxText"
-                @input="sanitizePrice('max')"
-              />
+                <input
+                  class="form-check-input ms-2"
+                  type="checkbox"
+                  :id="`c-${i}-${j}`"
+                  :value="ch.value"
+                  v-model="selectedCategories"
+                />
+                <label
+                  class="form-check-label w-100 d-flex"
+                  :for="`c-${i}-${j}`"
+                >
+                  <span>{{ ch.name }}</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- زر بحث (اختياري لأننا نرسل تلقائياً عبر watch)
-           لو أردت الإرسال عند الضغط فقط، احذف الـ watch واستعمل هذا الزر: -->
+      <!-- المدينة -->
+      <div class="border bg-muted my-5 rounded">
+        <div class="card bg-muted border-0 my-9">
+          <div class="card-body py-0">
+            <h4 class="fw-bold mb-3">المدينة</h4>
+            <div class="input-group">
+              <span
+                class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+              >
+                <Icon name="material-symbols:location-on-outline" size="18" />
+              </span>
+              <select
+                class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
+                id="inputCityGroup"
+                v-model="filters.city_id"
+              >
+                <option value="">اختر المدينة</option>
+                <option
+                  :value="city.id"
+                  v-for="city in categoryStore?.citiesData?.cities || []"
+                  :key="city.id"
+                >
+                  {{ city.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-      <button
-        class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
-        @click="
-          emit('update:filters', {
-            ...filters,
-            categories: [...selectedCategories.value],
-          })
-        "
-      >
-        بحث
-      </button>
-    </div>
+        <!-- السعر + العملة -->
+        <div class="card bg-muted border-0 my-9">
+          <div class="card-body py-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="fw-bold mb-3">السعر</h4>
+              <div class="btn-group">
+                <button
+                  type="button"
+                  class="btn btn-currency p-1 dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  {{ filters.currency }}
+                  <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+                  <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+                </button>
+                <ul class="dropdown-menu shadow-none">
+                  <li v-for="(cur, i) in currencies" :key="i">
+                    <button
+                      class="dropdown-item btn text-end"
+                      @click="filters.currency = cur"
+                    >
+                      {{ cur }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-    <!-- صور جانبية -->
-    <div class="text-center">
-      <img
-        src="~/public/media/bg-home/jawwal1.jpg"
-        class="w-100 mb-3 rounded-1"
-        alt="jawwal"
-      />
-      <img
-        src="~/public/media/bg-home/jawwal2.jpg"
-        class="w-100 mb-3 rounded-1"
-        alt="jawwal"
-      />
+            <div class="d-flex align-items-stretch gap-2 w-75">
+              <div class="input-group">
+                <span
+                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+                  >من...</span
+                >
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
+                  v-model="priceMinText"
+                  @input="sanitizePrice('min')"
+                />
+              </div>
+              <div class="input-group">
+                <span
+                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+                  >إلى...</span
+                >
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
+                  v-model="priceMaxText"
+                  @input="sanitizePrice('max')"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- زر إرسال يدوي (اختياري) -->
+        <button
+          class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
+          @click="emitFilters()"
+        >
+          بحث
+        </button>
+      </div>
+
+      <!-- صور جانبية -->
+      <div class="text-center">
+        <img
+          src="~/public/media/bg-home/jawwal1.jpg"
+          class="w-100 mb-3 rounded-1"
+          alt="jawwal"
+        />
+        <img
+          src="~/public/media/bg-home/jawwal2.jpg"
+          class="w-100 mb-3 rounded-1"
+          alt="jawwal"
+        />
+      </div>
     </div>
+    <SkeletonSidebar v-else />
   </aside>
 </template>
+
 <style scoped>
 .filters-sidebar {
   width: 100%;

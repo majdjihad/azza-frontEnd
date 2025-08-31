@@ -12,7 +12,7 @@ function toggleNotificationsMenu() {
 }
 const route = useRoute();
 
-const allowedPaths = ["/ads", "/products"];
+const allowedPaths = ["/ads", "/ads/category"];
 
 const showCategoriesBtn = computed(() => {
   const path = (route.path || "/").replace(/\/+$/, "") || "/";

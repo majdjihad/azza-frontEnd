@@ -6,6 +6,7 @@ export const useMainStore = defineStore("useMain", () => {
   let homePageData = ref(null);
   let adsPageData = ref(null);
   let adsFavorites = ref(null);
+  let productsPageData = ref(null);
   let filterData = ref(null);
   const {
     getHomePageData,
@@ -14,6 +15,7 @@ export const useMainStore = defineStore("useMain", () => {
     toggleFavoriteAds,
     getDataFilter,
     filterAds,
+    getAllProducts,
   } = useMain();
   // get categories details
   const getHomeData = async () => {
@@ -34,6 +36,17 @@ export const useMainStore = defineStore("useMain", () => {
       return navigateTo(`/`, { replace: true });
     }
   };
+
+  const getProducts = async (pageId) => {
+    try {
+      const response = await getAllProducts(pageId);
+      productsPageData.value = response;
+    } catch (error) {
+      console.log(error);
+      return navigateTo(`/`, { replace: true });
+    }
+  };
+
   const getAllAdsFavorites = async () => {
     try {
       const response = await getAdsFavorites();
@@ -93,6 +106,8 @@ export const useMainStore = defineStore("useMain", () => {
   return {
     homePageData,
     adsPageData,
+    getProducts,
+    productsPageData,
     setAdsData,
     filterData,
     getFilterData,

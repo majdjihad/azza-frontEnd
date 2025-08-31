@@ -78,9 +78,11 @@ defineProps({
 
 <style scoped>
 .ad-card {
-  border: 0;
-  border-radius: 15px;
-  transition: box-shadow 0.2s ease;
+  border: 1px solid #eef0f4;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: #fff;
+  transition: 0.25s ease;
 }
 .ad-card:hover img {
   filter: grayscale(0.5);

@@ -1,22 +1,182 @@
 <script setup>
-import moment from "moment";
-
 const route = useRoute();
-useHead({
-  title: route.params.slug,
-});
+const router = useRouter();
+useHead({ title: route.params.slug });
+
 import { useCategoryStore } from "~/stores/categoryStore";
-
 const categoryStore = useCategoryStore();
-onMounted(async () => {
+
+/* ===================== الجلب ===================== */
+const fetchCategory = async () => {
   await categoryStore.getCategory(route.params.slug);
+};
+onMounted(fetchCategory);
+watch(() => route.params.slug, async () => {
+  // عند تغيير التصنيف انتقل للصفحة 1 ونظّف الفلاتر من الرابط (اختياري)
+  router.replace({ path: route.path, query: { page: 1 } });
+  await fetchCategory();
 });
 
-const filtersState = ref({});
-function onFiltersChange(f) {
-  filtersState.value = f;
+/* ===================== util ===================== */
+function toNumber(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
 }
+function toTime(v) {
+  const t = new Date(v).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+function parseFiltersFromQuery(q = {}) {
+  let subIds = q["subcategory_ids[]"] ?? q.subcategory_ids ?? [];
+  if (!Array.isArray(subIds)) subIds = [subIds].filter(Boolean);
+  const categories = subIds
+    .map((x) => Number(x))
+    .filter((x) => Number.isFinite(x));
+
+  const city_id = q.city_id ? Number(q.city_id) : undefined;
+  const priceMin = q.min_price ? Number(q.min_price) : undefined;
+  const priceMax = q.max_price ? Number(q.max_price) : undefined;
+
+  return { categories, city_id, priceMin, priceMax };
+}
+
+/* ===================== الفلاتر (JS فقط + URL query) ===================== */
+const activeFilters = ref(parseFiltersFromQuery(route.query));
+
+watch(
+  () => route.query,
+  (q) => {
+    activeFilters.value = parseFiltersFromQuery(q);
+  },
+  { immediate: true, deep: true }
+);
+
+// يُستدعى من SidebarFilters
+function  onFiltersChange(f) {
+  const q = {
+    ...route.query,
+    page: 1,
+    min_price: f.priceMin ?? undefined,
+    max_price: f.priceMax ?? undefined,
+    city_id: f.city_id || undefined,
+  };
+
+  delete q["subcategory_ids[]"];
+  if (Array.isArray(f.categories) && f.categories.length) {
+    q["subcategory_ids[]"] = f.categories.map(String);
+  }
+
+  router.push({ path: route.path, query: q });
+}
+
+/* ===================== الترتيب (JS فقط) ===================== */
+const sortKey = ref("created_at"); // created_at | price
+const sortDir = ref("desc");       // asc | desc
+
+const sortLabel = computed(() => {
+  if (sortKey.value === "created_at" && sortDir.value === "desc") return "الأحدث";
+  if (sortKey.value === "created_at" && sortDir.value === "asc")  return "الأقدم";
+  if (sortKey.value === "price" && sortDir.value === "asc")       return "الأرخص سعر";
+  if (sortKey.value === "price" && sortDir.value === "desc")      return "الأغلى سعر";
+  return "الترتيب حسب";
+});
+function setSort(key, dir) {
+  sortKey.value = key;
+  sortDir.value = dir;
+}
+function compareValues(a, b, key, dir) {
+  let va, vb;
+  if (key === "price") {
+    va = toNumber(a?.price, 0);
+    vb = toNumber(b?.price, 0);
+  } else {
+    va = toTime(a?.created_at);
+    vb = toTime(b?.created_at);
+  }
+  const diff = va - vb;
+  return dir === "asc" ? diff : -diff;
+}
+
+/* ===================== البيانات الخام ===================== */
+const adsRaw = computed(() => categoryStore?.categoryData?.ads?.items ?? []);
+
+/* ===================== تطبيق الفلاتر محليًا ===================== */
+const filteredAds = computed(() => {
+  const { categories, city_id, priceMin, priceMax } = activeFilters.value;
+  const hasCats = Array.isArray(categories) && categories.length > 0;
+
+  return (adsRaw.value || []).filter((ad) => {
+    // المدينة
+    if (city_id && !(Number(ad?.city_id ?? ad?.city?.id) === city_id)) return false;
+
+    // التصنيفات الفرعية
+    if (hasCats) {
+      const adSubId = Number(ad?.subcategory_id ?? ad?.subcategory?.id);
+      if (!categories.includes(adSubId)) return false;
+    }
+
+    // السعر
+    const p = toNumber(ad?.price, NaN);
+    if (Number.isFinite(p)) {
+      if (typeof priceMin === "number" && !Number.isNaN(priceMin) && p < priceMin) return false;
+      if (typeof priceMax === "number" && !Number.isNaN(priceMax) && p > priceMax) return false;
+    }
+    return true;
+  });
+});
+
+/* ===================== الفرز + الترقيم (على النتيجة بعد الفلترة) ===================== */
+const sortedAds = computed(() => {
+  const list = [...filteredAds.value];
+  list.sort((a, b) => compareValues(a, b, sortKey.value, sortDir.value));
+  return list;
+});
+
+const pageSize = ref(12);
+
+const currentPage = computed(() => {
+  const p = Number(route.query.page || 1);
+  return Number.isNaN(p) || p < 1 ? 1 : Math.floor(p);
+});
+
+const lastPage = computed(() => {
+  const total = sortedAds.value.length;
+  const lp = Math.ceil(total / pageSize.value);
+  return Math.max(1, lp || 1);
+});
+
+const safeCurrentPage = computed(() =>
+  Math.max(1, Math.min(lastPage.value, currentPage.value))
+);
+
+const paginatedAds = computed(() => {
+  const start = (safeCurrentPage.value - 1) * pageSize.value;
+  return sortedAds.value.slice(start, start + pageSize.value);
+});
+
+watch(
+  () => safeCurrentPage.value,
+  () => {
+    if (process.client) window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+);
+
+function goToPage(n) {
+  const page = Math.max(1, Math.min(lastPage.value, Number(n) || 1));
+  router.push({ path: route.path, query: { ...route.query, page } });
+}
+
+/* تمرير القيم الحالية لـ Sidebar (لتعبئة الحقول) */
+const sidebarDefaults = computed(() => ({
+  categories: activeFilters.value.categories || [],
+  city_id: activeFilters.value.city_id || "",
+  priceMin: activeFilters.value.priceMin ?? null,
+  priceMax: activeFilters.value.priceMax ?? null,
+  currency: "شيكل",
+  category_id: "", // غير مستخدم هنا
+}));
 </script>
+
 <template>
   <div class="container py-4 py-md-5">
     <div class="page-content">
@@ -26,60 +186,68 @@ function onFiltersChange(f) {
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <span class="fs-3 m-0 fw-semibold text-muted"
-          >{{ route.params.slug }}.</span
-        >
+        <span class="fs-3 m-0 fw-semibold text-muted">
+          {{ route.params.slug }}
+        </span>
       </div>
-      <div
-        class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
-      >
-        <span class="fs-3">بيع وشراء أي شيء في فلسطين(10,000)</span>
-        <div>
-          <div class="btn-group">
-            <button
-              type="button"
-              class="dropdown-toggle fs-3"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <span> الترتيب حسب </span>
-              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-              <!-- up -->
-              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-              <li><a class="dropdown-item" href="#">Separated link</a></li>
-            </ul>
-            <!-- <span class="border-start border-2 mx-2"></span> -->
-            <!-- <button
-              type="button"
-              class="dropdown-toggle fs-3"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <span class="text-muted ms-2">عرض</span>
-              <span>12</span>
-              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
-            </button>
-            <ul
-              class="dropdown-menu"
-              style="max-height: 250px; overflow-y: auto"
-            >
-              <li v-for="count in 12" :key="count">
-                <span class="dropdown-item btn">{{ count }}</span>
-              </li>
-            </ul> -->
-          </div>
+
+      <div class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded">
+        <span class="fs-3">بيع وشراء أي شيء في فلسطين (10,000)</span>
+
+        <!-- زر الترتيب حسب (فرز محلي) -->
+        <div class="btn-group">
+          <button
+            type="button"
+            class="dropdown-toggle fs-3"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <span>{{ sortLabel }}</span>
+            <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+            <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'created_at' && sortDir === 'desc' }"
+                @click="setSort('created_at', 'desc')"
+              >الأحدث</button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'created_at' && sortDir === 'asc' }"
+                @click="setSort('created_at', 'asc')"
+              >الأقدم</button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
+                @click="setSort('price', 'asc')"
+              >الأرخص سعر</button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item text-end"
+                :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
+                @click="setSort('price', 'desc')"
+              >الأغلى سعر</button>
+            </li>
+          </ul>
         </div>
       </div>
+
       <div class="d-flex align-items-start justify-content-between">
         <div class="collapse collapse-horizontal show" id="collapseExample">
           <SidebarFilters
             v-if="categoryStore?.categoryData?.ads?.items"
+            :default-filters="sidebarDefaults"
             style="width: 350px"
             @update:filters="onFiltersChange"
           />
@@ -90,7 +258,7 @@ function onFiltersChange(f) {
           <template v-if="categoryStore?.categoryData?.ads?.items">
             <div class="row g-4">
               <div
-                v-for="ad in categoryStore?.categoryData?.ads?.items"
+                v-for="ad in paginatedAds"
                 :key="ad.id"
                 class="col-12 col-md-6 col-xl-4"
               >
@@ -98,42 +266,54 @@ function onFiltersChange(f) {
               </div>
             </div>
           </template>
+
           <template v-else>
             <div class="carousel-item active">
               <div class="row g-4 my-4">
-                <div
-                  v-for="n in 12"
-                  :key="'skeleton-' + n"
-                  class="col-12 col-md-6 col-xl-4"
-                >
+                <div v-for="n in 12" :key="'skeleton-' + n" class="col-12 col-md-6 col-xl-4">
                   <SkeletonAdCard />
                 </div>
               </div>
             </div>
           </template>
-          <nav
-            aria-label="Page navigation example"
-            v-if="categoryStore?.categoryData?.ads?.items"
-          >
+
+          <!-- ترقيم الصفحات (محلي بعد الفلترة والفرز) -->
+          <nav aria-label="Page navigation example" v-if="lastPage > 1">
             <ul class="pagination my-9">
-              <li class="page-item">
-                <a class="page-link" href="#" aria-label="Previous">
+              <!-- السابق -->
+              <li class="page-item" :class="{ disabled: safeCurrentPage <= 1 }">
+                <NuxtLink
+                  class="page-link"
+                  :to="{ path: route.path, query: { ...route.query, page: Math.max(1, safeCurrentPage - 1) } }"
+                  aria-label="Previous"
+                  @click.prevent="goToPage(safeCurrentPage - 1)"
+                >
                   <span class="fs-1" aria-hidden="true">&laquo;</span>
-                </a>
+                </NuxtLink>
               </li>
-              <li class="page-item">
-                <a class="page-link active fs-3" href="#">1</a>
+
+              <!-- الأرقام -->
+              <li v-for="n in lastPage" :key="'p-' + n" class="page-item">
+                <NuxtLink
+                  class="page-link fs-3"
+                  :class="{ active: n === safeCurrentPage }"
+                  :to="{ path: route.path, query: { ...route.query, page: n } }"
+                  @click.prevent="goToPage(n)"
+                >
+                  {{ n }}
+                </NuxtLink>
               </li>
-              <li class="page-item">
-                <a class="page-link text-scandary fs-3" href="#">2</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link text-scandary fs-3" href="#">3</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="#" aria-label="Next">
+
+              <!-- التالي -->
+              <li class="page-item" :class="{ disabled: safeCurrentPage >= lastPage }">
+                <NuxtLink
+                  class="page-link"
+                  :to="{ path: route.path, query: { ...route.query, page: Math.min(lastPage, safeCurrentPage + 1) } }"
+                  aria-label="Next"
+                  @click.prevent="goToPage(safeCurrentPage + 1)"
+                >
                   <span class="fs-1" aria-hidden="true">&raquo;</span>
-                </a>
+                </NuxtLink>
               </li>
             </ul>
           </nav>
@@ -142,6 +322,7 @@ function onFiltersChange(f) {
     </div>
   </div>
 </template>
+
 <style scoped>
 .page-link:hover {
   color: var(--bs-primary) !important;
@@ -172,5 +353,14 @@ function onFiltersChange(f) {
 }
 .collapse-horizontal {
   transition: 0.2s ease-in-out;
+}
+
+/* تمييز الخيار النشط في القائمة */
+.dropdown-menu .dropdown-item.active {
+  font-weight: 600;
+}
+.dropdown-item:hover,
+.dropdown-item.active {
+  color: var(--bs-primary);
 }
 </style>
