@@ -4,6 +4,7 @@ import OtpCode from "@/components/form/OtpCode.vue";
 useHead({
   title: "تاكيد الرمز",
 });
+definePageMeta({ middleware: ["guest"] });
 
 const route = useRoute();
 const router = useRouter();
@@ -123,60 +124,65 @@ const resendVerificationCode = async () => {
   <section class="py-5 pb-9">
     <div class="container">
       <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-4">
-          <div class="info-panel h-100 text-white rounded-3 p-4 p-md-5">
-            <h2 class="text-white fw-normal mb-3 p-4 px-9">
-              <span class="fw-bold fs-1">اكتشــــــف آلاف الإعلانــــــات</span>
-              من المستخدمين في مختلف الفئات وبأفضل الأسعار
-            </h2>
-            <ul class="list-unstyled lh-lg mb-0 mt-4">
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">انضم إلى مئات المستخدمين على منصتنا</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">تسجيل الدخول سهل وآمن وسريع</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">نشر الإعلانات ورفع الصور بسهولة</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">استعرض العروض في المنطقة الأقرب لك</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">إدارة إعلاناتك وتتبعها في أي وقت</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">اضف التفاصيل والصور لوصف إعلانك بدقة</span>
-              </li>
-            </ul>
+        <div class="col-lg-5">
+          <div class="info-panel h-100 text-white rounded-3">
+            <div class="info-panel__content">
+              <h2 class="fw-normal mb-3 text-white">
+                <span class="fw-bold fs-1 d-block"
+                  >اكتشــــــف آلاف الإعلانــــــات</span
+                >
+                من المستخدمين في مختلف الفئات وبأفضل الأسعار
+              </h2>
+
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0">
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">انضم إلى مئات المستخدمين على منصتنا</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">تسجيل الدخول سهل وآمن وسريع</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">نشر الإعلانات ورفع الصور بسهولة</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">استعرض العروض في المنطقة الأقرب لك</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">إدارة إعلاناتك وتتبعها في أي وقت</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="col-lg-8 py-9">
-          <div class="card border-0 py-9 h-100 bg-white">
+        <div class="col-lg-7 py-9">
+          <div class="card py-9 h-100">
             <div class="card-body p-4 p-md-5">
               <form @submit.prevent="formHandle" novalidate>
                 <div>
@@ -270,9 +276,67 @@ const resendVerificationCode = async () => {
 
 <style scoped>
 .info-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  color: #fff;
+  min-height: 420px;
+  background: url("../public/media/avatars/logo.png") center/cover no-repeat;
+  box-shadow: 0 12px 30px rgba(24, 56, 163, 0.25);
+}
+
+.info-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg, #264fcf, #1838a3);
   box-shadow: 0 0.5rem 1rem rgba(24, 56, 163, 0.15);
+  opacity: 0.85;
 }
+
+.info-panel::after {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  background: radial-gradient(
+    60% 60% at 85% 15%,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.info-panel__content {
+  position: relative;
+  padding: 2rem 2.25rem;
+}
+
+@media (min-width: 768px) {
+  .info-panel__content {
+    padding: 2.5rem 3rem;
+  }
+}
+
+.info-panel__icon {
+  font-size: 1.5rem;
+  color: #58c0ff;
+}
+
+.info-panel__list li {
+  gap: 0.5rem;
+}
+
+.badge.rounded-circle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
 .btn-main {
   padding: 10px 40px !important;
 }

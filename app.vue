@@ -1,15 +1,5 @@
 <template>
-  <div
-    v-if="isMobile"
-    id="mobile-error-view"
-    class="landing-hero-bg d-flex align-items-center justify-content-center"
-  >
-    <Error
-      message="TaskSwift Softwatre Does Not Allowed for mobile devices"
-      errType="mobile"
-    />
-  </div>
-  <div v-else>
+  <div>
     <NuxtLoadingIndicator />
     <NuxtLayout>
       <NuxtPage />

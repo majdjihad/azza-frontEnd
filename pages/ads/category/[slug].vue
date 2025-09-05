@@ -11,11 +11,13 @@ const fetchCategory = async () => {
   await categoryStore.getCategory(route.params.slug);
 };
 onMounted(fetchCategory);
-watch(() => route.params.slug, async () => {
-  // عند تغيير التصنيف انتقل للصفحة 1 ونظّف الفلاتر من الرابط (اختياري)
-  router.replace({ path: route.path, query: { page: 1 } });
-  await fetchCategory();
-});
+watch(
+  () => route.params.slug,
+  async () => {
+    router.replace({ path: route.path, query: { page: 1 } });
+    await fetchCategory();
+  }
+);
 
 /* ===================== util ===================== */
 function toNumber(v, fallback = 0) {
@@ -52,7 +54,7 @@ watch(
 );
 
 // يُستدعى من SidebarFilters
-function  onFiltersChange(f) {
+function onFiltersChange(f) {
   const q = {
     ...route.query,
     page: 1,
@@ -71,13 +73,16 @@ function  onFiltersChange(f) {
 
 /* ===================== الترتيب (JS فقط) ===================== */
 const sortKey = ref("created_at"); // created_at | price
-const sortDir = ref("desc");       // asc | desc
+const sortDir = ref("desc"); // asc | desc
 
 const sortLabel = computed(() => {
-  if (sortKey.value === "created_at" && sortDir.value === "desc") return "الأحدث";
-  if (sortKey.value === "created_at" && sortDir.value === "asc")  return "الأقدم";
-  if (sortKey.value === "price" && sortDir.value === "asc")       return "الأرخص سعر";
-  if (sortKey.value === "price" && sortDir.value === "desc")      return "الأغلى سعر";
+  if (sortKey.value === "created_at" && sortDir.value === "desc")
+    return "الأحدث";
+  if (sortKey.value === "created_at" && sortDir.value === "asc")
+    return "الأقدم";
+  if (sortKey.value === "price" && sortDir.value === "asc") return "الأرخص سعر";
+  if (sortKey.value === "price" && sortDir.value === "desc")
+    return "الأعلى سعر";
   return "الترتيب حسب";
 });
 function setSort(key, dir) {
@@ -98,7 +103,9 @@ function compareValues(a, b, key, dir) {
 }
 
 /* ===================== البيانات الخام ===================== */
-const adsRaw = computed(() => categoryStore?.categoryData?.ads?.items ?? []);
+const adsRaw = computed(
+  () => categoryStore?.categoryData?.ads?.items?.data ?? []
+);
 
 /* ===================== تطبيق الفلاتر محليًا ===================== */
 const filteredAds = computed(() => {
@@ -107,7 +114,8 @@ const filteredAds = computed(() => {
 
   return (adsRaw.value || []).filter((ad) => {
     // المدينة
-    if (city_id && !(Number(ad?.city_id ?? ad?.city?.id) === city_id)) return false;
+    if (city_id && !(Number(ad?.city_id ?? ad?.city?.id) === city_id))
+      return false;
 
     // التصنيفات الفرعية
     if (hasCats) {
@@ -118,8 +126,18 @@ const filteredAds = computed(() => {
     // السعر
     const p = toNumber(ad?.price, NaN);
     if (Number.isFinite(p)) {
-      if (typeof priceMin === "number" && !Number.isNaN(priceMin) && p < priceMin) return false;
-      if (typeof priceMax === "number" && !Number.isNaN(priceMax) && p > priceMax) return false;
+      if (
+        typeof priceMin === "number" &&
+        !Number.isNaN(priceMin) &&
+        p < priceMin
+      )
+        return false;
+      if (
+        typeof priceMax === "number" &&
+        !Number.isNaN(priceMax) &&
+        p > priceMax
+      )
+        return false;
     }
     return true;
   });
@@ -191,7 +209,9 @@ const sidebarDefaults = computed(() => ({
         </span>
       </div>
 
-      <div class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded">
+      <div
+        class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
+      >
         <span class="fs-3">بيع وشراء أي شيء في فلسطين (10,000)</span>
 
         <!-- زر الترتيب حسب (فرز محلي) -->
@@ -211,17 +231,25 @@ const sidebarDefaults = computed(() => ({
               <button
                 type="button"
                 class="dropdown-item text-end"
-                :class="{ active: sortKey === 'created_at' && sortDir === 'desc' }"
+                :class="{
+                  active: sortKey === 'created_at' && sortDir === 'desc',
+                }"
                 @click="setSort('created_at', 'desc')"
-              >الأحدث</button>
+              >
+                الأحدث
+              </button>
             </li>
             <li>
               <button
                 type="button"
                 class="dropdown-item text-end"
-                :class="{ active: sortKey === 'created_at' && sortDir === 'asc' }"
+                :class="{
+                  active: sortKey === 'created_at' && sortDir === 'asc',
+                }"
                 @click="setSort('created_at', 'asc')"
-              >الأقدم</button>
+              >
+                الأقدم
+              </button>
             </li>
             <li>
               <button
@@ -229,7 +257,9 @@ const sidebarDefaults = computed(() => ({
                 class="dropdown-item text-end"
                 :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
                 @click="setSort('price', 'asc')"
-              >الأرخص سعر</button>
+              >
+                الأرخص سعر
+              </button>
             </li>
             <li>
               <button
@@ -237,13 +267,15 @@ const sidebarDefaults = computed(() => ({
                 class="dropdown-item text-end"
                 :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
                 @click="setSort('price', 'desc')"
-              >الأغلى سعر</button>
+              >
+                الأعلى سعر
+              </button>
             </li>
           </ul>
         </div>
       </div>
 
-      <div class="d-flex align-items-start justify-content-between">
+      <div class="d-flex align-items-start justify-content-start">
         <div class="collapse collapse-horizontal show" id="collapseExample">
           <SidebarFilters
             v-if="categoryStore?.categoryData?.ads?.items"
@@ -253,9 +285,22 @@ const sidebarDefaults = computed(() => ({
           />
           <SkeletonSidebard v-else style="width: 350px" />
         </div>
-
         <section class="ads-section px-4">
-          <template v-if="categoryStore?.categoryData?.ads?.items">
+          <template v-if="categoryStore?.categoryData?.products?.count > 0">
+            <div class="row g-4 m-auto">
+              <div
+                v-for="pro in categoryStore?.categoryData?.products?.items?.data?.slice(
+                  0,
+                  3
+                )"
+                :key="pro.id"
+                class="col-12 col-md-6 col-xl-4"
+              >
+                <ProductCard :item="pro" />
+              </div>
+            </div>
+          </template>
+          <template v-if="categoryStore?.categoryData?.ads?.count > 0">
             <div class="row g-4">
               <div
                 v-for="ad in paginatedAds"
@@ -266,17 +311,30 @@ const sidebarDefaults = computed(() => ({
               </div>
             </div>
           </template>
+          <template
+            v-else-if="
+              categoryStore?.categoryData?.products?.count === 0 &&
+              categoryStore?.categoryData?.ads?.count === 0
+            "
+          >
+            <div class="py-5 text-center text-muted fs-1">
+              لا يوجد نتائج لعرضها.
+            </div>
+          </template>
 
           <template v-else>
             <div class="carousel-item active">
               <div class="row g-4 my-4">
-                <div v-for="n in 12" :key="'skeleton-' + n" class="col-12 col-md-6 col-xl-4">
+                <div
+                  v-for="n in 12"
+                  :key="'skeleton-' + n"
+                  class="col-12 col-md-6 col-xl-3"
+                >
                   <SkeletonAdCard />
                 </div>
               </div>
             </div>
           </template>
-
           <!-- ترقيم الصفحات (محلي بعد الفلترة والفرز) -->
           <nav aria-label="Page navigation example" v-if="lastPage > 1">
             <ul class="pagination my-9">
@@ -284,7 +342,13 @@ const sidebarDefaults = computed(() => ({
               <li class="page-item" :class="{ disabled: safeCurrentPage <= 1 }">
                 <NuxtLink
                   class="page-link"
-                  :to="{ path: route.path, query: { ...route.query, page: Math.max(1, safeCurrentPage - 1) } }"
+                  :to="{
+                    path: route.path,
+                    query: {
+                      ...route.query,
+                      page: Math.max(1, safeCurrentPage - 1),
+                    },
+                  }"
                   aria-label="Previous"
                   @click.prevent="goToPage(safeCurrentPage - 1)"
                 >
@@ -305,10 +369,19 @@ const sidebarDefaults = computed(() => ({
               </li>
 
               <!-- التالي -->
-              <li class="page-item" :class="{ disabled: safeCurrentPage >= lastPage }">
+              <li
+                class="page-item"
+                :class="{ disabled: safeCurrentPage >= lastPage }"
+              >
                 <NuxtLink
                   class="page-link"
-                  :to="{ path: route.path, query: { ...route.query, page: Math.min(lastPage, safeCurrentPage + 1) } }"
+                  :to="{
+                    path: route.path,
+                    query: {
+                      ...route.query,
+                      page: Math.min(lastPage, safeCurrentPage + 1),
+                    },
+                  }"
                   aria-label="Next"
                   @click.prevent="goToPage(safeCurrentPage + 1)"
                 >

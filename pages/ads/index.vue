@@ -20,7 +20,7 @@ const sortLabel = computed(() => {
     return "الأقدم";
   if (sortKey.value === "price" && sortDir.value === "asc") return "الأرخص سعر";
   if (sortKey.value === "price" && sortDir.value === "desc")
-    return "الأغلى سعر";
+    return "الأعلى سعر";
   return "الترتيب حسب";
 });
 
@@ -203,7 +203,7 @@ function onFiltersChange(f) {
                 :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
                 @click="setSort('price', 'asc')"
               >
-                الأعلى سعر
+                الأرخص سعر
               </button>
             </li>
             <li>
@@ -213,7 +213,7 @@ function onFiltersChange(f) {
                 :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
                 @click="setSort('price', 'desc')"
               >
-                الأرخص سعر
+                الأعلى سعر
               </button>
             </li>
           </ul>
@@ -227,7 +227,6 @@ function onFiltersChange(f) {
             @update:filters="onFiltersChange"
           />
         </div>
-
         <div class="d-flex flex-column">
           <section class="product-section px-4">
             <template v-if="sortedProducts?.length">

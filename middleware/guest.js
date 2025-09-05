@@ -1,10 +1,9 @@
-import { useUser, fetchCurrentUser } from "~/composables/useAuth";
+// middleware/guest.js
+import { useAuth } from "~/composables/useAuth";
 
-export default defineNuxtPlugin(async () => {
-  const user = useUser();
-
-  // Skip if already initialized on server
-  if (user.value !== undefined) return;
-
-  user.value = await fetchCurrentUser();
+export default defineNuxtRouteMiddleware(() => {
+  const { isLoggedIn } = useAuth();
+  if (isLoggedIn.value) {
+    return navigateTo("/", { replace: true });
+  }
 });

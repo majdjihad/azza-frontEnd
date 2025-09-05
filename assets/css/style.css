@@ -70,12 +70,12 @@ body { background-color: white; }
   transition: background-color 0.3s ease;
 }
 
+.btn:hover {
+  color: var(--bs-primary) !important;
+}
 .btn-main:hover {
   background: var(--bs-primary-hover) !important;
   color: #fff !important;
-}
-.btn:hover {
-  color: var(--bs-primary) !important;
 }
 .btn-outline-main {
   display: flex;

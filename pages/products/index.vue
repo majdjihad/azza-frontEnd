@@ -17,7 +17,7 @@ const sortLabel = computed(() => {
     return "الأقدم";
   if (sortKey.value === "price" && sortDir.value === "asc") return "الأرخص سعر";
   if (sortKey.value === "price" && sortDir.value === "desc")
-    return "الأغلى سعر";
+    return "الأعلى سعر";
   return "الترتيب حسب";
 });
 

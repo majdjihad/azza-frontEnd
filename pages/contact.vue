@@ -1,52 +1,129 @@
+<!-- pages/contact.vue (أو نفس صفحتك الحالية) -->
 <script setup>
+import { reactive, ref } from "vue";
 import BaseText from "@/components/form/BaseText.vue";
-import BaseSelect from "~/components/form/BaseSelect.vue";
+import { useMain } from "~/composables/useMain";
 
-useHead({
-  title: "تواصل معنا",
-});
+useHead({ title: "تواصل معنا" });
+
+const { sendMessage } = useMain();
+
 const form = reactive({
   phone: "",
-  username: "",
-  city: "",
+  name: "",
+  subject: "",
   email: "",
-  massage: "",
+  message: "",
 });
 
 const errors = reactive({
   phone: "",
-  username: "",
-  city: "",
+  name: "",
+  subject: "",
   email: "",
-  massage: "",
+  message: "",
 });
-const cities = [
-  { value: "جباليا", label: "جباليا" },
-  { value: "خانيونس", label: "خانيونس" },
-  { value: "النصيرات", label: "النصيرات" },
-  { value: "رفح", label: "رفح" },
-  { value: "دير البلح", label: "دير البلح" },
-  { value: "مدينة غزة", label: "مدينة غزة" },
-  { value: "بيت لاهيا", label: "بيت لاهيا" },
-  { value: "بيت حانون", label: "بيت حانون" },
-];
+
+const sending = ref(false);
+const toast = ref({ type: "", msg: "" });
+
 function resetErrors() {
   Object.keys(errors).forEach((k) => (errors[k] = ""));
 }
 
-function onSubmit() {
+function validate() {
   resetErrors();
-  if (!form.phone || !/^(\+?\d{8,15})$/.test(form.phone))
+  let ok = true;
+
+  if (!form.phone || !/^(\+?\d{8,15})$/.test(form.phone)) {
     errors.phone = "يرجى إدخال رقم جوال صحيح";
-  if (!form.username || form.username.length < 3)
-    errors.username = "الاسم يجب ان لا يقل عن 3 أحرف";
-  if (!form.city) errors.city = "يرجى إدخال المدينة";
-  if (!form.email || !/^\S+@\S+\.\S+$/.test(form.email))
+    ok = false;
+  }
+  if (!form.name || form.name.trim().length < 3) {
+    errors.name = "الاسم يجب أن لا يقل عن 3 أحرف";
+    ok = false;
+  }
+  if (!form.subject || form.subject.trim().length === 0) {
+    errors.subject = "يرجى إدخال عنوان الرسالة";
+    ok = false;
+  }
+  if (!form.email || !/^\S+@\S+\.\S+$/.test(form.email)) {
     errors.email = "البريد الإلكتروني غير صحيح";
-  if (!form.massage || form.massage.length < 20)
-    errors.massage = "الرسالة يجب ان لا تقل عن 20 حرف";
+    ok = false;
+  }
+  if (!form.message || form.message.trim().length < 20) {
+    errors.message = "الرسالة يجب أن لا تقل عن 20 حرف";
+    ok = false;
+  }
+
+  return ok;
+}
+
+function fillBackendErrors(be = {}) {
+  // ربط الأخطاء القادمة من Laravel (422) بالحقول المحلية
+  if (be.phone?.[0]) errors.phone = be.phone[0];
+  if (be.name?.[0]) errors.name = be.name[0];
+  if (be.name?.[0]) errors.name = be.name[0]; // لو السيرفر يستخدم name
+  if (be.subject?.[0]) errors.subject = be.subject[0];
+  if (be.email?.[0]) errors.email = be.email[0];
+  if (be.message?.[0]) errors.message = be.message[0];
+  if (be.message?.[0]) errors.message = be.message[0];
+}
+
+function resetForm() {
+  form.phone = "";
+  form.name = "";
+  form.subject = "";
+  form.email = "";
+  form.message = "";
+  resetErrors();
+}
+
+async function onSubmit() {
+  if (!validate()) return;
+
+  sending.value = true;
+  toast.value = { type: "", msg: "" };
+
+  try {
+    const fd = new FormData();
+    fd.append("phone", form.phone);
+    fd.append("name", form.name);
+    fd.append("subject", form.subject);
+    fd.append("email", form.email);
+    fd.append("message", form.message);
+
+    const res = await sendMessage(fd);
+
+    toast.value = {
+      type: "success",
+      msg:
+        res?.message ||
+        res?.data?.message ||
+        "تم إرسال رسالتك بنجاح، سنقوم بالرد في أقرب وقت 👌",
+    };
+    resetForm();
+  } catch (e) {
+    // معالجة 422 Validation
+    if (e?.status === 422) {
+      fillBackendErrors(e?.data?.errors || {});
+      toast.value = {
+        type: "danger",
+        msg: e?.data?.message || "تعذر إرسال الرسالة. يرجى مراجعة الحقول.",
+      };
+    } else {
+      toast.value = {
+        type: "danger",
+        msg:
+          e?.data?.message || e?.message || "حدث خطأ غير متوقع أثناء الإرسال",
+      };
+    }
+  } finally {
+    sending.value = false;
+  }
 }
 </script>
+
 <template>
   <section class="contact-section py-5" dir="rtl">
     <div class="container">
@@ -62,88 +139,123 @@ function onSubmit() {
             <h2 class="fs-3 m-0 fw-semibold text-muted">تواصل معنا</h2>
           </div>
         </div>
+
+        <!-- رسائل عامة -->
+        <div v-if="toast.msg" class="px-9 mb-3">
+          <div
+            class="alert"
+            :class="{
+              'alert-success': toast.type === 'success',
+              'alert-danger': toast.type === 'danger',
+              'alert-info': !toast.type,
+            }"
+            role="alert"
+          >
+            {{ toast.msg }}
+          </div>
+        </div>
+
         <form class="px-9" @submit.prevent="onSubmit" novalidate>
-          <div>
-            <div class="row g-4 rounded-1 p-9 bg-white shadow-sm">
-              <div class="mb-4 py-4">
-                <h2 class="fw-bold text-primary mb-2">نحن هنا من أجلك!</h2>
-                <p class="fs-5 text-dark mb-0">
-                  يسعدنا تواصلك معنا للإجابة عن استفساراتك، استقبال اقتراحاتك.
-                  لا تتردد في مراسلتنا وسنرد عليك في أقرب وقت ممكن.
-                </p>
+          <div class="row g-4 rounded-1 p-9 bg-white shadow-sm">
+            <div class="mb-4 py-4">
+              <h2 class="fw-bold text-primary mb-2">نحن هنا من أجلك!</h2>
+              <p class="fs-5 text-dark mb-0">
+                يسعدنا تواصلك معنا للإجابة عن استفساراتك واستقبال اقتراحاتك. لا
+                تتردد في مراسلتنا وسنرد عليك في أقرب وقت ممكن.
+              </p>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <BaseText
+                  label="الاسم الكامل"
+                  placeholder="الاسم الكامل"
+                  v-model="form.name"
+                  :error="errors.name"
+                  @input="errors.name = ''"
+                />
               </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <BaseText
-                    label="الاسم الكامل"
-                    placeholder="الاسم الكامل"
-                    v-model="form.username"
-                    :error="errors.username"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <BaseText
-                    label="رقم الهاتف"
-                    placeholder="أدخل رقم الهاتف"
-                    v-model="form.phone"
-                    :error="errors.phone"
-                    type="tel"
-                    inputmode="tel"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <BaseText
-                    label="البريد الإلكتروني"
-                    placeholder="البريد الإلكتروني"
-                    v-model="form.email"
-                    :error="errors.email"
-                    type="email"
-                    autocomplete="email"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <BaseSelect
-                    label="المدينة"
-                    placeholder="اختر المدينة"
-                    :options="cities"
-                    v-model="form.city"
-                    :error="errors.city"
-                  />
-                </div>
+
+              <div class="col-md-6">
+                <BaseText
+                  label="رقم الهاتف"
+                  placeholder="أدخل رقم الهاتف"
+                  v-model="form.phone"
+                  :error="errors.phone"
+                  type="tel"
+                  inputmode="tel"
+                  @input="errors.phone = ''"
+                />
               </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold">موضوع الرسالة</label>
-                <textarea
-                  name="message_subject"
-                  class="form-control form-control-lg rounded-1"
-                  rows="8"
-                  placeholder="اكتب تفاصيل الطلب هنا..."
-                  :class="{ 'is-invalid': !!errors.massage }"
-                ></textarea>
-                <div
-                  v-if="errors.massage"
-                  class="invalid-feedback d-block mt-1"
-                >
-                  {{ errors.massage }}
-                </div>
+
+              <div class="col-md-6">
+                <BaseText
+                  label="البريد الإلكتروني"
+                  placeholder="البريد الإلكتروني"
+                  v-model="form.email"
+                  :error="errors.email"
+                  type="email"
+                  autocomplete="email"
+                  @input="errors.email = ''"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <BaseText
+                  label="عنوان الرسالة"
+                  placeholder="عنوان الرسالة"
+                  type="text"
+                  v-model="form.subject"
+                  :error="errors.subject"
+                  @input="errors.subject = ''"
+                />
               </div>
             </div>
-            <div class="text-center my-8">
-              <button type="submit" class="btn btn-lg btn-view-all">
-                <span class="mb-0 text-white">أرسال الرسالة</span>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">موضوع الرسالة</label>
+              <textarea
+                name="message"
+                class="form-control form-control-lg rounded-1"
+                rows="8"
+                placeholder="اكتب تفاصيل طلبك هنا..."
+                v-model="form.message"
+                :class="{ 'is-invalid': !!errors.message }"
+                @input="errors.message = ''"
+              ></textarea>
+              <div v-if="errors.message" class="invalid-feedback d-block mt-1">
+                {{ errors.message }}
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center my-8">
+            <button
+              type="submit"
+              class="btn btn-lg btn-view-all"
+              :disabled="sending"
+            >
+              <template v-if="!sending">
+                <span class="mb-0 text-white">إرسال الرسالة</span>
                 <Icon
                   name="material-symbols:arrow-back-rounded"
                   class="text-white"
                   size="20"
                 />
-              </button>
-            </div>
+              </template>
+              <icon
+                v-else
+                name="svg-spinners:ring-resize"
+                class="indicator-label fs-1"
+              />
+            </button>
           </div>
         </form>
       </div>
     </div>
   </section>
 </template>
+
 <style>
 .bg-scandary .form-control-lg,
 .form-select-lg {
@@ -152,7 +264,6 @@ function onSubmit() {
 textarea.form-control-lg {
   min-height: 220px;
 }
-
 .bg-light::placeholder {
   color: #b7bcc5;
 }

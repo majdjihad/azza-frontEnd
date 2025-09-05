@@ -25,7 +25,7 @@ export const useAuth = () => {
     return response;
   }
 
-  async function registerWithGoogle() {
+  async function authWithGoogle() {
     const response = await $larafetch("/api/google/redirect", {
       method: "get",
     });
@@ -37,9 +37,10 @@ export const useAuth = () => {
       method: "post",
       body: credentials,
     });
+    await refresh();
+    await navigateTo("/", { replace: true });
     return response;
   }
-
   async function resendVerification(credentials) {
     const response = await $larafetch("/api/resend-verification-code", {
       method: "post",
@@ -49,21 +50,14 @@ export const useAuth = () => {
   }
 
   async function login(credentials) {
-    if (isLoggedIn.value) return;
     const response = await $larafetch("/login", {
       method: "post",
       body: credentials,
     });
     await refresh();
-    return response; // ← رجّع كائن واحد، ليس مصفوفة
+    await navigateTo("/", { replace: true });
+    return response;
   }
-  // async function checkToken(credentials) {
-  //   const response = await $larafetch("/check-token", {
-  //     method: "post",
-  //     body: credentials,
-  //   });
-  //   return response;
-  // }
 
   async function forgetPassword(credentials) {
     const response = await $larafetch("/api/forgot-password", {
@@ -92,7 +86,7 @@ export const useAuth = () => {
     isLoggedIn,
     login,
     register,
-    registerWithGoogle,
+    authWithGoogle,
     verify,
     resendVerification,
     forgetPassword,
@@ -102,9 +96,12 @@ export const useAuth = () => {
 };
 export const fetchCurrentUser = async () => {
   try {
-    return await $larafetch("/api/check-auth", {
-      redirectIfNotAuthenticated: false,
+    const res = await $larafetch("/check-auth", {
+      redirectIfNotAuthenticated: false, // لا تعمّل ريديركت تلقائي هنا
     });
+    // API عندك يرجع { success, message, data:{ authenticated, user } }
+    const isAuth = !!res?.data?.authenticated;
+    return isAuth ? res?.data?.user ?? null : null;
   } catch (error) {
     if ([401, 419].includes(error?.response?.status)) return null;
     throw error;

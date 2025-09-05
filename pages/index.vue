@@ -1,14 +1,15 @@
 <script setup>
-useHead({
-  title: "الرئيسية",
-});
-definePageMeta({
-  middleware: ["auth"],
-});
+useHead({ title: "الرئيسية" });
 
+import { ref, computed, onMounted } from "vue";
 import { useMainStore } from "~/stores/mainStore";
 
 const mainStore = useMainStore();
+
+/* مدخلات البحث */
+const inputQuery = ref("");
+const categoryIdSelected = ref(""); // يبدأ فارغًا لعرض placeholder
+const cityIdSelected = ref(""); // يبدأ فارغًا لعرض placeholder
 
 onMounted(async () => {
   if (!mainStore?.homePageData) {
@@ -16,25 +17,40 @@ onMounted(async () => {
   }
 });
 
-const chunkedAds = computed(() => {
-  const size = 8;
-  const chunks = [];
-  for (let i = 0; i < mainStore?.homePageData?.ads_section.length; i += size)
-    chunks.push(mainStore?.homePageData?.ads_section.slice(i, i + size));
-  return chunks;
+/* بيانات القوائم */
+const categories = computed(
+  () => mainStore?.homePageData?.categories_section ?? []
+);
+const cities = computed(
+  () =>
+    mainStore?.homePageData?.search_section?.search_fields?.[2]?.options ?? []
+);
+
+/* رابط البحث: استعمل كائن NuxtLink لتكوين الاستعلام بشكل آمن */
+const searchTo = computed(() => {
+  const query = {};
+  if (inputQuery.value?.trim()) query.query = inputQuery.value.trim();
+  if (categoryIdSelected.value) query.category_id = categoryIdSelected.value;
+  if (cityIdSelected.value) query.city_id = cityIdSelected.value;
+  return { path: "/search", query };
 });
 
-const perSlide = 4;
+/* كتل الإعلانات لعروض السلايدر */
 const chunk = (arr, size) => {
   const out = [];
-  for (let i = 0; i < arr?.length; i += size) out.push(arr.slice(i, i + size));
+  if (!Array.isArray(arr)) return out;
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;
 };
+const chunkedAds = computed(() =>
+  chunk(mainStore?.homePageData?.ads_section, 8)
+);
 const slides = computed(() =>
-  chunk(mainStore?.homePageData?.products_section, perSlide)
+  chunk(mainStore?.homePageData?.products_section, 4)
 );
 const carouselId = "offersCarousel";
 </script>
+
 <template>
   <div>
     <section class="hero-section position-relative text-white">
@@ -99,6 +115,7 @@ const carouselId = "offersCarousel";
       <div
         class="hero-overlay position-absolute top-0 start-0 w-100 h-100 z-0 bg-dark opacity-50"
       ></div>
+
       <section class="hero-content position-relative z-1">
         <div class="container text-center">
           <h2 class="hero-subtitle bg-primary d-inline p-5 text-white">
@@ -106,10 +123,12 @@ const carouselId = "offersCarousel";
           </h2>
           <h1 class="text-center hero-title fs-1 fw-bold my-9 py-9 text-white">
             منصـة إعلانيـة تجمـع لـك كـل مـا تحتاجـه مـن حولـك، وتمنحـك مساحـة
-            سهلـة وآمنـة لعـرض إعلاناتـك
+            سهلة وآمنة لعرض إعلاناتك
           </h1>
-          <!-- Search Box -->
+
+          <!-- صندوق البحث -->
           <div class="row g-0 align-items-stretch w-100 justify-content-center">
+            <!-- نص البحث -->
             <div class="col-md-3">
               <div class="input-group d-flex align-items-stretch h-100">
                 <span
@@ -121,9 +140,12 @@ const carouselId = "offersCarousel";
                   type="text"
                   class="form-control bg-white py-6 text-dark fs-3 border-0 rounded-0"
                   placeholder="ادخل كلمة البحث هنا"
+                  v-model="inputQuery"
                 />
               </div>
             </div>
+
+            <!-- اختيار القسم -->
             <div class="col-md-3">
               <div class="input-group row gap-0">
                 <div
@@ -136,22 +158,27 @@ const carouselId = "offersCarousel";
                     <Icon name="mdi:tag-multiple" class="fs-1" />
                   </label>
                 </div>
+
                 <select
-                  class="custom-select bg-white p-0 py-6 col-9 text-end fs-3 text-secondary rounded-0 border-0"
                   id="inputCategoryGroup"
+                  v-model="categoryIdSelected"
+                  class="bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  :class="{ 'text-muted': !categoryIdSelected }"
                 >
-                  <option selected>اختر القسم</option>
+                  <!-- placeholder -->
+                  <option disabled value="">اختر القسم</option>
                   <option
-                    v-for="category in mainStore?.homePageData
-                      ?.categories_section"
-                    :key="category.value"
-                    :value="category.name"
+                    v-for="cat in categories"
+                    :key="cat.id ?? cat.value ?? cat.slug ?? cat.name"
+                    :value="String(cat.id ?? cat.value ?? cat.name)"
                   >
-                    {{ category.name }}
+                    {{ cat.name }}
                   </option>
                 </select>
               </div>
             </div>
+
+            <!-- اختيار المدينة -->
             <div class="col-md-3 bg-white">
               <div class="input-group row gap-0">
                 <div
@@ -164,34 +191,42 @@ const carouselId = "offersCarousel";
                     <Icon name="material-symbols:location-on" class="fs-1" />
                   </label>
                 </div>
+
                 <select
-                  class="custom-select bg-white p-0 py-6 col-9 text-end fs-3 text-secondary rounded-0 border-0"
                   id="inputCityGroup"
+                  v-model="cityIdSelected"
+                  class="bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  :class="{ 'text-muted': !cityIdSelected }"
                 >
-                  <option selected>اختر المدينة</option>
+                  <!-- placeholder -->
+                  <option disabled value="">اختر المدينة</option>
                   <option
-                    :value="city.name"
-                    v-for="city in mainStore?.homePageData?.search_section
-                      .search_fields[2]?.options"
-                    :key="city.id"
+                    v-for="city in cities"
+                    :key="city.id ?? city.value ?? city.name"
+                    :value="String(city.id ?? city.value ?? city.name)"
                   >
                     {{ city.name }}
                   </option>
                 </select>
               </div>
             </div>
+
+            <!-- زر البحث -->
             <div class="col-md-2">
-              <button
+              <NuxtLink
+                :to="searchTo"
                 class="btn btn-main d-flex align-items-center justify-content-center w-100 h-100 rounded-0"
                 type="button"
               >
-                <h1 class="fs-2 text-white m-0">بحث</h1>
-              </button>
+                <span class="fs-2 text-white m-0">بحث</span>
+              </NuxtLink>
             </div>
           </div>
         </div>
       </section>
     </section>
+
+    <!-- الأقسام -->
     <section class="categories-section">
       <div class="container my-5">
         <div
@@ -229,6 +264,7 @@ const carouselId = "offersCarousel";
         <div v-else class="text-center py-9">
           <icon name="svg-spinners:ring-resize" class="indicator-label fs-1" />
         </div>
+
         <div
           class="bg-primary text-white rounded p-9 mt-5 d-flex flex-column flex-md-row align-items-center justify-content-between"
         >
@@ -239,15 +275,19 @@ const carouselId = "offersCarousel";
               الأسعار.
             </p>
           </div>
-          <button class="btn-info mt-3 mt-md-0 d-flex align-items-center">
+          <NuxtLink
+            to="/ads/create"
+            class="btn-info mt-3 mt-md-0 d-flex align-items-center"
+          >
             <span class="fs-3 ms-3">أضف إعلانك الآن</span>
             <Icon name="line-md:arrow-left" class="fs-1 fw-bold" />
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </section>
+
+    <!-- عروضنا الخاصة -->
     <section class="offers-section my-4 py-4 px-3 px-sm-4 bg-muted">
-      <!-- Bootstrap Carousel -->
       <div class="container">
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
@@ -255,7 +295,6 @@ const carouselId = "offersCarousel";
             <div class="fs-3 offers-subtitle">عروض حصرية من إدارة الموقع</div>
           </div>
           <div class="d-flex align-items-center gap-2 offers-toolbar">
-            <!-- Prev -->
             <button
               class="btn-carousel"
               :data-bs-target="`#${carouselId}`"
@@ -264,8 +303,6 @@ const carouselId = "offersCarousel";
             >
               <Icon name="line-md:arrow-right" size="20" />
             </button>
-
-            <!-- Next -->
             <button
               class="btn-carousel"
               :data-bs-target="`#${carouselId}`"
@@ -284,6 +321,7 @@ const carouselId = "offersCarousel";
             </NuxtLink>
           </div>
         </div>
+
         <div
           class="carousel slide"
           :id="carouselId"
@@ -321,8 +359,9 @@ const carouselId = "offersCarousel";
         </div>
       </div>
     </section>
+
+    <!-- أحدث الإعلانات -->
     <section class="container container-ads pt-4 mb-9 py-md-5">
-      <!-- Header + Toolbar -->
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-4">
           <span class="badge-chip p-2 ms-1 secondary">جديد</span>
@@ -335,7 +374,6 @@ const carouselId = "offersCarousel";
         </div>
 
         <div class="d-flex align-items-center gap-2 offers-toolbar">
-          <!-- Prev -->
           <button
             class="btn-carousel"
             data-bs-target="#adsCarousel"
@@ -344,8 +382,6 @@ const carouselId = "offersCarousel";
           >
             <Icon name="line-md:arrow-right" size="20" />
           </button>
-
-          <!-- Next -->
           <button
             class="btn-carousel"
             data-bs-target="#adsCarousel"
@@ -365,7 +401,6 @@ const carouselId = "offersCarousel";
         </div>
       </div>
 
-      <!-- Bootstrap Carousel -->
       <div id="adsCarousel" class="carousel slide" data-bs-interval="false">
         <div class="carousel-inner">
           <template v-if="mainStore?.homePageData?.ads_section">
@@ -391,7 +426,7 @@ const carouselId = "offersCarousel";
               <div class="row g-4 my-4">
                 <div
                   v-for="n in 4"
-                  :key="'skeleton-' + n"
+                  :key="'skeleton-1-' + n"
                   class="col-12 col-md-6 col-xl-3"
                 >
                   <SkeletonAdCard />
@@ -400,7 +435,7 @@ const carouselId = "offersCarousel";
               <div class="row g-4 my-4">
                 <div
                   v-for="n in 4"
-                  :key="'skeleton-' + n"
+                  :key="'skeleton-2-' + n"
                   class="col-12 col-md-6 col-xl-3"
                 >
                   <SkeletonAdCard />
@@ -413,7 +448,11 @@ const carouselId = "offersCarousel";
     </section>
   </div>
 </template>
+
 <style scoped>
+.btn:hover {
+  color: white !important;
+}
 .hero-section {
   height: 100vh;
   overflow: hidden;
@@ -421,21 +460,29 @@ const carouselId = "offersCarousel";
 .hero-overlay {
   background-color: rgba(0, 0, 0, 0.5);
 }
-
 .hero-content {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
+
 .category-card:hover button {
   background-color: var(--bs-primary);
   color: white;
 }
+
+/* إزالة سهم الـ select الافتراضي */
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  background-image: none !important;
+}
+
+/* لمسة بصرية عندما تكون القيمة فارغة */
+.text-muted {
+  color: #6c757d !important;
 }
 
 input:focus,
@@ -443,7 +490,7 @@ select:focus,
 label:focus {
   outline: none !important;
   box-shadow: none !important;
-  border-color: transparent !important; /* إذا بتحب تخفي لون البوردر كمان */
+  border-color: transparent !important;
 }
 
 .btn-category {
@@ -459,6 +506,7 @@ label:focus {
   background-color: #e7f1f9;
   color: var(--bs-primary);
 }
+
 .offers-toolbar .btn-carousel {
   width: 42px;
   height: 42px;
@@ -499,48 +547,39 @@ label:focus {
   font-weight: 700;
 }
 
-/* Mobile Responsive */
+/* Mobile */
 @media (max-width: 768px) {
   .hero-title {
     font-size: 1.8rem;
   }
-
   .hero-subtitle {
     font-size: 1rem;
   }
-
   .search-form {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-
   .stats-container {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-
   .category-card {
     padding: 20px 15px;
   }
-
   .category-icon {
     font-size: 2rem;
   }
-
   .cta-content {
     flex-direction: column;
     text-align: center;
   }
-
   .hero-content {
     padding: 1rem;
   }
-
   .search-box {
     margin: 0 1rem 2rem;
     padding: 15px;

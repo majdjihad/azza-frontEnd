@@ -1,6 +1,4 @@
 <script setup>
-/* SidebarFilters — يُظهر تصنيف المسار فقط إن وُجد، وإلا كل التصنيفات.
-   يُرسل update:filters عند أي تغيير (city_id, subcategory_ids, price range, category_id). */
 import { useCategoryStore } from "~/stores/categoryStore";
 import { useMainStore } from "~/stores/mainStore";
 import SkeletonSidebar from "./Skeleton/SkeletonSidebar.vue";

@@ -1,90 +1,39 @@
 <script setup>
 import BaseSelect from "~/components/form/BaseSelect.vue";
+import { useMainStore } from "~/stores/mainStore";
+import { useCategoryStore } from "~/stores/categoryStore";
+useHead({ title: "إعلاناتي" });
+definePageMeta({ middleware: ["auth"] });
+const mainStore = useMainStore();
+const categoryStore = useCategoryStore();
 
-const ads = ref([
-  {
-    id: 1,
-    name: "كاميرا احترافية بحالة ممتازة للبيع",
-    category: "أجهزة",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "27/12/2024",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "active",
-    image: "/media/bg-home/bg1.png",
-  },
-  {
-    id: 2,
-    name: "فيلّا سياحية وسكنية عظم بسعر مغري",
-    category: "عقارات",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "27/12/2024",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "pending",
-    image: "/media/bg-home/bg2.png",
-  },
-  {
-    id: 3,
-    name: "دراجة هوائية مقاس 26 بحالة ممتازة",
-    category: "عقارات",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "01/07/2002",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "scheduled",
-    image: "/media/bg-home/bg3.png",
-  },
-  {
-    id: 4,
-    name: "أجهزة تأثيث المنزلية بالبلاستيك",
-    category: "عقارات",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "27/12/2024",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "rejected",
-    image: "/media/bg-home/bg4.png",
-  },
-  {
-    id: 5,
-    name: "كاميرا احترافية بحالة ممتازة للبيع",
-    category: "أجهزة",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "27/12/2024",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "active",
-    image: "/media/bg-home/bg5.png",
-  },
-  {
-    id: 6,
-    name: "فيلّا سياحية وسكنية عظم بسعر مغري",
-    category: "عقارات",
-    duration: "3 شهور",
-    clicks: "300 نقرة",
-    published: "27/12/2024",
-    city: "جباليا",
-    price: "600 شيكل",
-    status: "pending",
-    image: "/media/bg-home/bg6.png",
-  },
-]);
-const cities = [
-  { value: "جباليا", label: "جباليا" },
-  { value: "خانيونس", label: "خانيونس" },
-  { value: "النصيرات", label: "النصيرات" },
-  { value: "رفح", label: "رفح" },
-  { value: "دير البلح", label: "دير البلح" },
-  { value: "مدينة غزة", label: "مدينة غزة" },
-  { value: "بيت لاهيا", label: "بيت لاهيا" },
-  { value: "بيت حانون", label: "بيت حانون" },
-];
+// اجلب بروفايل + إعلاناته + المدن عند التحميل
+onMounted(async () => {
+  try {
+    const tasks = [mainStore.fetchProfile(1)];
+    if (!categoryStore.citiesData) tasks.push(categoryStore.getCitiesData());
+    await Promise.all(tasks);
+  } catch (e) {
+    console.error("init error:", e);
+  }
+});
+
+// إعلانات البروفايل + حالة التحميل
+const ads = computed(() => mainStore.profileAds ?? []);
+const loadingAds = computed(() => mainStore.profilePending);
+
+// خيارات المدن من الستور (إذا كانت citiesData مصفوفة عناصر فيها name/id)
+const citiesOptions = computed(() => {
+  const data = categoryStore.citiesData;
+  if (!Array.isArray(data)) return [];
+  return data.map((c) => ({
+    value: c?.id ?? c?.name ?? "",
+    label: c?.name ?? String(c?.id ?? ""),
+  }));
+});
+const citiesLoading = computed(() => !Array.isArray(categoryStore.citiesData));
+
+// باقي الفلاتر (ثابتة)
 const timers = [
   { value: "الاقدام", label: "الاقدام" },
   { value: "الاحداث", label: "الاحداث" },
@@ -95,9 +44,9 @@ const statuses = [
   { value: "المنتهي", label: "المنتهي" },
   { value: "المرفوض", label: "المرفوض" },
 ];
-const selectedIds = ref([]);
 
-// حسابات التحديد
+// إدارة التحديد
+const selectedIds = ref([]);
 const total = computed(() => ads.value.length);
 const allSelected = computed(
   () => total.value > 0 && selectedIds.value.length === total.value
@@ -106,7 +55,6 @@ const someSelected = computed(
   () => selectedIds.value.length > 0 && selectedIds.value.length < total.value
 );
 
-// indeterminate لمربع تحديد الكل (خاصية DOM)
 const masterRef = ref(null);
 watch([allSelected, someSelected], () => {
   if (masterRef.value) {
@@ -114,7 +62,6 @@ watch([allSelected, someSelected], () => {
   }
 });
 
-// وظائف التحكّم
 function toggleOne(id) {
   const i = selectedIds.value.indexOf(id);
   if (i === -1) selectedIds.value.push(id);
@@ -126,7 +73,7 @@ function toggleAll(e) {
   selectedIds.value = checked ? ads.value.map((a) => a.id) : [];
 }
 
-// (اختياري) لو تغيّر مصدر ads (فلترة/تحميل جديد)، نظّف المحددات غير الموجودة
+// نظّف المحددات عند تغيّر مصدر الإعلانات
 watch(ads, () => {
   const ids = new Set(ads.value.map((a) => a.id));
   selectedIds.value = selectedIds.value.filter((id) => ids.has(id));
@@ -148,11 +95,32 @@ watch(ads, () => {
         </div>
       </div>
     </div>
+
     <div class="card rounded">
       <div class="card-body p-0">
         <div class="table-responsive">
+          <!-- Skeleton أثناء جلب الإعلانات -->
+          <div v-if="loadingAds" class="p-3">
+            <div class="skeleton skeleton-line h-32 w-200 mb-3"></div>
+            <div class="table table-custom mb-0 align-middle">
+              <div class="skeleton-row" v-for="i in 6" :key="'sk-row-' + i">
+                <div class="skeleton skeleton-box w-24"></div>
+                <div class="skeleton skeleton-thumb"></div>
+                <div class="skeleton skeleton-line w-260"></div>
+                <div class="skeleton skeleton-line w-120"></div>
+                <div class="skeleton skeleton-line w-100"></div>
+                <div class="skeleton skeleton-line w-120"></div>
+                <div class="skeleton skeleton-line w-140"></div>
+                <div class="skeleton skeleton-line w-100"></div>
+                <div class="skeleton skeleton-pill w-80 h-28"></div>
+                <div class="skeleton skeleton-icon w-24 h-24"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- جدول الإعلانات -->
           <table
-            v-if="ads.length > 0"
+            v-else-if="ads.length > 0"
             class="table table-custom mb-0 align-middle table-hover"
           >
             <thead class="bg-white">
@@ -189,7 +157,9 @@ watch(ads, () => {
                 </th>
               </tr>
             </thead>
+
             <tbody>
+              <!-- AdsRow يعرض الإعلان كما يأتي من API -->
               <AdsRow
                 v-for="ad in ads"
                 :key="ad.id"
@@ -199,6 +169,8 @@ watch(ads, () => {
               />
             </tbody>
           </table>
+
+          <!-- لا توجد إعلانات -->
           <div v-else class="text-center p-4">
             <img src="/media/empty-ads.png" alt="اعلانات فارغة" />
             <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
@@ -207,7 +179,7 @@ watch(ads, () => {
             </p>
             <div>
               <NuxtLink
-                to="/create-ads"
+                to="/ads/create"
                 class="btn btn-lg mt-4 btn-main d-inline-flex align-items-center gap-2"
               >
                 <Icon class="fs-3" name="fa-solid:plus" />
@@ -218,12 +190,15 @@ watch(ads, () => {
         </div>
       </div>
     </div>
+
+    <!-- أزرار مجمّعة -->
     <div
       v-if="selectedIds.length > 0"
       class="d-flex justify-content-center my-5 w-100"
     >
       <button class="btn btn-main">حذف الكل</button>
     </div>
+
     <!-- Modal -->
     <div
       class="modal fade"
@@ -245,14 +220,26 @@ watch(ads, () => {
               aria-label="Close"
             ></button>
           </div>
+
           <div class="modal-body">
+            <!-- المدن: skeleton أثناء الجلب ثم BaseSelect عند الجاهزية -->
             <div class="col-md-6 m-auto">
+              <template v-if="citiesLoading">
+                <div class="label-muted fw-bold fs-4 mb-2">
+                  الترتيب حسب المدينة
+                </div>
+                <div
+                  class="skeleton skeleton-line h-40 w-100 mb-3 rounded"
+                ></div>
+              </template>
               <BaseSelect
+                v-else
                 label="الترتيب حسب المدينة"
                 placeholder="اختر المدينة"
-                :options="cities"
+                :options="citiesOptions"
               />
             </div>
+
             <div class="col-md-6 m-auto">
               <BaseSelect
                 label="الترتيب حسب التاريخ"
@@ -260,6 +247,7 @@ watch(ads, () => {
                 :options="timers"
               />
             </div>
+
             <div class="col-md-6 m-auto">
               <BaseSelect
                 label="الترتيب حسب حالة الاعلان"
@@ -268,6 +256,7 @@ watch(ads, () => {
               />
             </div>
           </div>
+
           <div class="modal-footer text-center justify-content-center">
             <button type="button" class="btn btn-main fw-normal">
               <span class="mb-0 text-white">فلترة</span>
@@ -283,7 +272,104 @@ watch(ads, () => {
     </div>
   </div>
 </template>
+
 <style scoped>
+/* ====== Skeleton (Shimmer) ====== */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #eef1f5;
+  border-radius: 0.5rem;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* عناصر الجدول الوهمية */
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 32px 80px 260px 120px 100px 120px 140px 100px 100px 40px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line, #eef0f3);
+}
+.skeleton-box {
+  height: 20px;
+  border-radius: 6px;
+}
+.skeleton-thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  background: #f3f5f8;
+}
+.skeleton-line {
+  height: 14px;
+}
+.skeleton-pill {
+  border-radius: 9999px;
+}
+.skeleton-icon {
+  border-radius: 6px;
+}
+
+/* أبعاد مساعدة */
+.h-28 {
+  height: 28px;
+}
+.h-32 {
+  height: 32px;
+}
+.h-40 {
+  height: 40px;
+}
+.w-24 {
+  width: 24px;
+}
+.w-80 {
+  width: 80px;
+}
+.w-100 {
+  width: 100%;
+}
+.w-120 {
+  width: 120px;
+}
+.w-140 {
+  width: 140px;
+}
+.w-200 {
+  width: 200px;
+}
+.w-240 {
+  width: 240px;
+}
+.w-260 {
+  width: 260px;
+}
+
+/* ====== بقية الأنماط ====== */
 .bg-soft {
   background: var(--soft-bg);
 }

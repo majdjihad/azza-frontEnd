@@ -1,27 +1,46 @@
 <script setup>
 import FavoritesMenu from "~/components/FavoritesMenu.vue";
+import NotificationsMenu from "~/components/NotificationsMenu.vue";
+import { useAuth } from "~/composables/useAuth";
+import { useMain } from "~/composables/useMain";
+import { useMainStore } from "~/stores/mainStore";
+
+const mainStore = useMainStore();
+
+const { user, isLoggedIn } = useAuth();
+useMain(); // لو تحتاج دوال أخرى لاحقاً
 
 const favoritesMenuVisible = ref(false);
 const notificationsMenuVisible = ref(false);
 
-function toggleFavoritesMenu() {
-  favoritesMenuVisible.value = !favoritesMenuVisible.value;
+async function toggleFavoritesMenu() {
+  if (!isLoggedIn.value) return navigateTo("/login");
+  const willOpen = !favoritesMenuVisible.value;
+  favoritesMenuVisible.value = willOpen;
+  if (willOpen) {
+    if (!mainStore.adsFavorites?.ads?.data?.length) {
+      await mainStore.getAllAdsFavorites();
+    }
+  }
 }
+
 function toggleNotificationsMenu() {
+  if (!isLoggedIn.value) return navigateTo("/login");
   notificationsMenuVisible.value = !notificationsMenuVisible.value;
 }
+
 const route = useRoute();
-
-const allowedPaths = ["/ads", "/ads/category"];
-
-const showCategoriesBtn = computed(() => {
-  const path = (route.path || "/").replace(/\/+$/, "") || "/";
-  return allowedPaths.includes(path);
+const allowedPaths = ["ads", "ads-category-slug"];
+const defaultAvatar = "/media/avatars/user.png";
+const profile = computed(() => {
+  const u = user.value;
+  if (!u) return null;
+  return {
+    name: u.name || "—",
+    email: u.email || "",
+    avatar: u.photo || defaultAvatar,
+  };
 });
-
-const isActive = (path) => {
-  return route.path === path;
-};
 </script>
 
 <template>
@@ -31,16 +50,23 @@ const isActive = (path) => {
       class="d-flex justify-content-between bg-light align-items-center py-2 px-9"
     >
       <div class="d-flex align-items-center">
-        <NuxtLink to="#" class="text-dark fs-5 mx-2">إنشاء حساب</NuxtLink>
+        <template v-if="!isLoggedIn">
+          <NuxtLink to="/register" class="text-dark fs-5 mx-2"
+            >إنشاء حساب</NuxtLink
+          >
+        </template>
+
         <NuxtLink
           to="/terms-of-use"
           class="text-dark fs-5 border-start border-end px-2"
-          >شروط الاستخدام</NuxtLink
         >
-        <NuxtLink to="/privacy-policy" class="text-dark fs-5 mx-2"
-          >سياسة الخصوصية</NuxtLink
-        >
+          شروط الاستخدام
+        </NuxtLink>
+        <NuxtLink to="/privacy-policy" class="text-dark fs-5 mx-2">
+          سياسة الخصوصية
+        </NuxtLink>
       </div>
+
       <div class="d-flex flex-row-reverse gap-6">
         <NuxtLink to="https://www.facebook.com/">
           <Icon name="fa6-brands:facebook-f" class="fs-3 text-secondary" />
@@ -59,20 +85,19 @@ const isActive = (path) => {
         </NuxtLink>
       </div>
     </div>
+
     <div class="sticky-top">
       <!-- Row 2 -->
       <div
         class="d-flex justify-content-between align-items-center py-3 px-9 bg-white border-bottom"
       >
         <NuxtLink to="/">
-          <img
-            src="~/public/media/logos/azza-logo.png"
-            alt="azza logo"
-            height="40"
-          />
+          <img src="/media/logos/azza-logo.png" alt="azza logo" height="40" />
         </NuxtLink>
+
         <div class="d-flex align-items-center gap-9">
-          <div class="position-relative dropdown">
+          <!-- Favorites -->
+          <div class="position-relative dropdown" v-if="isLoggedIn">
             <button
               @click="toggleFavoritesMenu"
               class="btn btn-link text-decoration-none d-flex flex-column align-items-center"
@@ -84,20 +109,21 @@ const isActive = (path) => {
                 :class="
                   favoritesMenuVisible ? 'text-primary' : 'text-secondary'
                 "
-                >المفضلة</span
               >
+                المفضلة
+              </span>
             </button>
 
             <FavoritesMenu
               :show="favoritesMenuVisible"
-              v-click-outside="
-                () => {
-                  favoritesMenuVisible = false;
-                }
-              "
+              :favorites="mainStore.adsFavorites?.ads?.data ?? []"
+              :loading="favoritesMenuVisible && mainStore.favoritesListLoad"
+              v-click-outside="() => (favoritesMenuVisible = false)"
             />
           </div>
-          <div class="position-relative dropdown">
+
+          <!-- Notifications -->
+          <div class="position-relative dropdown" v-if="isLoggedIn">
             <button
               @click="toggleNotificationsMenu"
               class="btn btn-link text-decoration-none d-flex flex-column align-items-center"
@@ -111,51 +137,59 @@ const isActive = (path) => {
                 :class="
                   notificationsMenuVisible ? 'text-primary' : 'text-secondary'
                 "
-                >الإشعارات</span
               >
+                الإشعارات
+              </span>
             </button>
-
             <NotificationsMenu
               :show="notificationsMenuVisible"
-              v-click-outside="
-                () => {
-                  notificationsMenuVisible = false;
-                }
-              "
+              v-click-outside="() => (notificationsMenuVisible = false)"
             />
           </div>
+
+          <!-- إعلاناتي -->
           <NuxtLink
-            to="#"
+            v-if="isLoggedIn"
+            :to="isLoggedIn ? '/profile/ads' : '/login'"
             class="btn btn-link text-dark text-decoration-none d-flex flex-column align-items-center"
           >
             <Icon name="fa-solid:book" class="text-secondary fs-2" />
             <span class="text-secondary fs-5 mt-4">أعلانتي</span>
           </NuxtLink>
-          <div class="d-flex justify-center align-items-start gap-3">
+
+          <!-- حساب المستخدم / تسجيل الدخول -->
+          <div
+            v-if="isLoggedIn"
+            class="d-flex justify-center align-items-start gap-3"
+          >
             <img
-              src="~/public/media/avatars/user.png"
+              :src="profile?.avatar || defaultAvatar"
               alt="userProfile"
               width="40"
               class="rounded-circle"
             />
             <div>
               <NuxtLink
-                to="#"
+                to="/profile"
                 class="text-dark text-decoration-none d-flex flex-column align-items-start justify-content-center"
               >
-                <span class="text-dark fs-5">مجد قويدر</span>
+                <span class="text-dark fs-5">{{ profile?.name }}</span>
                 <span class="text-secondary fs-7">حسابي</span>
               </NuxtLink>
             </div>
           </div>
+
+          <div v-else>
+            <NuxtLink to="/login" class="btn btn-main">تسجيل الدخول</NuxtLink>
+          </div>
         </div>
       </div>
+
       <!-- Row 3 -->
       <nav class="navbar navbar-expand-md px-9 bg-white shadow-sm">
         <div
           class="container-fluid d-flex justify-content-between align-items-center"
         >
-          <!-- Toggle Button -->
           <button
             class="navbar-toggler"
             type="button"
@@ -167,8 +201,9 @@ const isActive = (path) => {
           >
             <span class="navbar-toggler-icon"></span>
           </button>
+
           <div class="order-md-2">
-            <NuxtLink to="/profile/ads/create">
+            <NuxtLink :to="isLoggedIn ? '/ads/create' : '/login'">
               <button
                 class="btn btn-lg btn-main d-flex align-items-center gap-2"
               >
@@ -177,8 +212,9 @@ const isActive = (path) => {
               </button>
             </NuxtLink>
           </div>
+
           <div
-            v-if="showCategoriesBtn"
+            v-if="allowedPaths.includes(route.name)"
             class="btn d-inline-flex align-items-center border-start rounded-0"
             data-bs-toggle="collapse"
             href="#collapseExample"
@@ -189,6 +225,7 @@ const isActive = (path) => {
             <Icon class="fs-3 ms-2" name="fluent:navigation-32-filled" />
             <span class="fs-3 h5 m-0">كل الأقسام</span>
           </div>
+
           <div
             class="collapse navbar-collapse order-md-1 justify-content-center"
             id="mainNavbar"
@@ -200,7 +237,7 @@ const isActive = (path) => {
                   class="nav-link text-dark px-1 pb-0"
                   :class="{
                     'fw-bold border-bottom border-2 border-primary':
-                      isActive('/'),
+                      route.path === '/',
                   }"
                   >الرئيسية</NuxtLink
                 >
@@ -211,7 +248,7 @@ const isActive = (path) => {
                   class="nav-link text-dark px-1 pb-0"
                   :class="{
                     'fw-bold border-bottom border-2 border-primary':
-                      isActive('/products'),
+                      route.path === '/products',
                   }"
                   >منتجاتنا</NuxtLink
                 >
@@ -222,7 +259,7 @@ const isActive = (path) => {
                   class="nav-link text-dark px-1 pb-0"
                   :class="{
                     'fw-bold border-bottom border-2 border-primary':
-                      isActive('/ads'),
+                      route.path === '/ads',
                   }"
                   >تصفح الإعلانات</NuxtLink
                 >
@@ -233,7 +270,7 @@ const isActive = (path) => {
                   class="nav-link text-dark px-1 pb-0"
                   :class="{
                     'fw-bold border-bottom border-2 border-primary':
-                      isActive('/contact'),
+                      route.path === '/contact',
                   }"
                   >تواصل معنا</NuxtLink
                 >
@@ -252,11 +289,8 @@ const isActive = (path) => {
 }
 .nav-link {
   font-size: 16px;
-}
-.nav-link {
   padding: 12px 16px;
 }
-
 .btn-primary:hover {
   background: var(--bs-primary-hover) !important;
   color: #fff !important;

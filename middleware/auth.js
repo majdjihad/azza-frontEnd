@@ -1,7 +1,6 @@
 // Import user state management composable
-import { useUser } from "~/composables/useAuth";
-
+import { useAuth } from "~/composables/useAuth";
 export default defineNuxtRouteMiddleware(async () => {
-  const user = useUser();
-  if (!user?.value) return navigateTo("/login", { replace: true });
+  const { isLoggedIn } = useAuth();
+  if (!isLoggedIn?.value) return navigateTo("/login", { replace: true });
 });

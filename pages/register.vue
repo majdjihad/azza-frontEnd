@@ -6,6 +6,7 @@ import { showToast } from "~/composables/useToast";
 import { useAuth } from "~/composables/useAuth";
 import { useSubmit } from "~/composables/useSubmit";
 import { useRouter } from "vue-router";
+import { useCategoryStore } from "~/stores/categoryStore";
 
 useHead({
   title: "تسجيل",
@@ -15,7 +16,13 @@ definePageMeta({
   middleware: ["guest"],
 });
 
-const { register, registerWithGoogle } = useAuth();
+const categoryStore = useCategoryStore();
+
+onMounted(async () => {
+  if (!categoryStore?.citiesData) await categoryStore.getCitiesData();
+});
+
+const { register, authWithGoogle } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);
 
@@ -55,7 +62,10 @@ function resetErrors() {
 
 const registerGoogle = async () => {
   try {
-    await registerWithGoogle();
+    const googleReqouset = await authWithGoogle();
+    if (googleReqouset.data.redirect_url) {
+      window.location.href = googleReqouset.data.redirect_url;
+    }
   } catch (error) {
     if (!error?.data?.message) {
       showToast("error", "فشل التسجيل");
@@ -122,60 +132,65 @@ const formHandle = async () => {
   <section class="py-5 pb-9">
     <div class="container">
       <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-4">
-          <div class="info-panel h-100 text-white rounded-3 p-4 p-md-5">
-            <h2 class="text-white fw-normal mb-3 p-4 px-9">
-              <span class="fw-bold fs-1">اكتشــــــف آلاف الإعلانــــــات</span>
-              من المستخدمين في مختلف الفئات وبأفضل الأسعار
-            </h2>
-            <ul class="list-unstyled lh-lg mb-0 mt-4">
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">انضم إلى مئات المستخدمين على منصتنا</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">تسجيل الدخول سهل وآمن وسريع</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">نشر الإعلانات ورفع الصور بسهولة</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">استعرض العروض في المنطقة الأقرب لك</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">إدارة إعلاناتك وتتبعها في أي وقت</span>
-              </li>
-              <li class="d-flex align-items-start my-4">
-                <Icon
-                  name="material-symbols:check-circle"
-                  class="text-info fs-3 mt-1 ms-2"
-                />
-                <span class="fs-4">اضف التفاصيل والصور لوصف إعلانك بدقة</span>
-              </li>
-            </ul>
+        <div class="col-lg-5">
+          <div class="info-panel h-100 text-white rounded-3">
+            <div class="info-panel__content">
+              <h2 class="fw-normal mb-3 text-white">
+                <span class="fw-bold fs-1 d-block"
+                  >اكتشــــــف آلاف الإعلانــــــات</span
+                >
+                من المستخدمين في مختلف الفئات وبأفضل الأسعار
+              </h2>
+
+              <ul class="list-unstyled lh-lg mb-0 mt-4">
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">انضم إلى مئات المستخدمين على منصتنا</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">تسجيل الدخول سهل وآمن وسريع</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">نشر الإعلانات ورفع الصور بسهولة</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">استعرض العروض في المنطقة الأقرب لك</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">إدارة إعلاناتك وتتبعها في أي وقت</span>
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-4">اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="col-lg-8">
-          <div class="card border-0 h-100 bg-white">
+        <div class="col-lg-7">
+          <div class="card h-100">
             <div class="card-body p-4 p-md-5">
               <h1 class="fw-bold text-end mb-4">
                 <span class="display-4">👋</span>مرحبًا بك
@@ -222,13 +237,29 @@ const formHandle = async () => {
                     />
                   </div>
                   <div class="col-md-6">
-                    <BaseSelect
-                      label="المدينة"
-                      placeholder="اختر المدينة"
-                      :options="cities"
+                    <label
+                      class="form-label mb-2 fw-medium text-dark"
+                      for="inputCityGroup"
+                      >المدينة</label
+                    >
+                    <select
+                      class="form-select"
+                      :class="{ 'is-invalid': !!errors.city }"
+                      id="inputCityGroup"
                       v-model="form.city"
-                      :error="errors.city"
-                    />
+                    >
+                      <option value="">اختر المدينة</option>
+                      <option
+                        :value="city.name"
+                        v-for="city in categoryStore?.citiesData?.cities || []"
+                        :key="city.id"
+                      >
+                        {{ city.name }}
+                      </option>
+                    </select>
+                    <div v-if="errors.city" class="invalid-feedback">
+                      {{ errors.city }}
+                    </div>
                   </div>
 
                   <div class="col-md-6">
@@ -297,9 +328,60 @@ const formHandle = async () => {
 </template>
 <style scoped>
 .info-panel {
-  background: linear-gradient(135deg, #264fcf, #1838a3);
-  box-shadow: 0 0.5rem 1rem rgba(24, 56, 163, 0.15);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  color: #fff;
+  min-height: 420px;
+  background: url("../public/media/avatars/logo.png") center/cover no-repeat;
+  box-shadow: 0 12px 30px rgba(24, 56, 163, 0.25);
 }
+
+.info-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #264fcf 0%, #1838a3 60%, #0f2a87 100%);
+  opacity: 0.85;
+}
+
+.info-panel::after {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  background: radial-gradient(
+    60% 60% at 85% 15%,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.info-panel__content {
+  position: relative;
+  padding: 2rem 2.25rem;
+}
+
+@media (min-width: 768px) {
+  .info-panel__content {
+    padding: 2.5rem 3rem;
+  }
+}
+
+.info-panel__icon {
+  font-size: 1.5rem;
+  color: #58c0ff;
+}
+
+.info-panel__list li {
+  gap: 0.5rem;
+}
+
+[dir="rtl"] .info-panel__content {
+  text-align: right;
+}
+
 .badge.rounded-circle {
   width: 28px;
   height: 28px;
@@ -308,6 +390,27 @@ const formHandle = async () => {
   align-items: center;
   justify-content: center;
   font-weight: 700;
+}
+.other-register {
+  position: relative;
+}
+.other-register::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 50%;
+  width: 41%;
+  height: 1px;
+  background-color: #e5e1e9;
+}
+.other-register::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 50%;
+  width: 41%;
+  height: 1px;
+  background-color: #e5e1e9;
 }
 li .active {
   position: relative;
@@ -322,26 +425,5 @@ li .active::after {
   position: absolute;
   right: 0;
   bottom: 0;
-}
-.other-register {
-  position: relative;
-}
-.other-register::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 50%;
-  width: 42%;
-  height: 1px;
-  background-color: #e5e1e9;
-}
-.other-register::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 50%;
-  width: 42%;
-  height: 1px;
-  background-color: #e5e1e9;
 }
 </style>

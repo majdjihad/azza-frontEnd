@@ -2,9 +2,7 @@ import { useUser, fetchCurrentUser } from "~/composables/useAuth";
 
 export default defineNuxtPlugin(async () => {
   const user = useUser();
+  if (user.value !== undefined) return; // تم التهيئة سابقًا
 
-  // Skip if already initialized on server
-  if (user.value !== undefined) return;
-
-  user.value = await fetchCurrentUser();
+  user.value = await fetchCurrentUser(); // user أو null
 });
