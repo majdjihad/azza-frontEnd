@@ -8,8 +8,8 @@ const mainStore = useMainStore();
 
 /* مدخلات البحث */
 const inputQuery = ref("");
-const categoryIdSelected = ref(""); // يبدأ فارغًا لعرض placeholder
-const cityIdSelected = ref(""); // يبدأ فارغًا لعرض placeholder
+const categoryIdSelected = ref("");
+const cityIdSelected = ref("");
 
 onMounted(async () => {
   if (!mainStore?.homePageData) {

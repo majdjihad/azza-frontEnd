@@ -1,22 +1,21 @@
-<!-- pages/ads/create.vue -->
 <script setup>
 import vueFilePond from "vue-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
-
 import BaseText from "@/components/form/BaseText.vue";
 import BaseSelect from "~/components/form/BaseSelect.vue";
-
+import { showToast } from "~/composables/useToast";
+import { useAuth } from "~/composables/useAuth";
 import { useMainStore } from "~/stores/mainStore";
 import { useMain } from "~/composables/useMain";
-
-import { onMounted, ref, computed, reactive } from "vue";
+definePageMeta({ middleware: ["auth"] });
 
 /* ========== Stores / API ========== */
+const { user } = useAuth();
 const mainStore = useMainStore();
 const { getCustomFiled, createAd } = useMain();
-definePageMeta({ middleware: ["auth"] });
+const router = useRouter();
 
 /* اجلب بيانات الفلاتر العامة عند الدخول (التصنيفات الرئيسية) */
 onMounted(async () => {
@@ -197,8 +196,6 @@ function validate() {
 
   if (!form.title || form.title.trim().length < 3)
     errors.title = "أدخل عنواناً مناسباً";
-  if (!form.subCategory) errors.subCategory = "اختر التصنيف الفرعي";
-  if (!form.categoryId) errors.categoryId = "اختر التصنيف الرئيسي";
   if (!form.city) errors.city = "اختر المدينة";
   if (!form.durationDays || Number(form.durationDays) <= 0)
     errors.durationDays = "أدخل مدة بالأيام (أكبر من 0)";
@@ -244,6 +241,7 @@ async function submit() {
     fd.append("whatsapp", form.whatsapp);
     fd.append("duration_days", String(form.durationDays));
     fd.append("currency", form.currency);
+    fd.append("user_id", user.value.id);
     if (form.email) fd.append("email", form.email);
 
     // === الصورة الرئيسية (مع التحقق والاسم) ===
@@ -281,18 +279,17 @@ async function submit() {
 
     // الإرسال عبر $larafetch داخل createAd
     const res = await createAd(fd);
-
-    toast.value = {
-      type: "success",
-      msg: res?.message || res?.data?.message || "تم نشر الإعلان بنجاح 🎉",
-    };
-
+    router.push({ path: "/profile/ads" });
+    showToast(
+      "success",
+      res?.message || res?.data?.message || "تم نشر الإعلان بنجاح 🎉"
+    );
     resetAll();
   } catch (e) {
-    toast.value = {
-      type: "danger",
-      msg: e?.data?.message || e?.message || "حدث خطأ أثناء نشر الإعلان",
-    };
+    showToast(
+      "danger",
+      e?.data?.message || e?.message || "حدث خطأ أثناء نشر الإعلان"
+    );
   } finally {
     submitting.value = false;
   }
@@ -346,22 +343,6 @@ function resetAll() {
       />
       <h2 class="fs-3 m-0 fw-semibold text-muted">إضافة إعلان جديد</h2>
     </div>
-
-    <!-- رسائل -->
-    <div v-if="toast.msg" class="mb-3">
-      <div
-        class="alert"
-        :class="{
-          'alert-success': toast.type === 'success',
-          'alert-danger': toast.type === 'danger',
-          'alert-info': !toast.type,
-        }"
-        role="alert"
-      >
-        {{ toast.msg }}
-      </div>
-    </div>
-
     <!-- شريط تقدم -->
     <div class="d-flex align-items-center gap-3 mb-4">
       <span
@@ -441,10 +422,15 @@ function resetAll() {
               role="button"
             >
               <div
-                class="card-body text-center position-absolute top-50 start-50 translate-middle"
+                class="card-body text-center position-absolute top-50 start-50 translate-middle w-100"
               >
+                <img
+                  src="/media/categories/أثاث.png"
+                  alt=""
+                  class="w-25 mb-4"
+                />
                 <div
-                  class="rounded px-3 py-2 bg-dark bg-opacity-50 d-inline-block text-white fw-bold"
+                  class="rounded px-3 py-2 bg-dark bg-opacity-50 text-white fw-bold"
                 >
                   {{ cat.name }}
                 </div>
@@ -482,7 +468,14 @@ function resetAll() {
       </div>
 
       <template v-if="subcategories.length">
-        <div class="row g-3">
+        <!-- حالة جلب الحقول والمدن -->
+        <div v-if="customFieldsLoading" class="text-center text-muted py-3">
+          يتم جلب الحقول والمدن ...
+        </div>
+        <div v-else-if="customFieldsError" class="alert alert-danger mt-3">
+          {{ customFieldsError }}
+        </div>
+        <div v-else class="row g-3">
           <div
             class="col-6 col-md-3 my-3 p-0"
             v-for="(sub, i) in subcategories"
@@ -497,22 +490,16 @@ function resetAll() {
               role="button"
             >
               <div
-                class="card-body text-center position-absolute top-50 start-50 translate-middle"
+                class="card-body text-center position-absolute top-50 start-50 translate-middle w-100"
               >
-                <div class="rounded px-3 py-2 bg-primary text-white fw-bold">
+                <div
+                  class="rounded px-3 py-2 bg-dark bg-opacity-50 text-white fw-bold"
+                >
                   {{ sub.name }}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- حالة جلب الحقول والمدن -->
-        <div v-if="customFieldsLoading" class="text-center text-muted py-3">
-          يتم جلب الحقول والمدن ...
-        </div>
-        <div v-else-if="customFieldsError" class="alert alert-danger mt-3">
-          {{ customFieldsError }}
         </div>
       </template>
 
@@ -647,40 +634,25 @@ function resetAll() {
                 label="عنوان الإعلان *"
                 placeholder="مثال: شقة 3 غرف للبيع ..."
                 :error="errors.title"
+                req
               />
             </div>
-
-            <div class="col-md-6">
-              <BaseSelect
-                label="التصنيف الفرعي *"
-                placeholder="اختر التصنيف الفرعي للاعلان"
-                :options="
-                  subcategories.map((s) => ({ value: s.id, label: s.name }))
-                "
-                v-model="form.subCategory"
-                :error="errors.subCategory"
-                :disabled="true"
-              />
-              <div v-if="errors.categoryId" class="invalid-feedback d-block">
-                {{ errors.categoryId }}
-              </div>
-            </div>
-
             <div class="col-md-6">
               <BaseText
                 v-model="form.whatsapp"
                 type="tel"
                 inputmode="tel"
-                label="رقم الواتساب *"
+                label="رقم الواتساب"
                 placeholder="+9705XXXXXXXX"
                 :error="errors.whatsapp"
+                req
               />
             </div>
             <div class="col-md-6">
               <BaseText
                 v-model="form.email"
                 type="email"
-                label="البريد الإلكتروني (اختياري)"
+                label="البريد الإلكتروني"
                 placeholder="example@gmail.com"
                 :error="errors.email"
               />
@@ -689,10 +661,11 @@ function resetAll() {
             <div class="col-md-6">
               <BaseSelect
                 v-model="form.city"
-                label="المدينة *"
+                label="المدينة"
                 :options="citiesOptions"
                 placeholder="اختر المدينة"
                 :error="errors.city"
+                req
               />
               <div v-if="!citiesOptions.length" class="form-text text-muted">
                 اختر التصنيف الفرعي لتحميل المدن المتاحة.
@@ -701,7 +674,7 @@ function resetAll() {
 
             <div class="col-md-6">
               <label class="form-label mb-2 fw-medium text-dark"
-                >مدة الإعلان (بالأيام) *</label
+                >مدة الإعلان (بالأيام) <span class="text-danger">*</span></label
               >
               <input
                 type="number"
@@ -717,7 +690,7 @@ function resetAll() {
 
             <div class="col-12">
               <label class="form-label mb-2 fw-medium text-dark"
-                >تفاصيل الإعلان *</label
+                >تفاصيل الإعلان <span class="text-danger">*</span></label
               >
               <textarea
                 class="form-control text-end rounded-1"
@@ -736,11 +709,12 @@ function resetAll() {
             >
               <BaseText
                 v-model="form.price"
-                label="السعر *"
+                label="السعر"
                 placeholder="أدخل السعر هنا"
                 inputmode="numeric"
                 :error="errors.price"
                 class="col-9"
+                req
               />
               <div
                 class="form-check-sm col-3 bg-secondary rounded-1 rounded-end-0 d-flex align-items-center align-self-center"
@@ -761,10 +735,11 @@ function resetAll() {
             <div class="col-md-6">
               <BaseSelect
                 v-model="form.currency"
-                label="العملة *"
+                label="العملة"
                 :options="currencies"
                 placeholder="اختر العملة"
                 :error="errors.currency"
+                req
               />
             </div>
           </div>
@@ -787,21 +762,23 @@ function resetAll() {
             <div v-for="cf in customFields" :key="cf.id">
               <div class="col-md-6" v-if="cf.type === 'number'">
                 <BaseText
-                  :label="cf.name + (cf.required ? ' *' : '')"
+                  :label="cf.name"
                   :placeholder="cf.name"
                   v-model="customFieldValues[cf.id]"
                   :error="errors['cf_' + cf.id]"
                   type="number"
                   inputmode="numeric"
+                  :req="cf.required"
                 />
               </div>
 
               <div class="col-md-6" v-else-if="cf.type === 'select'">
                 <BaseSelect
-                  :label="cf.name + (cf.required ? ' *' : '')"
+                  :label="cf.name"
                   :placeholder="'اختر ' + cf.name"
                   :options="cf.options"
                   v-model="customFieldValues[cf.id]"
+                  :req="cf.required"
                 />
                 <div
                   v-if="errors['cf_' + cf.id]"
@@ -813,10 +790,11 @@ function resetAll() {
 
               <div class="col-md-6" v-else>
                 <BaseText
-                  :label="cf.name + (cf.required ? ' *' : '')"
+                  :label="cf.name"
                   :placeholder="cf.name"
                   v-model="customFieldValues[cf.id]"
                   :error="errors['cf_' + cf.id]"
+                  :req="cf.required"
                 />
               </div>
             </div>

@@ -162,7 +162,6 @@ async function handleLogout() {
             </div>
           </div>
         </div>
-
         <div class="row g-3">
           <div class="col-12" v-for="i in 2" :key="'action-' + i">
             <div class="card card-soft action-tile">

@@ -9,7 +9,7 @@ const mainStore = useMainStore();
 
 const { user, isLoggedIn } = useAuth();
 useMain(); // لو تحتاج دوال أخرى لاحقاً
-
+console.log(isLoggedIn)
 const favoritesMenuVisible = ref(false);
 const notificationsMenuVisible = ref(false);
 
@@ -28,7 +28,6 @@ function toggleNotificationsMenu() {
   if (!isLoggedIn.value) return navigateTo("/login");
   notificationsMenuVisible.value = !notificationsMenuVisible.value;
 }
-
 const route = useRoute();
 const allowedPaths = ["ads", "ads-category-slug"];
 const defaultAvatar = "/media/avatars/user.png";

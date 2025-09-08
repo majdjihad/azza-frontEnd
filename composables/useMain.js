@@ -94,32 +94,48 @@ export const useMain = () => {
       },
     });
   }
-
-  /**
-   * إنشاء إعلان جديد — يستقبل FormData فقط
-   * - يجب تجهيز جميع الحقول في الصفحة (subcategory_id, city_id, title, description, price, whatsapp, main_image, duration_days, email, currency, custom_fields[<id>]...)
-   * - أمثلة إضافة الحقول في الصفحة:
-   *   fd.append('subcategory_id', subId)
-   *   fd.append('custom_fields[1]', 'قيمة')
-   *   fd.append('main_image', file) // File من FilePond
-   */
+  // اضافة إعلان
   async function createAd(formData) {
     if (!(formData instanceof FormData)) {
       throw new Error("createAd expects a FormData instance");
     }
-    // ملاحظة: لا نضع Content-Type يدويًا مع FormData
     return await $larafetch(`api/ads`, {
       method: "post",
       body: formData,
     });
   }
+  // ✅ الدالة المطلوبة لتحديث الإعلان (PUT)
+  async function updateAd(adId, formData) {
+    if (!(formData instanceof FormData)) {
+      throw new Error("updateAd expects a FormData instance");
+    }
+    // نرسل مباشرة PUT (لا نحتاج _method=PUT)
+    return await $larafetch(`api/ads/${adId}`, {
+      method: "put",
+      body: formData,
+    });
+  }
+  // خذف إعلانات
+  async function deleteAds(ids) {
+    // تأكد أنها أعداد صحيحة
+    const clean = (ids ?? [])
+      .map((x) => Number(x))
+      .filter((n) => Number.isInteger(n));
+
+    // ids[]=1&ids[]=22&ids[]=3
+    const qs = clean.map((id) => `ids[]=${encodeURIComponent(id)}`).join("&");
+
+    return await $larafetch(`api/ads/bulk-destroy?${qs}`, {
+      method: "post",
+    });
+  }
+  // تواصل معنا
   async function sendMessage(formData) {
     return await $larafetch(`api/messages`, {
       method: "post",
       body: formData,
     });
   }
-
   return {
     getHomePageData,
     getAllAds,
@@ -134,6 +150,8 @@ export const useMain = () => {
     filterAds,
     getCustomFiled,
     createAd,
+    updateAd,
+    deleteAds,
     sendMessage,
   };
 };

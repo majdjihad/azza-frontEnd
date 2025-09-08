@@ -3,9 +3,11 @@
 import { reactive, ref } from "vue";
 import BaseText from "@/components/form/BaseText.vue";
 import { useMain } from "~/composables/useMain";
+import { showToast } from "~/composables/useToast";
 
 useHead({ title: "تواصل معنا" });
 
+const router = useRouter();
 const { sendMessage } = useMain();
 
 const form = reactive({
@@ -25,7 +27,6 @@ const errors = reactive({
 });
 
 const sending = ref(false);
-const toast = ref({ type: "", msg: "" });
 
 function resetErrors() {
   Object.keys(errors).forEach((k) => (errors[k] = ""));
@@ -83,7 +84,6 @@ async function onSubmit() {
   if (!validate()) return;
 
   sending.value = true;
-  toast.value = { type: "", msg: "" };
 
   try {
     const fd = new FormData();
@@ -94,29 +94,27 @@ async function onSubmit() {
     fd.append("message", form.message);
 
     const res = await sendMessage(fd);
-
-    toast.value = {
-      type: "success",
-      msg:
-        res?.message ||
+    router.push({ path: "/" });
+    showToast(
+      "success",
+      res?.message ||
         res?.data?.message ||
-        "تم إرسال رسالتك بنجاح، سنقوم بالرد في أقرب وقت 👌",
-    };
+        "تم إرسال رسالتك بنجاح، سنقوم بالرد في أقرب وقت 👌"
+    );
     resetForm();
   } catch (e) {
     // معالجة 422 Validation
     if (e?.status === 422) {
       fillBackendErrors(e?.data?.errors || {});
-      toast.value = {
-        type: "danger",
-        msg: e?.data?.message || "تعذر إرسال الرسالة. يرجى مراجعة الحقول.",
-      };
+      showToast(
+        "danger",
+        e?.data?.message || "تعذر إرسال الرسالة. يرجى مراجعة الحقول."
+      );
     } else {
-      toast.value = {
-        type: "danger",
-        msg:
-          e?.data?.message || e?.message || "حدث خطأ غير متوقع أثناء الإرسال",
-      };
+      showToast(
+        "danger",
+        e?.data?.message || e?.message || "حدث خطأ غير متوقع أثناء الإرسال"
+      );
     }
   } finally {
     sending.value = false;
@@ -139,22 +137,6 @@ async function onSubmit() {
             <h2 class="fs-3 m-0 fw-semibold text-muted">تواصل معنا</h2>
           </div>
         </div>
-
-        <!-- رسائل عامة -->
-        <div v-if="toast.msg" class="px-9 mb-3">
-          <div
-            class="alert"
-            :class="{
-              'alert-success': toast.type === 'success',
-              'alert-danger': toast.type === 'danger',
-              'alert-info': !toast.type,
-            }"
-            role="alert"
-          >
-            {{ toast.msg }}
-          </div>
-        </div>
-
         <form class="px-9" @submit.prevent="onSubmit" novalidate>
           <div class="row g-4 rounded-1 p-9 bg-white shadow-sm">
             <div class="mb-4 py-4">

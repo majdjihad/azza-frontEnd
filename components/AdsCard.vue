@@ -20,9 +20,9 @@ const loader = ref(false);
 const handleToggleFavorite = async () => {
   try {
     loader.value = true;
-    await mainStore.changeFavoriteAds(ad.value.id);
+    await mainStore.changeFavoriteAds(props.ad.id);
     // خيار: قلب محلي (إذا كان المصدر لا ينعكس فورًا)
-    ad.value.is_favorite = !ad.value.is_favorite;
+    props.ad.is_favorite = !props.ad.is_favorite;
   } catch (e) {
     console.error("Error toggling favorite:", e);
   } finally {
@@ -38,19 +38,19 @@ let remaining = 5000; // ms
 
 const adUrl = computed(() => {
   try {
-    return new URL(`/ads/${ad.value.id}`, origin).href;
+    return new URL(`/ads/${props.ad.id}`, origin).href;
   } catch {
-    return `${origin}/ads/${ad.value.id}`;
+    return `${origin}/ads/${props.ad.id}`;
   }
 });
 
 const shareText = computed(() => {
   const parts = [];
-  if (ad.value?.title) parts.push(ad.value.title);
+  if (props.ad?.title) parts.push(props.ad.title);
   if (category.value) parts.push(`(${category.value})`);
-  if (ad.value?.price)
-    parts.push(`السعر: ${ad.value.price} ${ad.value?.currency || ""}`.trim());
-  const city = ad.value?.city?.name || ad.value?.city;
+  if (props.ad?.price)
+    parts.push(`السعر: ${props.ad.price} ${props.ad?.currency || ""}`.trim());
+  const city = props.ad?.city?.name || props.ad?.city;
   if (city) parts.push(`المكان: ${city}`);
   return parts.join(" • ");
 });
@@ -65,7 +65,6 @@ const shareUrls = computed(() => ({
 }));
 
 function openShareToast() {
-  // لا نستخدم Web Share API لتجنب لوحة النظام — فقط توست بخيارات
   shareToastOpen.value = true;
   clearTimeout(hideTimer);
   remaining = 5000;

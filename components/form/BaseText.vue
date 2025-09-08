@@ -1,8 +1,9 @@
 <template>
   <div class="mb-3">
-    <label v-if="label" :for="id" class="form-label mb-2 fw-medium text-dark">{{
-      label
-    }}</label>
+    <label v-if="label" :for="id" class="form-label mb-2 fw-medium text-dark">
+      {{ label }}
+      <span v-if="req" class="text-danger">*</span>
+    </label>
 
     <div class="input-group">
       <span
@@ -63,6 +64,7 @@ defineProps({
   maxlength: Number,
   disabled: Boolean,
   dir: { type: String, default: "auto" },
+  req: { type: Boolean, default: false }, // ⭐️ إضافة req
 });
 defineEmits(["update:modelValue"]);
 </script>

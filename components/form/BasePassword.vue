@@ -21,7 +21,7 @@
         :aria-label="visible ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'"
       >
         <!-- Nuxt Icon -->
-        <Icon :name="visible ? hideIcon : showIcon" :size="iconSize" />
+        <Icon :name="visible ? hideIcon : showIcon" :size="String(iconSize)" />
       </button>
     </div>
     <div v-if="error" class="invalid-feedback d-block mt-1">{{ error }}</div>

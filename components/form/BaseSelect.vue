@@ -9,13 +9,17 @@ const props = defineProps({
     type: String,
     default: () => `sel-${Math.random().toString(36).slice(2)}`,
   },
+  req: { type: Boolean, default: false }, // ⭐️ إضافة خاصية req
 });
 defineEmits(["update:modelValue"]);
 </script>
 
 <template>
   <div class="mb-3">
-    <label v-if="label" :for="id" class="form-label">{{ label }}</label>
+    <label v-if="label" :for="id" class="form-label">
+      {{ label }}
+      <span v-if="req" class="text-danger">*</span>
+    </label>
     <select
       :id="id"
       class="form-select"
@@ -38,10 +42,10 @@ defineEmits(["update:modelValue"]);
     <div v-if="error" class="invalid-feedback">{{ error }}</div>
   </div>
 </template>
+
 <style scoped>
 .form-select {
   background-color: #f6f6f6;
-
   color: #dbdfe9;
 }
 </style>

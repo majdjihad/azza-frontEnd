@@ -409,7 +409,7 @@ onMounted(() => {
               </NuxtLink>
 
               <NuxtLink
-                to="#"
+                :to="`/users/${listing.publisher.id}`"
                 class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
               >
                 عرض جميع المنتجات

@@ -1,9 +1,22 @@
 <script setup>
-defineProps({
+import moment from "moment";
+
+const props = defineProps({
   ad: { type: Object, required: true },
   selected: { type: Boolean, default: false },
+
+  // تمرّرها الصفحة لتحديد الصفوف التي تُحذف حالياً (اختياري)
+  deletingIds: { type: Array, default: () => [] },
 });
-const emit = defineEmits(["toggle"]);
+const emit = defineEmits(["toggle", "delete", "edit"]);
+
+function onDeleteClick() {
+  // نُبلغ الصفحة لتفتح مودال التأكيد وتنفّذ الحذف
+  emit("delete", props.ad.id);
+}
+function onEditClick() {
+  emit("edit", props.ad.id); // لو أحببت تمسكها في الأب للتوجيه لصفحة التعديل
+}
 </script>
 
 <template>
@@ -15,45 +28,54 @@ const emit = defineEmits(["toggle"]);
         type="checkbox"
         :checked="selected"
         @change="emit('toggle', ad.id)"
-        :aria-label="`تحديد الإعلان: ${ad.name}`"
+        :aria-label="`تحديد الإعلان: ${ad?.title}`"
       />
     </td>
 
+    <!-- صورة -->
     <td>
       <div class="cell-image">
-        <img :src="ad.image" width="60" class="row-thumb" :alt="ad.name" />
+        <img
+          :src="ad?.main_image"
+          width="60"
+          class="row-thumb"
+          :alt="ad?.title"
+        />
       </div>
     </td>
 
     <!-- اسم الإعلان -->
     <td class="fw-semibold">
       <div class="text-truncate" style="max-width: 320px">
-        {{ ad.name }}
+        {{ ad?.title }}
       </div>
     </td>
+
     <!-- القسم -->
-    <td class="text-dark">{{ ad.category }}</td>
-    <!-- المدة -->
-    <td class="text-dark">{{ ad.duration }}</td>
+    <td class="text-dark">{{ ad?.subcategory?.category?.name }}</td>
+
     <!-- تاريخ النشر -->
-    <td class="text-dark">{{ ad.published }}</td>
+    <td class="text-dark">{{ moment(ad?.created_at).format("YYYY-MM-DD") }}</td>
+
     <!-- العنوان -->
-    <td class="text-dark">{{ ad.city }}</td>
+    <td class="text-dark">{{ ad?.city?.name }}</td>
+
     <!-- السعر -->
-    <td class="text-dark fw-semibold">{{ ad.price }}</td>
+    <td class="text-dark fw-semibold">{{ ad?.price }} {{ ad?.currency }}</td>
+
     <!-- الحالة -->
     <td>
       <span
         class="status-chip"
         :class="{
-          'status-active': ad.status === 'active',
+          'status-active': ad.status === 'approved',
           'status-pending': ad.status === 'pending',
-          'status-scheduled': ad.status === 'scheduled',
+          'status-scheduled': ad.status === 'expired',
           'status-rejected': ad.status === 'rejected',
         }"
       >
         <Icon
-          v-if="ad.status === 'active'"
+          v-if="ad.status === 'approved'"
           name="material-symbols:check-circle"
           class="fs-5 text-primary"
         />
@@ -63,18 +85,18 @@ const emit = defineEmits(["toggle"]);
           class="fs-5 text-info"
         />
         <Icon
-          v-else-if="ad.status === 'scheduled'"
+          v-else-if="ad.status === 'expired'"
           name="material-symbols:event-busy-rounded"
           class="fs-5 text-muted"
         />
         <Icon v-else name="ri:prohibited-2-line" class="fs-5 text-danger" />
         <span>
           {{
-            ad.status === "active"
+            ad.status === "approved"
               ? "نشط"
               : ad.status === "pending"
               ? "قيد المراجعة"
-              : ad.status === "scheduled"
+              : ad.status === "expired"
               ? "منتهية"
               : "مرفوضة"
           }}
@@ -82,19 +104,36 @@ const emit = defineEmits(["toggle"]);
       </span>
     </td>
 
+    <!-- قائمة الإجراءات -->
     <td style="width: 44px">
       <div class="dropdown">
         <button
           class="dropdown-toggle btn px-3 py-2"
           role="button"
           data-bs-toggle="dropdown"
-          aria-expanded="false"
+          :aria-expanded="false"
+          :aria-label="`إجراءات الإعلان: ${ad?.title}`"
         >
           <Icon name="carbon:barrier" class="fs-1 text-muted" />
         </button>
+
         <ul class="dropdown-menu shadow-sm">
-          <li class="btn btn-sm dropdown-item">تعديل الاعلان</li>
-          <li class="btn btn-sm dropdown-item">حذف الاعلان</li>
+          <li>
+            <NuxtLink
+              :to="`/ads/edit/${ad.id}`"
+              class="btn btn-sm dropdown-item text-end"
+            >
+              تعديل الإعلان
+            </NuxtLink>
+          </li>
+          <li>
+            <button
+              class="btn btn-sm dropdown-item text-danger text-end"
+              @click="onDeleteClick"
+            >
+              <span>حذف الإعلان</span>
+            </button>
+          </li>
         </ul>
       </div>
     </td>
@@ -130,5 +169,17 @@ const emit = defineEmits(["toggle"]);
 .dropdown-toggle::after {
   content: "";
   display: none;
+}
+.row-thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.cell-image {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
 }
 </style>
