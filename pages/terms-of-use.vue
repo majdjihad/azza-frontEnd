@@ -2,6 +2,16 @@
 useHead({
   title: "شروط الاستخدام – منصة AZZA",
 });
+useSeo({
+  title: "شروط الاستخدام | منصّة AZZA",
+  description:
+    "تعرف على الشروط والأحكام الخاصة باستخدام منصّة الإعلانات العربية لضمان تجربة آمنة وموثوقة للجميع.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/terms-of-use",
+  type: "article",
+  publishedAt: "2025-01-01",
+  modifiedAt: "2025-01-01",
+});
 </script>
 <template>
   <div class="container">

@@ -136,6 +136,13 @@ export const useMain = () => {
       body: formData,
     });
   }
+  // اشعارات
+  async function getNotifications() {
+    return await $larafetch(`api/notifications`, {
+      method: "get",
+    });
+  }
+
   return {
     getHomePageData,
     getAllAds,
@@ -153,5 +160,6 @@ export const useMain = () => {
     updateAd,
     deleteAds,
     sendMessage,
+    getNotifications,
   };
 };

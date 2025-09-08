@@ -4,7 +4,14 @@ import BasePassword from "@/components/form/BasePassword.vue";
 
 useHead({ title: "أعادة تعيين كلمة المرور" });
 definePageMeta({ middleware: ["guest"] });
-
+useSeo({
+  title: "إعادة تعيين كلمة السر | منصّة AZZA",
+  description: "أدخل كلمة مرور جديدة لتأمين حسابك على المنصة.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/reset-password",
+  type: "website",
+  noindex: true,
+});
 const { resetPassword } = useAuth();
 const route = useRoute();
 const router = useRouter();

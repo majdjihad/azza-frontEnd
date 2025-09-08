@@ -2,6 +2,16 @@
 useHead({
   title: "سياسة الخصوصية - منصة AZZA",
 });
+useSeo({
+  title: "سياسة الخصوصية | منصّة  AZZA",
+  description:
+    "اطلع على سياسة الخصوصية الخاصة بمنصّتنا لمعرفة كيفية جمع واستخدام وحماية بياناتك الشخصية عند إضافة الإعلانات أو تصفحها.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/privacy-policy",
+  type: "article",
+  publishedAt: "2025-01-01",
+  modifiedAt: "2025-01-01",
+});
 </script>
 <template>
   <div class="container">

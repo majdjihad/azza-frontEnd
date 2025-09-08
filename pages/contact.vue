@@ -4,6 +4,14 @@ import { reactive, ref } from "vue";
 import BaseText from "@/components/form/BaseText.vue";
 import { useMain } from "~/composables/useMain";
 import { showToast } from "~/composables/useToast";
+useSeo({
+  title: "تواصل معنا | منصّة AZZA",
+  description:
+    "تواصل مع فريق الدعم عبر صفحة اتصل بنا للإجابة على استفساراتك أو ملاحظاتك حول الإعلانات والمنتجات والخدمات على المنصّة.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/contact-us",
+  type: "website",
+});
 
 useHead({ title: "تواصل معنا" });
 

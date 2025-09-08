@@ -6,6 +6,14 @@ const route = useRoute();
 const router = useRouter();
 const mainStore = useMainStore();
 const categoryStore = useCategoryStore();
+useSeo({
+  title: "الإعلانات | منصّة الإعلانات العربية",
+  description:
+    "تصفح أحدث الإعلانات المضافة من المستخدمين في مختلف الأقسام مثل العقارات، السيارات، الأجهزة، الأثاث، الخدمات والمزيد.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/ads",
+  type: "website",
+});
 
 useHead({ title: "الإعلانات" });
 

@@ -7,6 +7,13 @@ import { useCategoryStore } from "~/stores/categoryStore";
 
 definePageMeta({ middleware: ["auth"] });
 useHead({ title: "تعديل الملف الشخصي" });
+useSeo({
+  title: "تعديل الملف الشخصي | منصّة الإعلانات العربية",
+  description: "قم بتحديث بياناتك وصورتك الشخصية لضمان تجربة أفضل على المنصة.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/profile/edit",
+  type: "website",
+});
 
 const categoryStore = useCategoryStore();
 const router = useRouter();

@@ -4,6 +4,14 @@ import { useMainStore } from "~/stores/mainStore";
 const route = useRoute();
 const router = useRouter();
 const mainStore = useMainStore();
+useSeo({
+  title: "المنتجات | منصّة AZZA",
+  description:
+    "اكتشف المنتجات المتاحة للبيع، قارن الأسعار والعروض، وتواصل مباشرة مع البائعين لشراء ما تحتاجه.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/products",
+  type: "website",
+});
 
 useHead({ title: "المنتجات" });
 

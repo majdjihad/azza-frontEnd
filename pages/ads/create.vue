@@ -9,6 +9,17 @@ import { showToast } from "~/composables/useToast";
 import { useAuth } from "~/composables/useAuth";
 import { useMainStore } from "~/stores/mainStore";
 import { useMain } from "~/composables/useMain";
+useSeo({
+  title: "إنشاء إعلان جديد | منصّة AZZA",
+  description:
+    "أضف إعلانك بسهولة في مختلف الأقسام مثل العقارات، السيارات، الأجهزة، الأثاث والخدمات.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/ads/create",
+  type: "website",
+});
+useHead({
+  title: "إنشاء إعلان جديد | منصّة AZZA",
+});
 definePageMeta({ middleware: ["auth"] });
 
 /* ========== Stores / API ========== */

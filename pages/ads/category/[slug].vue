@@ -1,12 +1,18 @@
 <script setup>
-const route = useRoute();
-const router = useRouter();
+import { useCategoryStore } from "~/stores/categoryStore";
+useSeo({
+  title: `إعلانات ${route.params.slug} | منصّة الإعلانات العربية`,
+  description: `تصفح أحدث إعلانات ${route.params.slug}، وتواصل مباشرة مع البائعين.`,
+  image: "/media/avatars/logo.png",
+  canonicalPath: `/ads/category/${route.params.slug}`,
+  type: "website",
+});
 useHead({ title: route.params.slug });
 
-import { useCategoryStore } from "~/stores/categoryStore";
+const route = useRoute();
+const router = useRouter();
 const categoryStore = useCategoryStore();
 
-/* ===================== الجلب ===================== */
 const fetchCategory = async () => {
   await categoryStore.getCategory(route.params.slug);
 };

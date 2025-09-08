@@ -50,6 +50,16 @@ export default defineNuxtConfig({
   // App-wide head configuration
   app: {
     head: {
+      htmlAttrs: { lang: "ar", dir: "rtl" },
+      meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        {
+          name: "description",
+          content:
+            "منصة عربية متكاملة للإعلانات المبوبة — أضف إعلانك بسهولة وتصفح عروض العقارات، الأجهزة، الأثاث، المفقودات والخدمات. تواصل مباشر وآمن بين البائع والمشتري.",
+        },
+      ],
       script: [
         {
           // Metronic plugins bundle
@@ -70,7 +80,11 @@ export default defineNuxtConfig({
     public: {
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL,
       frontendUrl: process.env.NUXT_PUBLIC_FRONTEND_URL,
+      siteDescription:
+        "منصة إلكترونية عربية لبيع وشراء كل شيء: عقارات، أجهزة، أثاث، مفقودات وخدمات — تواصل آمن ومباشر بين البائعين والمشترين.",
+      siteImage: "/media/avatars/logo.png",
     },
+    modules: ["@nuxtjs/robots", "@nuxtjs/sitemap"],
   },
 
   // Auto-import utilities

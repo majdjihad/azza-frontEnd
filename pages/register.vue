@@ -1,12 +1,19 @@
 <script setup>
 import BaseText from "@/components/form/BaseText.vue";
 import BasePassword from "@/components/form/BasePassword.vue";
-import BaseSelect from "~/components/form/BaseSelect.vue";
 import { showToast } from "~/composables/useToast";
 import { useAuth } from "~/composables/useAuth";
 import { useSubmit } from "~/composables/useSubmit";
 import { useRouter } from "vue-router";
 import { useCategoryStore } from "~/stores/categoryStore";
+useSeo({
+  title: "إنشاء حساب جديد | منصّة AZZA",
+  description:
+    "سجل الآن في منصّة الإعلانات العربية لإنشاء حسابك الشخصي وإضافة إعلاناتك بسهولة وتصفح آلاف العروض في مختلف الأقسام.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/register",
+  type: "website",
+});
 
 useHead({
   title: "تسجيل",

@@ -5,7 +5,14 @@ useHead({
   title: "تاكيد الرمز",
 });
 definePageMeta({ middleware: ["guest"] });
-
+useSeo({
+  title: "رمز التحقق | منصّة AZZA",
+  description: "أدخل رمز التحقق لإتمام تسجيل الدخول بأمان.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/verify-code",
+  type: "website",
+  noindex: true,
+});
 const route = useRoute();
 const router = useRouter();
 const { verify, resendVerification } = useAuth();

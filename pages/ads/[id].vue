@@ -1,17 +1,22 @@
 <script setup>
-useHead({ title: "تفاصيل الإعلان" });
-
-import {
-  ref,
-  reactive,
-  computed,
-  onMounted,
-  watch,
-  onBeforeUnmount,
-} from "vue";
 import { useRuntimeConfig } from "#app";
 import { useMain } from "~/composables/useMain";
-
+useSeo({
+  title: listing.title + " | منصّة AZZA",
+  description:
+    listing.description?.slice(0, 150) || "شاهد تفاصيل هذا الإعلان على منصتنا.",
+  image: listing.images[0] || "/media/avatars/logo.png",
+  canonicalPath: `/ads/${listing.id}`,
+  type: "product",
+  product: {
+    name: listing.title,
+    description: listing.description,
+    image: listing.images[0] || "/media/avatars/logo.png",
+    price: listing.price,
+    priceCurrency: listing.currency,
+  },
+});
+useHead({ title: listing.title });
 const route = useRoute();
 const runtimeConfig = useRuntimeConfig?.();
 
@@ -37,7 +42,6 @@ const listing = reactive({
 const relatedProducts = ref([]);
 const relatedAds = ref([]);
 
-/* ============ أدوات مشتركة ============ */
 function humanDate(d) {
   if (!d) return "";
   try {

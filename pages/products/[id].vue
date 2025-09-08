@@ -1,14 +1,21 @@
 <script setup>
-/**
- * صفحة تفاصيل المنتج مع:
- * - SSR عبر useAsyncData (تُجلب البيانات على السيرفر)
- * - OG/Twitter meta tags بروابط مطلقة
- * - Toast مشاركة (Facebook + WhatsApp)
- */
-definePageMeta({ ssr: true });
-useHead({ title: "تفاصيل المنتج" });
+useSeo({
+  title: listing.title + " | منصّة AZZA",
+  description:
+    listing.description?.slice(0, 150) || "اكتشف تفاصيل المنتج المعروض للبيع.",
+  image: product.image_url || "/media/avatars/logo.png",
+  canonicalPath: `/products/${route.params.id}`,
+  type: "product",
+  product: {
+    name: listing.title,
+    description: listing.description,
+    image: listing.images[0] || "/media/avatars/logo.png",
+    price: listing.price,
+    priceCurrency: listing.currency,
+  },
+});
+useHead({ title: listing.title });
 
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRuntimeConfig } from "#app";
 import { useMain } from "~/composables/useMain";
 

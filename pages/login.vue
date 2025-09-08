@@ -5,6 +5,15 @@ import BasePassword from "@/components/form/BasePassword.vue";
 useHead({ title: "تسجيل الدخول" });
 definePageMeta({ middleware: ["guest"] });
 
+useSeo({
+  title: "تسجيل الدخول | منصّة AZZA",
+  description:
+    "سجّل دخولك لإدارة إعلاناتك، إضافة عروض جديدة، والتواصل الآمن مع المشترين والبائعين على منصّتنا.",
+  image: "media/avatars/logo.png",
+  canonicalPath: "/login",
+  type: "website",
+  noindex: true,
+});
 const { login, authWithGoogle } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);

@@ -1,10 +1,20 @@
 <script setup>
+import { useMainStore } from "~/stores/mainStore";
+import { useMain } from "~/composables/useMain";
+
 useHead({ title: "الرئيسية" });
 
-import { ref, computed, onMounted } from "vue";
-import { useMainStore } from "~/stores/mainStore";
-
+// ✅ SEO للصفحة الرئيسية
+useSeo({
+  title: "منصّة AZZA | بيع وشراء بسهولة وأمان",
+  description:
+    "منصّة إلكترونية متكاملة للإعلانات العربية تتيح للمستخدمين إضافة إعلاناتهم وتصفح العروض في العقارات، الأجهزة، الأثاث، المفقودات والخدمات. تواصل مباشر وآمن بين البائعين والمشترين.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/",
+  type: "website",
+});
 const mainStore = useMainStore();
+const { getNotifications } = useMain();
 
 /* مدخلات البحث */
 const inputQuery = ref("");
@@ -15,6 +25,7 @@ onMounted(async () => {
   if (!mainStore?.homePageData) {
     await mainStore.getHomeData();
   }
+  await getNotifications();
 });
 
 /* بيانات القوائم */

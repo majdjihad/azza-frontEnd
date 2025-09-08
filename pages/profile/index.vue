@@ -6,7 +6,14 @@ import { useMainStore } from "~/stores/mainStore";
 
 definePageMeta({ middleware: ["auth"] });
 useHead({ title: "الملف الشخصي" });
-
+useSeo({
+  title: "ملفي الشخصي | منصّة AZZA",
+  description:
+    "شاهد معلومات حسابك، عدّل بياناتك، وتابع نشاطك على منصّة الإعلانات.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/profile",
+  type: "website",
+});
 const router = useRouter();
 const { logout } = useAuth();
 const { resetPassword } = useProfile();
@@ -197,8 +204,12 @@ async function handleLogout() {
             <div
               class="text-dark d-flex flex-column align-items-start justify-content-center"
             >
-              <span class="text-dark fs-4">{{ mainStore.profile.fullName }}</span>
-              <span class="text-secondary fs-5">{{ mainStore.profile.phone }}</span>
+              <span class="text-dark fs-4">{{
+                mainStore.profile.fullName
+              }}</span>
+              <span class="text-secondary fs-5">{{
+                mainStore.profile.phone
+              }}</span>
             </div>
           </div>
 

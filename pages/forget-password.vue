@@ -6,7 +6,15 @@ useHead({
   title: "نسيت كلمة السر",
 });
 definePageMeta({ middleware: ["guest"] });
-
+useSeo({
+  title: "نسيت كلمة السر | منصّة AZZA",
+  description:
+    "استرجع كلمة المرور عبر البريد الإلكتروني أو رقم الهاتف المرتبط بحسابك.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/forget-password",
+  type: "website",
+  noindex: true,
+});
 const { forgetPassword } = useAuth();
 const router = useRouter();
 const inProgress = ref(false);

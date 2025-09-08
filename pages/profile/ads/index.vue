@@ -8,7 +8,14 @@ const { deleteAds } = useMain();
 
 useHead({ title: "إعلاناتي" });
 definePageMeta({ middleware: ["auth"] });
-
+useSeo({
+  title: "إعلاناتي | منصّة AZZA",
+  description:
+    "إدارة جميع إعلاناتك المضافة، تعديلها أو حذفها بسهولة، وتتبع حالة النشر.",
+  image: "/media/avatars/logo.png",
+  canonicalPath: "/my-ads",
+  type: "website",
+});
 const mainStore = useMainStore();
 
 // ====== تحميل البيانات ======
