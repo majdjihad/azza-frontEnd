@@ -1,94 +1,121 @@
 <script setup>
-import BaseText from "@/components/form/BaseText.vue";
+import OtpCode from "@/components/form/OtpCode.vue";
 
-useHead({ title: "نسيت كلمة السر" });
+useHead({
+  title: "تاكيد الرمز",
+});
 definePageMeta({ middleware: ["guest"] });
 useSeo({
-  title: "نسيت كلمة السر | منصّة AZZA",
-  description:
-    "استرجع كلمة المرور عبر البريد الإلكتروني أو رقم الهاتف المرتبط بحسابك.",
+  title: "رمز التحقق | منصّة AZZA",
+  description: "أدخل رمز التحقق لإتمام تسجيل الدخول بأمان.",
   image: "/media/avatars/logo.png",
-  canonicalPath: "/forget-password",
+  canonicalPath: "/verify-code",
   type: "website",
   noindex: true,
 });
-
-const { forgetPassword } = useAuth(); // مفترض Auto-import من composables
+const route = useRoute();
 const router = useRouter();
+const { forgetVerify, resendVerification } = useAuth();
+const otp = ref("");
+const otpError = ref("");
 const inProgress = ref(false);
+const resendCodeInProgress = ref(false);
+const otpRef = ref(null);
 
-const form = reactive({ login: "" });
-const errors = reactive({ login: "" });
+const resendBtn = ref(null);
+const timerSpan = ref(null);
+const countdown = ref(5 * 60);
+const isDisabled = ref(true);
 
-function resetErrors() {
-  Object.keys(errors).forEach((k) => (errors[k] = ""));
-}
+onMounted(() => {
+  const interval = setInterval(() => {
+    const minutes = Math.floor(countdown.value / 60);
+    const seconds = countdown.value % 60;
 
-/* ================== التحقق ================== */
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (timerSpan.value) {
+      timerSpan.value.textContent = `يمكنك إعادة الإرسال بعد: ${minutes}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+    }
 
-const toLatinDigits = (s = "") =>
-  s
-    // أرقام عربية شرقية ٠١٢٣٤٥٦٧٨٩
-    .replace(/[٠-٩]/g, (d) => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)])
-    // أرقام فارسية/هندية ۰۱۲۳۴۵۶۷۸۹
-    .replace(/[۰-۹]/g, (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]);
+    countdown.value--;
 
-const normalizePhone = (s = "") => toLatinDigits(s).replace(/\D/g, ""); // أرقام فقط
-const isEmail = (v = "") => emailRe.test(v.trim());
-const isPhone05 = (v = "") => /^05\d{8}$/.test(normalizePhone(v));
+    if (countdown.value < 0) {
+      clearInterval(interval);
+      isDisabled.value = false;
+      if (timerSpan.value) timerSpan.value.textContent = "";
+    }
+  }, 1000);
+});
 
-/* ================== الإرسال ================== */
-function onSubmit() {
-  resetErrors();
-  const raw = form.login ?? "";
-  const trimmed = raw.trim();
+watch(otp, (v) => {
+  if (otpError.value && v) otpError.value = "";
+});
 
-  if (!trimmed) {
-    errors.login = "أدخل البريد الإلكتروني أو رقم الجوال";
-    return;
-  }
-
-  if (!(isEmail(trimmed) || isPhone05(trimmed))) {
-    errors.login =
-      "أدخل بريدًا صحيحًا أو رقم جوال يبدأ بـ 05 ويتكون من 10 أرقام";
-    return;
-  }
-
-  formHandle();
-}
-
+const formData = reactive({
+  reset_token: route.query.token,
+  verification_code: otp,
+});
+// handle form
 const formHandle = async () => {
+  otpError.value = "";
+  if (!otp.value || otp.value.length < 6) {
+    otpError.value = "يرجى إدخال رمز مكوّن من 6 أرقام";
+    otpRef.value?.focusFirst?.();
+    return;
+  }
   try {
     inProgress.value = true;
-
-    const raw = form.login ?? "";
-    // نرسل إيميل Lowercase أو رقم هاتف منقّى أرقام فقط يبدأ بـ 05
-    const payload = {
-      login: isEmail(raw) ? raw.trim().toLowerCase() : normalizePhone(raw),
-    };
-
-    const { submit } = useSubmit(() => forgetPassword(payload), {
+    const { submit } = useSubmit(() => forgetVerify(formData), {
       onSuccess: (response) => {
+        // Handle the response
         router.push({
-          path: "/forget-verify-code",
-          query: {
-            token: response?.data?.reset_token,
-          },
+          path: "/reset-password",
+          query: { token: response?.data.reset_token },
         });
-        showToast("success", response?.message || "تم الإرسال بنجاح");
+        showToast("success", response.message);
       },
       onError: (error) => {
-        showToast("error", error?.data?.message || "حدث خطأ");
-        if (error?.data?.code === 400) navigateTo("/login", { replace: true });
+        showToast("error", error?.data?.message);
+        if (error?.data?.code === 400) {
+          return navigateTo("/login", { replace: true });
+        }
       },
     });
-
     await submit();
   } catch (error) {
-    if (!error?.data?.message) showToast("error", "فشل الارسال");
+    if (!error?.data?.message) {
+      showToast("error", "فشل التسجيل");
+    }
   } finally {
     inProgress.value = false;
+  }
+};
+
+const resendVerificationCode = async () => {
+  if (inProgress.value) return;
+  try {
+    resendCodeInProgress.value = true;
+    const { submit } = useSubmit(
+      () => resendVerification({ login: formData.login }),
+      {
+        onSuccess: (response) => {
+          // Handle the response
+          showToast("success", response.message);
+        },
+        onError: (error) => {
+          showToast("error", error.data.message);
+          if (error?.data?.code === 400) {
+            return navigateTo("/login", { replace: true });
+          }
+        },
+      }
+    );
+    await submit();
+  } catch (error) {
+    showToast("error", error.data?.message || "فشل التسجيل");
+  } finally {
+    resendCodeInProgress.value = false;
   }
 };
 </script>
@@ -107,7 +134,7 @@ const formHandle = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -157,53 +184,79 @@ const formHandle = async () => {
         <div class="col-lg-7 py-9">
           <div class="card py-9 h-100">
             <div class="card-body p-4 p-md-5">
-              <form @submit.prevent="onSubmit" novalidate>
+              <form @submit.prevent="formHandle" novalidate>
                 <div>
                   <NuxtLink
-                    to="/login"
-                    class="d-flex align-items-center mb-3 text-primary fw-bold"
+                    :to="'/forget-password'"
+                    class="d-inline-flex align-items-center mb-3 text-primary fw-bold"
                   >
                     <Icon
                       name="material-symbols:arrow-right-alt"
                       class="ms-1"
                       size="28"
                     />
-                    <span class="fs-3">إعادة تعيين كلمة المرور</span>
+                    <span class="fs-3">رمز التحقق</span>
                   </NuxtLink>
                   <div class="w-md-50 w-75 my-8">
-                    <BaseText
-                      label="البريد الإلكتروني أو رقم الجوال"
-                      placeholder="أدخل بريدك الإلكتروني أو رقم هاتفك"
-                      v-model="form.login"
-                      :error="errors.login"
-                      type="text"
-                      autocomplete="text"
+                    <p>لقد ارسلنا رمز تحقق اليك</p>
+                    <OtpCode
+                      v-if="!inProgress"
+                      v-model="otp"
+                      :length="6"
+                      :error="otpError"
+                      ref="otpRef"
+                      class="my-9"
                     />
+                    <div v-else class="text-center py-4">
+                      <icon
+                        name="svg-spinners:ring-resize"
+                        class="indicator-label display-4 text-primary"
+                      />
+                    </div>
+
                     <p class="my-3 text-muted">
-                      سيصلك رمز التحقق بعد تعبىء الحقل
+                      الرجاء إدخال الرمز لإكمال العملية
                     </p>
                   </div>
                 </div>
                 <div class="text-end my-3">
                   <button
-                    class="btn btn-main px-8"
+                    class="btn btn-main mt-3"
                     :disabled="inProgress"
                     type="submit"
                   >
-                    <span v-if="!inProgress" class="fw-semibold"
-                      >إرسال
-                      <Icon
-                        name="material-symbols:arrow-back-rounded"
-                        class="text-white me-2"
-                        size="22"
-                      />
-                    </span>
-                    <icon
-                      v-else
-                      name="svg-spinners:ring-resize"
-                      class="indicator-label fs-1"
+                    <span class="fw-semibold">تحقق</span>
+                    <Icon
+                      name="material-symbols:arrow-back-rounded"
+                      class="text-white me-2"
+                      size="22"
                     />
                   </button>
+                  <div class="my-9 fw-semibold" v-if="!resendCodeInProgress">
+                    <div>
+                      اذا لم تتلقَّ رسالة التحقق؟
+                      <span
+                        ref="resendBtn"
+                        :class="['text-primary', 'text-decoration-underline']"
+                        @click="resendVerificationCode"
+                        class="cursor-pointer"
+                        v-if="!isDisabled"
+                      >
+                        اضغط هنا لإعادة الأرسال
+                      </span>
+                    </div>
+                    <span
+                      class="text-muted d-block mt-3"
+                      ref="timerSpan"
+                    ></span>
+                  </div>
+                  <div v-else class="text-muted mt-6">
+                    <icon
+                      name="svg-spinners:ring-resize"
+                      class="indicator-label fs-3"
+                    />
+                    <span class="fs-4 me-3">يتم الارسال</span>
+                  </div>
                 </div>
               </form>
             </div>
@@ -229,7 +282,8 @@ const formHandle = async () => {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #264fcf 0%, #1838a3 60%, #0f2a87 100%);
+  background: linear-gradient(135deg, #264fcf, #1838a3);
+  box-shadow: 0 0.5rem 1rem rgba(24, 56, 163, 0.15);
   opacity: 0.85;
 }
 
@@ -266,10 +320,6 @@ const formHandle = async () => {
   gap: 0.5rem;
 }
 
-[dir="rtl"] .info-panel__content {
-  text-align: right;
-}
-
 .badge.rounded-circle {
   width: 28px;
   height: 28px;
@@ -279,6 +329,7 @@ const formHandle = async () => {
   justify-content: center;
   font-weight: 700;
 }
+
 .btn-main {
   padding: 10px 40px !important;
 }

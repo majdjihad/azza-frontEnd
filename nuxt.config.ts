@@ -80,6 +80,16 @@ export default defineNuxtConfig({
     public: {
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL,
       frontendUrl: process.env.NUXT_PUBLIC_FRONTEND_URL,
+      companyName: process.env.NUXT_PUBLIC_COMPANY_NAME || "",
+      companyPhone: process.env.NUXT_PUBLIC_COMPANY_PHONE || "",
+      companyEmail: process.env.NUXT_PUBLIC_COMPANY_EMAIL || "",
+      companyAddress: process.env.NUXT_PUBLIC_COMPANY_ADDRESS || "",
+      facebookUrl: process.env.NUXT_PUBLIC_FACEBOOK_URL || "",
+      instagramUrl: process.env.NUXT_PUBLIC_INSTAGRAM_URL || "",
+      twitterUrl: process.env.NUXT_PUBLIC_TWITTER_URL || "",
+      whatsappUrl: process.env.NUXT_PUBLIC_WHATSAPP_URL || "",
+      tiktokUrl: process.env.NUXT_PUBLIC_TIKTOK_URL || "",
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "",
       siteDescription:
         "منصة إلكترونية عربية لبيع وشراء كل شيء: عقارات، أجهزة، أثاث، مفقودات وخدمات — تواصل آمن ومباشر بين البائعين والمشترين.",
       siteImage: "/media/avatars/logo.png",

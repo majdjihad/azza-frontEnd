@@ -17,8 +17,7 @@ const route = useRoute();
 const router = useRouter();
 
 const form = reactive({
-  email: route.query.email,
-  verification_code: route.query.code,
+  reset_token: route.query.token,
   password: "",
   password_confirmation: "",
 });
@@ -74,7 +73,6 @@ const formHandle = async () => {
       onSuccess: (response) => {
         openModal();
         showToast("success", response?.message || "تم تغيير كلمة السر بنجاح");
-        setTimeout(() => router.push({ path: "/login" }), 1500);
       },
       onError: (error) => {
         showToast("error", error?.data?.message);
@@ -96,7 +94,7 @@ const formHandle = async () => {
   <section class="py-5 pb-9">
     <div class="container">
       <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-5 col-md-6">
+        <div class="col-lg-5">
           <div class="info-panel h-100 text-white rounded-3">
             <div class="info-panel__content">
               <h2 class="fw-normal mb-3 text-white">
@@ -153,8 +151,8 @@ const formHandle = async () => {
             </div>
           </div>
         </div>
-        <div class="col-lg-7 col-md-6 py-9">
-          <div class="card border-0 py-9 h-100 bg-white">
+        <div class="col-lg-7 py-9">
+          <div class="card py-9 h-100">
             <div class="card-body p-4 p-md-5">
               <h1 class="fw-bold text-end mb-4">
                 <span class="display-4">👋</span>مرحبًا بك
@@ -222,7 +220,7 @@ const formHandle = async () => {
                             class="btn btn-outline d-flex align-items-center"
                             @click="closeModal"
                           >
-                            <span>تسجيل الدخول</span>
+                            <span>الذهاب الى شاشة تسجيل الدخول</span>
                             <Icon
                               name="material-symbols:arrow-back-rounded"
                               class="me-2"

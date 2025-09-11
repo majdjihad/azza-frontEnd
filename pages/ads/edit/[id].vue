@@ -987,5 +987,3 @@ function removeMain() {
   box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
 }
 </style>
-
-{"type":"new_ad","ad_id":137,"title":"Et quidem quaerat ex","user_name":"ahmed","user_photo":"http:\/\/localhost:8000\/assets\/img\/avatars\/user.png","message":"\u062a\u0645 \u0625\u0646\u0634\u0627\u0621 \u0625\u0639\u0644\u0627\u0646 \u062c\u062f\u064a\u062f: Et quidem quaerat ex","link":"\/admin\/ads\/137","created_at":"2025-09-06 09:29:00"}

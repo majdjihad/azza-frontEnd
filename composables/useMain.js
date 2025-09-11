@@ -110,7 +110,7 @@ export const useMain = () => {
       throw new Error("updateAd expects a FormData instance");
     }
     // نرسل مباشرة PUT (لا نحتاج _method=PUT)
-    return await $larafetch(`api/ads/${adId}`, {
+    return await $larafetch(`api/ads/edit/${adId}`, {
       method: "put",
       body: formData,
     });
@@ -137,12 +137,55 @@ export const useMain = () => {
     });
   }
   // اشعارات
-  async function getNotifications() {
-    return await $larafetch(`api/notifications`, {
+
+  // ========== Notifications API ==========
+  async function getNotifications({
+    page = 1,
+    per_page = 20,
+    onlyUnread = false,
+  } = {}) {
+    const url = onlyUnread ? "api/notifications/unread" : "api/notifications";
+    return await $larafetch(url, {
+      method: "get",
+      params: { page, per_page },
+    });
+  }
+
+  async function getUnreadCount() {
+    return await $larafetch("api/notifications/unread-count", {
       method: "get",
     });
   }
 
+  async function markNotificationAsRead(id) {
+    return await $larafetch(`api/notifications/${id}/read`, {
+      method: "post",
+    });
+  }
+
+  async function markAllNotificationsAsRead() {
+    return await $larafetch("api/notifications/read-all", {
+      method: "post",
+    });
+  }
+
+  async function showNotification(id) {
+    return await $larafetch(`api/notifications/${id}`, {
+      method: "get",
+    });
+  }
+
+  async function deleteNotification(id) {
+    return await $larafetch(`api/notifications/${id}`, {
+      method: "delete",
+    });
+  }
+
+  async function deleteAllNotifications() {
+    return await $larafetch("api/notifications", {
+      method: "delete",
+    });
+  }
   return {
     getHomePageData,
     getAllAds,
@@ -161,5 +204,11 @@ export const useMain = () => {
     deleteAds,
     sendMessage,
     getNotifications,
+    getUnreadCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    showNotification,
+    deleteNotification,
+    deleteAllNotifications,
   };
 };

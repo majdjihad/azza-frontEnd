@@ -1,24 +1,34 @@
 <script setup>
-useSeo({
-  title: listing.title + " | منصّة AZZA",
-  description:
-    listing.description?.slice(0, 150) || "اكتشف تفاصيل المنتج المعروض للبيع.",
-  image: product.image_url || "/media/avatars/logo.png",
-  canonicalPath: `/products/${route.params.id}`,
-  type: "product",
-  product: {
-    name: listing.title,
-    description: listing.description,
-    image: listing.images[0] || "/media/avatars/logo.png",
-    price: listing.price,
-    priceCurrency: listing.currency,
-  },
-});
-useHead({ title: listing.title });
-
 import { useRuntimeConfig } from "#app";
 import { useMain } from "~/composables/useMain";
 
+// بعد تعريف listing / pageUrl / mainImage / metaDescription
+useSeo(() => {
+  const v = listing.value || {};
+  return {
+    title: v.title ? `${v.title} | منصّة AZZA` : "منصّة AZZA",
+    description: (
+      v.description ||
+      v.title ||
+      "اكتشف تفاصيل المنتج المعروض للبيع."
+    ).slice(0, 150),
+    image: mainImage.value, // لا تستخدم product.image_url لأنه غير معرّف
+    canonicalPath: `/products/${route.params.id}`,
+    type: "product",
+    product: {
+      name: v.title || "",
+      description: v.description || "",
+      image: v.images?.[0] || "/media/avatars/logo.png",
+      price: v.price ?? undefined,
+      priceCurrency: v.currency || undefined,
+    },
+  };
+});
+
+// ويمكن الاكتفاء بهذا عن useHead الثاني، أو إن أردت العنوان فقط:
+useHead(() => ({
+  title: "تفاصيل المنتج",
+}));
 const route = useRoute();
 const { getProductDetails } = useMain();
 const runtimeConfig = useRuntimeConfig();
@@ -100,7 +110,6 @@ function mapProductToListing(p) {
     publishedAt: p?.created_at || "",
     price: p?.price ?? null,
     currency: p?.currency || "",
-    category: p?.category_name || p?.subcategory?.category?.name || "",
     images,
     description: p?.description || "",
   };
@@ -121,7 +130,6 @@ const listing = computed(() => {
       publishedAt: "",
       price: null,
       currency: "",
-      category: "",
       images: [],
       description: "",
     };
@@ -142,10 +150,7 @@ const mainImage = computed(() =>
 );
 
 const metaDescription = computed(() => {
-  const base = (
-    listing.value.description ||
-    `${listing.value.title} • ${listing.value.category}`
-  )
+  const base = (listing.value.description || `${listing.value.title}`)
     .replace(/\s+/g, " ")
     .trim();
   return base.length > 180 ? base.slice(0, 177) + "…" : base;
@@ -238,7 +243,6 @@ let remaining = 5000;
 const shareText = computed(() => {
   const parts = [];
   if (listing.value.title) parts.push(listing.value.title);
-  if (listing.value.category) parts.push(`(${listing.value.category})`);
   if (listing.value.price)
     parts.push(
       `السعر: ${listing.value.price} ${listing.value.currency || ""}`.trim()
@@ -304,13 +308,6 @@ onMounted(() => {
     <div v-else>
       <div class="d-flex align-items-center py-9">
         <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
-        <Icon
-          name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
-        />
-        <h2 class="fs-3 m-0 fw-semibold text-muted">
-          {{ listing.category || "—" }}
-        </h2>
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
@@ -449,7 +446,7 @@ onMounted(() => {
               </NuxtLink>
               <div class="user-data gap-2 my-3 pb-3 px-3">
                 <NuxtLink
-                  to="tel:"
+                  :to="`tel:${runtimeConfig.public.companyPhone}`"
                   class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 bg-primary rounded">
@@ -460,11 +457,13 @@ onMounted(() => {
                   </span>
                   <div class="d-flex flex-column rounded">
                     <span class="text-muted text-end">تواصل عبر الجوال</span>
-                    <span class="fw-semibold text-end fw-bold">059872255</span>
+                    <span class="fw-semibold text-end fw-bold">{{
+                      runtimeConfig.public.companyPhone
+                    }}</span>
                   </div>
                 </NuxtLink>
                 <NuxtLink
-                  to="https://wa.me/059872255"
+                  :to="`https://wa.me/${runtimeConfig.public.companyPhone}`"
                   class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #4fad52">
@@ -472,11 +471,13 @@ onMounted(() => {
                   </span>
                   <div class="d-flex flex-column rounded">
                     <span class="text-muted text-end">تواصل عبر الواتساب</span>
-                    <span class="fw-semibold text-end fw-bold">059872255</span>
+                    <span class="fw-semibold text-end fw-bold">{{
+                      runtimeConfig.public.companyPhone
+                    }}</span>
                   </div>
                 </NuxtLink>
                 <NuxtLink
-                  to="mailto:support@zaaz.com"
+                  :to="`mailto:runtimeConfig.public.companyEmail`"
                   class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #a5acb9">
@@ -489,9 +490,9 @@ onMounted(() => {
                     <span class="text-muted text-end"
                       >تواصل عبر البريد الالكتروني</span
                     >
-                    <span class="fw-semibold text-end fw-bold"
-                      >support@zaaz.com</span
-                    >
+                    <span class="fw-semibold text-end fw-bold">{{
+                      runtimeConfig.public.companyEmail
+                    }}</span>
                   </div>
                 </NuxtLink>
               </div>

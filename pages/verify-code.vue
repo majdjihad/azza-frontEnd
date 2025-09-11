@@ -53,14 +53,14 @@ watch(otp, (v) => {
 });
 
 const formData = reactive({
-  email: route.query.email,
+  login: route.query.login,
   verification_code: otp,
 });
 // handle form
 const formHandle = async () => {
   otpError.value = "";
   if (!otp.value || otp.value.length < 4) {
-    otpError.value = "يرجى إدخال رمز مكوّن من 4 أرقام";
+    otpError.value = "يرجى إدخال رمز مكوّن من 6 أرقام";
     otpRef.value?.focusFirst?.();
     return;
   }
@@ -69,18 +69,10 @@ const formHandle = async () => {
     const { submit } = useSubmit(() => verify(formData), {
       onSuccess: (response) => {
         // Handle the response
-        if (route.query.mode === "forget-password") {
-          router.push({
-            path: "/reset-password",
-            query: { email: formData.email, code: otp.value },
-          });
-          showToast("success", response.message);
-        } else if (route.query.mode === "register") {
-          router.push({
-            path: "/",
-          });
-          showToast("success", response.message);
-        }
+        router.push({
+          path: "/",
+        });
+        showToast("success", response.message);
       },
       onError: (error) => {
         showToast("error", error?.data?.message);
@@ -104,7 +96,7 @@ const resendVerificationCode = async () => {
   try {
     resendCodeInProgress.value = true;
     const { submit } = useSubmit(
-      () => resendVerification({ email: formData.email }),
+      () => resendVerification({ login: formData.login }),
       {
         onSuccess: (response) => {
           // Handle the response
@@ -194,11 +186,7 @@ const resendVerificationCode = async () => {
               <form @submit.prevent="formHandle" novalidate>
                 <div>
                   <NuxtLink
-                    :to="
-                      route.query.mode === 'forget-password'
-                        ? '/forget-password'
-                        : '/register'
-                    "
+                    to="/register"
                     class="d-inline-flex align-items-center mb-3 text-primary fw-bold"
                   >
                     <Icon
@@ -210,8 +198,8 @@ const resendVerificationCode = async () => {
                   </NuxtLink>
                   <div class="w-md-50 w-75 my-8">
                     <p>
-                      لقد ارسلنا رمز تحقق الى بريدك الالكتروني
-                      <span class="text-primary">{{ route.query.email }}</span>
+                      لقد ارسلنا رمز تحقق اليك
+                      <span class="text-primary">{{ route.query.login }}</span>
                     </p>
                     <OtpCode
                       v-if="!inProgress"

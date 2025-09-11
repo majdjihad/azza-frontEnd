@@ -41,6 +41,15 @@ export const useAuth = () => {
     await navigateTo("/", { replace: true });
     return response;
   }
+  async function forgetVerify(credentials) {
+    const response = await $larafetch("/verify-reset-code", {
+      method: "post",
+      body: credentials,
+    });
+    await refresh();
+    await navigateTo("/", { replace: true });
+    return response;
+  }
   async function resendVerification(credentials) {
     const response = await $larafetch("/api/resend-verification-code", {
       method: "post",
@@ -88,6 +97,7 @@ export const useAuth = () => {
     register,
     authWithGoogle,
     verify,
+    forgetVerify,
     resendVerification,
     forgetPassword,
     resetPassword,

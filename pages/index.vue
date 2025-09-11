@@ -1,6 +1,5 @@
 <script setup>
 import { useMainStore } from "~/stores/mainStore";
-import { useMain } from "~/composables/useMain";
 
 useHead({ title: "الرئيسية" });
 
@@ -14,7 +13,6 @@ useSeo({
   type: "website",
 });
 const mainStore = useMainStore();
-const { getNotifications } = useMain();
 
 /* مدخلات البحث */
 const inputQuery = ref("");
@@ -25,7 +23,6 @@ onMounted(async () => {
   if (!mainStore?.homePageData) {
     await mainStore.getHomeData();
   }
-  await getNotifications();
 });
 
 /* بيانات القوائم */
@@ -149,7 +146,7 @@ const carouselId = "offersCarousel";
                 </span>
                 <input
                   type="text"
-                  class="form-control bg-white py-6 text-dark fs-3 border-0 rounded-0"
+                  class="form-control search-input bg-white py-6 text-dark fs-3 border-0 rounded-0"
                   placeholder="ادخل كلمة البحث هنا"
                   v-model="inputQuery"
                 />
@@ -157,10 +154,10 @@ const carouselId = "offersCarousel";
             </div>
 
             <!-- اختيار القسم -->
-            <div class="col-md-3">
+            <div class="col-md-3 d-flex justify-content-center bg-white">
               <div class="input-group row gap-0">
                 <div
-                  class="input-group-prepend col-3 text-center bg-white d-flex justify-content-center align-items-center p-0 border-end"
+                  class="input-group-prepend col-3 text-center bg-white w-auto d-flex justify-content-start align-items-center p-0 border-end"
                 >
                   <label
                     class="input-group-text bg-white d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
@@ -190,10 +187,10 @@ const carouselId = "offersCarousel";
             </div>
 
             <!-- اختيار المدينة -->
-            <div class="col-md-3 bg-white">
+            <div class="col-md-3 d-flex justify-content-center bg-white">
               <div class="input-group row gap-0">
                 <div
-                  class="input-group-prepend col-3 text-center bg-white d-flex justify-content-center align-items-center p-0 border-end"
+                  class="input-group-prepend col-3 text-center bg-white d-flex justify-content-start w-auto align-items-center p-0 border-end"
                 >
                   <label
                     class="input-group-text bg-white d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
@@ -206,7 +203,7 @@ const carouselId = "offersCarousel";
                 <select
                   id="inputCityGroup"
                   v-model="cityIdSelected"
-                  class="bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  class="form-select bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
                   :class="{ 'text-muted': !cityIdSelected }"
                 >
                   <!-- placeholder -->
@@ -595,5 +592,10 @@ label:focus {
     margin: 0 1rem 2rem;
     padding: 15px;
   }
+}
+.search-input::placeholder {
+  color: #6c757d !important;
+  font-size: 1.35rem !important;
+  font-weight: 400;
 }
 </style>

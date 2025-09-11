@@ -211,7 +211,7 @@ const loginGoogle = async () => {
             </div>
           </div>
         </div>
-        <div class="col-lg-5 py-9">
+        <div class="col-lg-7 py-9">
           <div class="card py-9 h-100">
             <div class="card-body p-4 p-md-5">
               <h1 class="fw-bold text-end mb-4">
@@ -229,7 +229,7 @@ const loginGoogle = async () => {
               </ul>
               <form @submit.prevent="onSubmit" novalidate>
                 <div>
-                  <div class="w-75">
+                  <div class="w-md-50 w-75">
                     <BaseText
                       label="البريد الإلكتروني أو رقم الهاتف"
                       placeholder="البريد الإلكتروني أو رقم الهاتف"
@@ -244,7 +244,7 @@ const loginGoogle = async () => {
                       "
                     />
                   </div>
-                  <div class="w-75">
+                  <div class="w-md-50 w-75">
                     <BasePassword
                       label="كلمة المرور"
                       placeholder="كلمة المرور"

@@ -543,7 +543,7 @@ function resetAll() {
               </button>
               الصورة الرئيسية للاعلان (صورة واحدة)
             </h6>
-            <small class="text-muted">حتى 1MB</small>
+            <small class="text-muted">حتى 2MB</small>
           </div>
           <p class="text-muted mb-4">
             هذه هي الصورة التي ستظهر أولاً في نتائج البحث.
@@ -567,7 +567,7 @@ function resetAll() {
               class="pond"
               :allow-multiple="false"
               :accepted-file-types="['image/*']"
-              max-file-size="1MB"
+              max-file-size="2MB"
               :instant-upload="false"
               :store-as-file="true"
               @updatefiles="onMainUpdate"
@@ -642,7 +642,7 @@ function resetAll() {
             <div class="col-md-6">
               <BaseText
                 v-model="form.title"
-                label="عنوان الإعلان *"
+                label="عنوان الإعلان"
                 placeholder="مثال: شقة 3 غرف للبيع ..."
                 :error="errors.title"
                 req
@@ -666,6 +666,7 @@ function resetAll() {
                 label="البريد الإلكتروني"
                 placeholder="example@gmail.com"
                 :error="errors.email"
+                req
               />
             </div>
 

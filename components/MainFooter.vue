@@ -1,3 +1,6 @@
+<script setup>
+const config = useRuntimeConfig();
+</script>
 <template>
   <footer class="footer bg-white border-top pt-9">
     <div class="">
@@ -106,13 +109,17 @@
                 class="text-white fs-2"
               />
             </span>
-            <span class="ms-1 text-muted">+972592072429</span>
+            <span class="ms-1 text-muted">{{
+              config.public.companyPhone
+            }}</span>
           </p>
           <p class="d-flex align-items-center mb-1">
             <span class="ms-2 p-2 bg-primary rounded-circle">
               <Icon name="bi:envelope-fill" class="text-white fs-2" />
             </span>
-            <span class="ms-1 text-muted">support@azza.com</span>
+            <span class="ms-1 text-muted">{{
+              config.public.companyEmail
+            }}</span>
           </p>
         </div>
       </div>
@@ -123,19 +130,21 @@
           جميع الحقوق محفوظة © 2025 - Azza – إحدى مشاريع مجموعة Akhlaa
         </p>
         <div class="d-flex justify-content-center mb-2">
-          <NuxtLink to="#" class="text-white fs-3 mx-2"
+          <NuxtLink :to="config.public.facebookUrl" class="text-white fs-3 mx-2"
             ><Icon name="bi:facebook"
           /></NuxtLink>
-          <NuxtLink to="#" class="text-white fs-3 mx-2"
+          <NuxtLink
+            :to="config.public.instagramUrl"
+            class="text-white fs-3 mx-2"
             ><Icon name="bi:instagram"
           /></NuxtLink>
-          <NuxtLink to="#" class="text-white fs-3 mx-2"
+          <NuxtLink :to="config.public.twitterUrl" class="text-white fs-3 mx-2"
             ><Icon name="bi:twitter-x"
           /></NuxtLink>
-          <NuxtLink to="#" class="text-white fs-3 mx-2"
+          <NuxtLink :to="config.public.whatsappUrl" class="text-white fs-3 mx-2"
             ><Icon name="bi:whatsapp"
           /></NuxtLink>
-          <NuxtLink to="#" class="text-white fs-3 mx-2"
+          <NuxtLink :to="config.public.tiktokUrl" class="text-white fs-3 mx-2"
             ><Icon name="bi:tiktok"
           /></NuxtLink>
         </div>
@@ -143,10 +152,6 @@
     </div>
   </footer>
 </template>
-
-<script setup>
-// لا حاجة لتعريف شيء لأن nuxt-icon متكامل مع Nuxt 3
-</script>
 
 <style scoped>
 .footer {

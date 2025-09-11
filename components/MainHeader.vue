@@ -6,12 +6,12 @@ import { useMain } from "~/composables/useMain";
 import { useMainStore } from "~/stores/mainStore";
 
 const mainStore = useMainStore();
-
 const { user, isLoggedIn } = useAuth();
-useMain(); // لو تحتاج دوال أخرى لاحقاً
-console.log(isLoggedIn)
+const config = useRuntimeConfig();
+
+useMain();
+
 const favoritesMenuVisible = ref(false);
-const notificationsMenuVisible = ref(false);
 
 async function toggleFavoritesMenu() {
   if (!isLoggedIn.value) return navigateTo("/login");
@@ -24,10 +24,6 @@ async function toggleFavoritesMenu() {
   }
 }
 
-function toggleNotificationsMenu() {
-  if (!isLoggedIn.value) return navigateTo("/login");
-  notificationsMenuVisible.value = !notificationsMenuVisible.value;
-}
 const route = useRoute();
 const allowedPaths = ["ads", "ads-category-slug"];
 const defaultAvatar = "/media/avatars/user.png";
@@ -67,19 +63,19 @@ const profile = computed(() => {
       </div>
 
       <div class="d-flex flex-row-reverse gap-6">
-        <NuxtLink to="https://www.facebook.com/">
+        <NuxtLink :to="config.public.facebookUrl">
           <Icon name="fa6-brands:facebook-f" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink to="https://www.instagram.com/">
+        <NuxtLink :to="config.public.instagramUrl">
           <Icon name="fa6-brands:instagram" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink to="https://www.x.com/">
+        <NuxtLink :to="config.public.twitterUrl">
           <Icon name="fa6-brands:x-twitter" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink to="https://www.whatsapp.com/">
+        <NuxtLink :to="config.public.whatsappUrl">
           <Icon name="fa6-brands:whatsapp" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink to="https://www.tiktok.com/">
+        <NuxtLink :to="config.public.tiktokUrl">
           <Icon name="fa6-brands:tiktok" class="fs-3 text-secondary" />
         </NuxtLink>
       </div>
@@ -121,30 +117,8 @@ const profile = computed(() => {
             />
           </div>
 
-          <!-- Notifications -->
-          <div class="position-relative dropdown" v-if="isLoggedIn">
-            <button
-              @click="toggleNotificationsMenu"
-              class="btn btn-link text-decoration-none d-flex flex-column align-items-center"
-              :class="
-                notificationsMenuVisible ? 'text-primary' : 'text-secondary'
-              "
-            >
-              <Icon name="fa-solid:bell" class="fs-2" />
-              <span
-                class="fs-5 mt-4"
-                :class="
-                  notificationsMenuVisible ? 'text-primary' : 'text-secondary'
-                "
-              >
-                الإشعارات
-              </span>
-            </button>
-            <NotificationsMenu
-              :show="notificationsMenuVisible"
-              v-click-outside="() => (notificationsMenuVisible = false)"
-            />
-          </div>
+          <!-- Notifications (الزر + القائمة داخل المكوّن نفسه) -->
+          <NotificationsMenu v-if="isLoggedIn" />
 
           <!-- إعلاناتي -->
           <NuxtLink

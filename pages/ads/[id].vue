@@ -1,243 +1,262 @@
-<script setup>
-import { useRuntimeConfig } from "#app";
-import { useMain } from "~/composables/useMain";
-useSeo({
-  title: listing.title + " | منصّة AZZA",
-  description:
-    listing.description?.slice(0, 150) || "شاهد تفاصيل هذا الإعلان على منصتنا.",
-  image: listing.images[0] || "/media/avatars/logo.png",
-  canonicalPath: `/ads/${listing.id}`,
-  type: "product",
-  product: {
-    name: listing.title,
-    description: listing.description,
-    image: listing.images[0] || "/media/avatars/logo.png",
-    price: listing.price,
-    priceCurrency: listing.currency,
-  },
-});
-useHead({ title: listing.title });
-const route = useRoute();
-const runtimeConfig = useRuntimeConfig?.();
+<script setup lang="js">
+import { useRoute, useHead, onMounted, onBeforeUnmount, ref, reactive, computed, watch } from '#imports'
+import { useRuntimeConfig } from '#app'
+import { useMain } from '~/composables/useMain'
 
-const pending = ref(true);
-const loadError = ref(false);
-const { getAdDetails } = useMain();
+/* ================== الأساسيات ================== */
+const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const { getAdDetails } = useMain()
 
+const pending = ref(true)
+const loadError = ref(false)
+
+/* ================== نموذج العرض ================== */
 const listing = reactive({
   id: route.params.id,
-  title: "",
-  location: "",
-  publishedAt: "",
+  title: '',
+  location: '',
+  publishedAt: '',
   price: null,
-  currency: "",
-  category: "",
+  currency: '',
+  category: '',
   images: [],
-  description: "",
-  publisher: null,
+  description: '',
+  publisher: null, // { id, name, avatar, phone, whatsapp, email }
   details: {},
-  customFields: [],
-});
+  customFields: [] // [{ label, value }]
+})
 
-const relatedProducts = ref([]);
-const relatedAds = ref([]);
+const relatedProducts = ref([])
+const relatedAds = ref([])
 
+/* ================== توابع مساعدة ================== */
 function humanDate(d) {
-  if (!d) return "";
+  if (!d) return ''
   try {
-    const LOCALE = "ar-EG-u-nu-latn";
-    const dt = new Date(d);
+    const LOCALE = 'ar-EG-u-nu-latn'
+    const dt = new Date(d)
     const dateStr = new Intl.DateTimeFormat(LOCALE, {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }).format(dt);
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    }).format(dt)
     const timeRaw = new Intl.DateTimeFormat(LOCALE, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(dt);
-    const time = timeRaw.replace(/\s([صم])$/, "$1");
-    return `${dateStr} - ${time}`;
+      hour: '2-digit', minute: '2-digit', hour12: true
+    }).format(dt)
+    const time = timeRaw.replace(/\s([صم])$/, '$1')
+    return `${dateStr} - ${time}`
   } catch {
-    return d;
+    return String(d)
   }
 }
 
-/* ============ تحويل استجابة API -> نموذج العرض ============ */
 function mapAdToListing(d) {
-  const ad = d?.ad ?? d;
+  const ad = d?.ad ?? d
 
-  const gallery = Array.isArray(ad?.gallery) ? ad.gallery : [];
+  const gallery = Array.isArray(ad?.gallery) ? ad.gallery : []
   const galleryUrls = gallery
-    .map((it) => (typeof it === "string" ? it : it?.url || it?.path || ""))
-    .filter(Boolean);
-  const images = [ad?.main_image, ...galleryUrls].filter(Boolean);
-
-  const publisher = ad?.publisher || ad?.user || null;
-
-  const customFields = Array.isArray(ad?.ad_custom_field_values)
-    ? ad.ad_custom_field_values
-        .map((row) => ({
-          label: row?.custom_field?.name || "",
-          value: row?.value ?? "",
-        }))
-        .filter((x) => x.label && String(x.value).length)
-    : [];
+    .map(it => (typeof it === 'string' ? it : it?.url || it?.path || ''))
+    .filter(Boolean)
+  const images = [ad?.main_image, ...galleryUrls].filter(Boolean)
+  const publisher = ad?.publisher || ad?.user || null
 
   return {
     id: ad?.id,
-    title: ad?.title || ad?.name || "",
-    location: ad?.city_name || ad?.city?.name || "",
-    publishedAt: ad?.approved_at || "",
+    title: ad?.title || ad?.name || '',
+    location: ad?.city_name || ad?.city?.name || '',
+    publishedAt: ad?.approved_at || '',
     price: ad?.price ?? null,
-    currency: ad?.currency || "",
+    currency: ad?.currency || '',
     category:
       ad?.category_name ||
       ad?.subcategory?.category?.name ||
       ad?.subcategory?.category_name ||
-      "",
+      '',
     images,
-    description: ad?.description || "",
+    description: ad?.description || '',
     publisher: publisher
       ? {
-          id: ad?.user_id || publisher?.id || "",
-          name: ad?.user_name || publisher?.name || "",
-          avatar: ad?.user_photo || publisher?.image || publisher?.photo || "",
-          phone: ad?.whatsapp || "",
-          whatsapp: ad?.whatsapp || "",
-          email: ad?.email || "",
+          id: ad?.user_id || publisher?.id || '',
+          name: ad?.user_name || publisher?.name || '',
+          avatar: ad?.user_photo || publisher?.image || publisher?.photo || '/media/avatars/logo.png',
+          phone: ad?.whatsapp || '',
+          whatsapp: ad?.whatsapp || '',
+          email: ad?.email || ''
         }
       : null,
     details: {},
-    customFields,
-  };
+    customFields: Array.isArray(ad?.ad_custom_field_values)
+      ? ad.ad_custom_field_values
+          .map(row => ({ label: row?.custom_field?.name || '', value: row?.value ?? '' }))
+          .filter(x => x.label && String(x.value).length)
+      : []
+  }
 }
 
-/* ============ الجلب ============ */
+/* ================== الجلب ================== */
 async function fetchDetails() {
-  pending.value = true;
-  loadError.value = false;
+  pending.value = true
+  loadError.value = false
   try {
-    const res = await getAdDetails(route.params.id);
-    const data = res?.data ?? res;
-    const payload = data?.data ?? data;
-    if (payload && typeof payload === "object") {
-      Object.assign(listing, mapAdToListing(payload));
-      relatedProducts.value = Array.isArray(payload.products)
-        ? payload.products
-        : [];
-      relatedAds.value = Array.isArray(payload.related_ads)
-        ? payload.related_ads
-        : [];
+    const res = await getAdDetails(route.params.id)
+    const data = res?.data ?? res
+    const payload = data?.data ?? data
+    if (payload && typeof payload === 'object') {
+      Object.assign(listing, mapAdToListing(payload))
+      relatedProducts.value = Array.isArray(payload.products) ? payload.products : []
+      relatedAds.value = Array.isArray(payload.related_ads) ? payload.related_ads : []
     } else {
-      loadError.value = true;
+      loadError.value = true
     }
   } catch {
-    loadError.value = true;
+    loadError.value = true
   } finally {
-    pending.value = false;
+    pending.value = false
   }
 }
 
-onMounted(fetchDetails);
+onMounted(fetchDetails)
 watch(
   () => route.params.id,
-  async () => {
-    listing.id = route.params.id;
-    await fetchDetails();
+  async (id) => {
+    listing.id = id
+    await fetchDetails()
   }
-);
+)
 
-/* ============ سلايدر العناصر ذات الصلة ============ */
-const chunk = (arr, size) => {
-  const out = [];
-  if (!Array.isArray(arr)) return out;
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
-};
-const perSlide = 4;
-const productSlides = computed(() => chunk(relatedProducts.value, perSlide));
-const relatedAdSlides = computed(() => chunk(relatedAds.value, perSlide));
-const carouselId = "offersCarousel";
-
-/* ============ مشاركة احترافية (Toast) ============ */
+/* ================== SEO / HEAD ================== */
+// بناء origin مناسب للـ SSR/Client
 function getOrigin() {
-  if (process.client && typeof window !== "undefined")
-    return window.location.origin;
-  return runtimeConfig?.public?.siteUrl || "https://example.com";
+  if (process.client && typeof window !== 'undefined') return window.location.origin
+  return runtimeConfig.public?.siteUrl || 'https://example.com'
 }
-
 const adUrl = computed(() => {
-  const origin = getOrigin();
+  const origin = getOrigin()
   try {
-    return new URL(`/ads/${listing.id}`, origin).href;
+    return new URL(`/ads/${listing.id || ''}`, origin).href
   } catch {
-    return `${origin}/ads/${listing.id}`;
+    return `${origin}/ads/${listing.id || ''}`
   }
-});
+})
+const mainImage = computed(() => listing.images?.[0] || '/media/avatars/logo.png')
+const metaDescription = computed(() => {
+  const base = (listing.description || listing.title || 'شاهد تفاصيل هذا الإعلان على منصتنا.').trim()
+  return base.length > 180 ? base.slice(0, 177) + '…' : base
+})
 
+// ✅ تعريف الميتا بعد تهيئة listing — لا استخدام قبل التعريف
+useHead(() => {
+  const title = listing.title ? `${listing.title} ` : 'تفاصيل الإعلان'
+  const desc = metaDescription.value
+  const img = mainImage.value
+  const url = adUrl.value
+
+  return {
+    title,
+    link: [{ rel: 'canonical', href: url }],
+    meta: [
+      { property: 'og:type', content: 'product' },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: desc },
+      { property: 'og:image', content: img },
+      { property: 'og:url', content: url },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: desc },
+      { name: 'twitter:image', content: img },
+      listing.price != null ? { property: 'product:price:amount', content: String(listing.price) } : undefined,
+      listing.currency ? { property: 'product:price:currency', content: listing.currency } : undefined
+    ].filter(Boolean),
+    script: [
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: title,
+          description: desc,
+          image: img,
+          url,
+          offers:
+            listing.price != null
+              ? {
+                  '@type': 'Offer',
+                  price: String(listing.price),
+                  priceCurrency: listing.currency || 'USD',
+                  availability: 'https://schema.org/InStock'
+                }
+              : undefined
+        })
+      }
+    ]
+  }
+})
+
+/* ================== سلايدر العناصر ذات الصلة ================== */
+const chunk = (arr, size) => {
+  const out = []
+  if (!Array.isArray(arr)) return out
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+const perSlide = 4
+const productSlides = computed(() => chunk(relatedProducts.value, perSlide))
+const relatedAdSlides = computed(() => chunk(relatedAds.value, perSlide))
+const carouselId = 'offersCarousel'
+
+/* ================== مشاركة (Toast) ================== */
 const shareText = computed(() => {
-  const parts = [];
-  if (listing?.title) parts.push(listing.title);
-  if (listing?.category) parts.push(`(${listing.category})`);
-  if (listing?.price)
-    parts.push(`السعر: ${listing.price} ${listing?.currency || ""}`.trim());
-  if (listing?.location) parts.push(`المكان: ${listing.location}`);
-  return parts.join(" • ");
-});
-
+  const parts = []
+  if (listing.title) parts.push(listing.title)
+  if (listing.category) parts.push(`(${listing.category})`)
+  if (listing.price != null) parts.push(`السعر: ${listing.price} ${listing.currency || ''}`.trim())
+  if (listing.location) parts.push(`المكان: ${listing.location}`)
+  return parts.join(' • ')
+})
 const shareUrls = computed(() => ({
-  fb: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-    adUrl.value
-  )}&quote=${encodeURIComponent(shareText.value)}`,
-  wa: `https://wa.me/?text=${encodeURIComponent(
-    `${shareText.value} ${adUrl.value}`
-  )}`,
-}));
+  fb: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(adUrl.value)}&quote=${encodeURIComponent(shareText.value)}`,
+  wa: `https://wa.me/?text=${encodeURIComponent(`${shareText.value} ${adUrl.value}`)}`
+}))
 
-const shareToastOpen = ref(false);
-let hideTimer = null;
-let startedAt = 0;
-let remaining = 5000;
+const shareToastOpen = ref(false)
+let hideTimer = null
+let startedAt = 0
+let remaining = 5000
 
 function openShareToast() {
-  shareToastOpen.value = true;
-  clearTimeout(hideTimer);
-  remaining = 5000;
-  startedAt = Date.now();
-  hideTimer = setTimeout(() => (shareToastOpen.value = false), remaining);
+  shareToastOpen.value = true
+  clearTimeout(hideTimer)
+  remaining = 5000
+  startedAt = Date.now()
+  hideTimer = setTimeout(() => (shareToastOpen.value = false), remaining)
 }
 function closeShareToast() {
-  shareToastOpen.value = false;
-  clearTimeout(hideTimer);
+  shareToastOpen.value = false
+  clearTimeout(hideTimer)
 }
 function onToastMouseEnter() {
-  clearTimeout(hideTimer);
-  remaining -= Date.now() - startedAt;
+  clearTimeout(hideTimer)
+  remaining -= Date.now() - startedAt
 }
 function onToastMouseLeave() {
-  startedAt = Date.now();
-  clearTimeout(hideTimer);
-  hideTimer = setTimeout(
-    () => (shareToastOpen.value = false),
-    Math.max(0, remaining)
-  );
+  startedAt = Date.now()
+  clearTimeout(hideTimer)
+  hideTimer = setTimeout(() => (shareToastOpen.value = false), Math.max(0, remaining))
 }
 function shareTo(platform) {
-  const url = shareUrls.value[platform];
-  if (!url) return;
-  if (process.client) window.open(url, "_blank", "noopener,noreferrer");
-  closeShareToast();
+  const url = shareUrls.value[platform]
+  if (!url) return
+  if (process.client) window.open(url, '_blank', 'noopener,noreferrer')
+  closeShareToast()
 }
 
-// Escape لإغلاق التوست
+/* Esc لإغلاق التوست */
+const onKey = (e) => e.key === 'Escape' && closeShareToast()
 onMounted(() => {
-  const onKey = (e) => e.key === "Escape" && closeShareToast();
-  window.addEventListener("keydown", onKey);
-  onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
-});
+  window.addEventListener('keydown', onKey)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+})
 </script>
 
 <template>
@@ -298,13 +317,6 @@ onMounted(() => {
               </div>
 
               <div class="d-flex align-items-center gap-2">
-                <!-- <button
-                  class="btn btn-outline-secondary text-muted border d-flex align-items-center"
-                  title="مفضلة"
-                >
-                  <Icon name="ic:baseline-favorite" class="fs-2" />
-                  <span class="fs-3 text-muted me-2">المفضلة</span>
-                </button> -->
                 <button
                   class="btn btn-outline-secondary text-muted border d-flex align-items-center"
                   title="مشاركة"
@@ -348,6 +360,7 @@ onMounted(() => {
             <!-- تفاصيل إضافية -->
             <div class="ads-data">
               <div class="py-4"><h4 class="pb-1">تفاصيل إضافية</h4></div>
+
               <template v-if="listing.customFields?.length">
                 <div class="row g-3">
                   <div
@@ -364,6 +377,7 @@ onMounted(() => {
                   </div>
                 </div>
               </template>
+
               <template v-else>
                 <div class="text-center text-muted py-4">
                   لا توجد بيانات إضافية.
@@ -395,94 +409,103 @@ onMounted(() => {
                 بيانات الناشر
               </h3>
 
-              <NuxtLink
-                :to="`/users/${listing.publisher.id}`"
-                class="m-auto mb-3 text-center"
-                v-if="listing.publisher"
-              >
-                <div>
-                  <img
-                    :src="listing.publisher.avatar"
-                    class="rounded-circle border"
-                    width="100"
-                    height="100"
-                    :alt="listing.publisher.name"
-                  />
-                  <h3 class="fw-bold mt-3">{{ listing.publisher.name }}</h3>
+              <template v-if="listing.publisher">
+                <NuxtLink
+                  :to="`/users/${listing.publisher.id}`"
+                  class="m-auto mb-3 text-center"
+                >
+                  <div>
+                    <img
+                      :src="listing.publisher.avatar"
+                      class="rounded-circle border"
+                      width="100"
+                      height="100"
+                      :alt="listing.publisher.name"
+                    />
+                    <h3 class="fw-bold mt-3">{{ listing.publisher.name }}</h3>
+                  </div>
+                </NuxtLink>
+
+                <NuxtLink
+                  :to="`/users/${listing.publisher.id}`"
+                  class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
+                >
+                  عرض جميع المنتجات
+                </NuxtLink>
+
+                <div class="user-data gap-2 my-3 pb-3 px-3">
+                  <NuxtLink
+                    :to="`tel:${listing.publisher?.phone}`"
+                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    v-if="listing.publisher?.phone"
+                  >
+                    <span class="p-6 bg-primary rounded">
+                      <Icon
+                        name="material-symbols:phone-in-talk-watchface-indicator"
+                        class="text-white fs-1"
+                      />
+                    </span>
+                    <div class="d-flex flex-column rounded">
+                      <span class="text-muted text-end">تواصل عبر الجوال</span>
+                      <span class="fw-semibold text-end fw-bold">{{
+                        listing.publisher.phone
+                      }}</span>
+                    </div>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    :to="`https://wa.me/${listing.publisher?.whatsapp}`"
+                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    v-if="listing.publisher?.whatsapp"
+                  >
+                    <span class="p-6 rounded" style="background-color: #4fad52">
+                      <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
+                    </span>
+                    <div class="d-flex flex-column rounded">
+                      <span class="text-muted text-end"
+                        >تواصل عبر الواتساب</span
+                      >
+                      <span class="fw-semibold text-end fw-bold">{{
+                        listing.publisher.whatsapp
+                      }}</span>
+                    </div>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    :to="`mailto:${listing.publisher?.email}`"
+                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    v-if="listing.publisher?.email"
+                  >
+                    <span class="p-6 rounded" style="background-color: #a5acb9">
+                      <Icon
+                        name="material-symbols:stacked-email-rounded"
+                        class="text-white fs-1"
+                      />
+                    </span>
+                    <div class="d-flex flex-column rounded">
+                      <span class="text-muted text-end"
+                        >تواصل عبر البريد الالكتروني</span
+                      >
+                      <span class="fw-semibold text-end fw-bold">{{
+                        listing.publisher.email
+                      }}</span>
+                    </div>
+                  </NuxtLink>
                 </div>
-              </NuxtLink>
+              </template>
 
-              <NuxtLink
-                :to="`/users/${listing.publisher.id}`"
-                class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
-              >
-                عرض جميع المنتجات
-              </NuxtLink>
-
-              <div class="user-data gap-2 my-3 pb-3 px-3">
-                <NuxtLink
-                  :to="`tel:${listing.publisher?.phone}`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
-                  v-if="listing.publisher?.phone"
-                >
-                  <span class="p-6 bg-primary rounded">
-                    <Icon
-                      name="material-symbols:phone-in-talk-watchface-indicator"
-                      class="text-white fs-1"
-                    />
-                  </span>
-                  <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end">تواصل عبر الجوال</span>
-                    <span class="fw-semibold text-end fw-bold">{{
-                      listing.publisher.phone
-                    }}</span>
-                  </div>
-                </NuxtLink>
-
-                <NuxtLink
-                  :to="`https://wa.me/${listing.publisher?.whatsapp}`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
-                  v-if="listing.publisher?.whatsapp"
-                >
-                  <span class="p-6 rounded" style="background-color: #4fad52">
-                    <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
-                  </span>
-                  <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end">تواصل عبر الواتساب</span>
-                    <span class="fw-semibold text-end fw-bold">{{
-                      listing.publisher.whatsapp
-                    }}</span>
-                  </div>
-                </NuxtLink>
-
-                <NuxtLink
-                  :to="`mailto:${listing.publisher?.email}`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
-                  v-if="listing.publisher?.email"
-                >
-                  <span class="p-6 rounded" style="background-color: #a5acb9">
-                    <Icon
-                      name="material-symbols:stacked-email-rounded"
-                      class="text-white fs-1"
-                    />
-                  </span>
-                  <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end"
-                      >تواصل عبر البريد الالكتروني</span
-                    >
-                    <span class="fw-semibold text-end fw-bold">{{
-                      listing.publisher.email
-                    }}</span>
-                  </div>
-                </NuxtLink>
-              </div>
+              <template v-else>
+                <div class="text-center text-muted py-5">
+                  لا تتوفر بيانات ناشر.
+                </div>
+              </template>
             </div>
           </div>
 
           <div class="card">
             <div class="card-body">
               <h4 class="mb-3">إرشادات مهمة للمستخدمين</h4>
-              <ul class="list-unstyled small-note p-0 m-0">
+              <ul class="list-unstyled small-note p-0 م-0">
                 <li class="row gap-0">
                   <Icon
                     name="material-symbols:check-circle"
@@ -747,7 +770,7 @@ onMounted(() => {
   }
 }
 
-/* ====== Share Toast (نفس تجربة AdsCard/OfferCard) ====== */
+/* ====== Share Toast ====== */
 .share-toast {
   position: fixed;
   bottom: 24px;
