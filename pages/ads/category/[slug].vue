@@ -1,5 +1,6 @@
 <script setup>
 import { useCategoryStore } from "~/stores/categoryStore";
+const route = useRoute();
 useSeo({
   title: `إعلانات ${route.params.slug} | منصّة الإعلانات العربية`,
   description: `تصفح أحدث إعلانات ${route.params.slug}، وتواصل مباشرة مع البائعين.`,
@@ -9,7 +10,6 @@ useSeo({
 });
 useHead({ title: route.params.slug });
 
-const route = useRoute();
 const router = useRouter();
 const categoryStore = useCategoryStore();
 

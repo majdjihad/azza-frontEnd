@@ -112,7 +112,7 @@ onMounted(() => {
       <!-- Top Image + Chips + Avatar -->
       <div class="position-relative">
         <NuxtLink :to="`/ads/${ad?.id}`">
-          <img :src="ad?.image" class="card-img-top" :alt="ad?.title" />
+          <img :src="ad?.main_image" class="card-img-top" :alt="ad?.title" />
         </NuxtLink>
 
         <span
@@ -141,8 +141,8 @@ onMounted(() => {
         </NuxtLink>
 
         <p class="ad-desc mb-3">
-          {{ ad?.description?.split(" ").slice(0, 20).join(" ")
-          }}{{ ad?.description?.split(" ").length > 20 ? "..." : "" }}
+          {{ ad?.description?.split(" ").slice(0, 5).join(" ")
+          }}{{ ad?.description?.split(" ").length > 5 ? "..." : "" }}
         </p>
 
         <div class="d-flex align-items-center justify-content-start gap-2">

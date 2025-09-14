@@ -20,7 +20,7 @@ function onEditClick() {
 </script>
 
 <template>
-  <tr class="border-top">
+  <tr :to="`/ads/${ad?.id}`" class="border-top">
     <!-- Checkbox -->
     <td style="width: 44px">
       <input
@@ -118,6 +118,14 @@ function onEditClick() {
         </button>
 
         <ul class="dropdown-menu shadow-sm">
+          <li>
+            <NuxtLink
+              :to="`/ads/${ad.id}`"
+              class="btn btn-sm dropdown-item text-end"
+            >
+              عرض الإعلان
+            </NuxtLink>
+          </li>
           <li>
             <NuxtLink
               :to="`/ads/edit/${ad.id}`"

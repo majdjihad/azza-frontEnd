@@ -99,14 +99,7 @@ const profile = computed(() => {
               :class="favoritesMenuVisible ? 'text-primary' : 'text-secondary'"
             >
               <Icon name="fa-solid:heart" class="fs-2" />
-              <span
-                class="fs-5 mt-4"
-                :class="
-                  favoritesMenuVisible ? 'text-primary' : 'text-secondary'
-                "
-              >
-                المفضلة
-              </span>
+              <span class="fs-5 mt-4"> المفضلة </span>
             </button>
 
             <FavoritesMenu

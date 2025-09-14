@@ -4,6 +4,7 @@ import { useRouter } from "#app";
 import { useAuth } from "~/composables/useAuth";
 import { useMain } from "~/composables/useMain";
 import NotificationRow from "~/components/NotificationRow.vue";
+import moment from "moment";
 
 const router = useRouter();
 const { isLoggedIn } = useAuth();
@@ -81,7 +82,7 @@ function mapNotification(n) {
     status: d.status || (n?.read_at ? "مقروء" : "غير مقروء"),
     read_at: n?.read_at,
     created_at: n?.created_at,
-    time: new Date(n?.created_at || Date.now()).toLocaleString("ar-EG"),
+    time: moment(n?.created_at).calendar().toLocaleString("ar-EG"),
   };
 }
 const mappedItems = computed(() => items.value.map(mapNotification));
@@ -328,7 +329,7 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 0;
   inset-inline-start: 70%;
-  transform: translate(-50%, -30%);
+  transform: translate(200%, 0%);
   background: var(--bs-danger);
   color: #fff;
   border-radius: 999px;

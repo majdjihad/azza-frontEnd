@@ -8,6 +8,7 @@ const props = defineProps({
     required: true,
   },
 });
+const config = useRuntimeConfig();
 
 // السعر بشكل منسّق
 const formattedPrice = computed(() =>
@@ -100,7 +101,7 @@ onMounted(() => {
 <template>
   <div class="offer-card h-100 d-flex flex-column position-relative">
     <NuxtLink :to="`/products/${item.id}`" class="offer-media">
-      <img :src="item.image" :alt="item.title || item.name" />
+      <img :src="item.main_image" :alt="item.title || item.name" />
     </NuxtLink>
 
     <div class="offer-body">
@@ -126,8 +127,7 @@ onMounted(() => {
       <div class="d-flex align-items-center gap-2">
         <!-- واتساب (إن توفر رقم) -->
         <NuxtLink
-          v-if="item?.whatsapp"
-          :to="`https://wa.me/${item.whatsapp}`"
+          :to="config.public.whatsappUrl"
           class="btn btn-sm p-1"
           aria-label="تواصل"
         >

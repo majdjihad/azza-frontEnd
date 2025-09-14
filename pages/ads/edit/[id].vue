@@ -102,6 +102,30 @@ function splitOptions(str) {
     .map((s) => ({ value: s, label: s }));
 }
 
+/* ========== نسخة أصلية للمقارنة (لإرسال التغييرات فقط) ========== */
+const original = reactive({
+  subcategory_id: null,
+  city_id: null,
+  title: "",
+  description: "",
+  email: "",
+  price: "",
+  whatsapp: "",
+  duration_days: "",
+  currency: "",
+  negotiable: false,
+  main_image: "",
+  custom_fields: {},
+  gallery_sources: [],
+});
+
+const normStr = (v) => (v === null || v === undefined ? "" : String(v).trim());
+const normNumStr = (v) =>
+  v === null || v === undefined || v === "" || isNaN(Number(v))
+    ? ""
+    : String(Number(v));
+const isBool = (v) => typeof v === "boolean";
+
 /* ========== تحميل التصنيفات + بيانات الإعلان ========== */
 onMounted(async () => {
   try {
@@ -130,12 +154,10 @@ onMounted(async () => {
 
     // تهيئة الصور
     hasExistingMain.value = !!ad?.main_image;
-    // قد يعود main_image كرابط كامل أو مسار تسجيلي — FilePond يقبل كلاهما
     mainInitialFiles.value = hasExistingMain.value
       ? [{ source: ad.main_image, options: { type: "local" } }]
       : [];
 
-    // images قد تكون [{image_path: '...'}, ...] أو ['...', ...]
     const rawImages = Array.isArray(ad?.images) ? ad.images : [];
     galleryInitialFiles.value = rawImages
       .map((img) => {
@@ -151,6 +173,27 @@ onMounted(async () => {
     if (selectedSubcategoryId.value) {
       await loadCustomFieldsAndCities(selectedSubcategoryId.value, existingCF);
     }
+
+    // ملء النسخة الأصلية للمقارنة لاحقًا
+    original.subcategory_id = selectedSubcategoryId.value ?? null;
+    original.city_id = ad?.city_id ?? null;
+    original.title = normStr(form.title);
+    original.description = normStr(form.details);
+    original.email = normStr(form.email);
+    original.price = normNumStr(form.price);
+    original.whatsapp = normStr(form.whatsapp);
+    original.duration_days = normNumStr(form.durationDays);
+    original.currency = normStr(form.currency);
+    original.negotiable = !!form.negotiable;
+    original.main_image = ad?.main_image ? String(ad.main_image) : "";
+    original.gallery_sources = rawImages
+      .map((img) => (typeof img === "string" ? img : img?.image_path))
+      .filter(Boolean);
+    original.custom_fields = existingCF.reduce((acc, x) => {
+      const k = String(x.custom_field_id ?? x.id);
+      acc[k] = normStr(x.value ?? "");
+      return acc;
+    }, {});
 
     // اذهب مباشرة للتفاصيل
     step.value = 4;
@@ -256,7 +299,6 @@ function validate() {
   if (!form.whatsapp || form.whatsapp.trim().length < 6)
     errors.whatsapp = "أدخل رقم واتساب صالح";
 
-  // الصورة الرئيسية مطلوبة فقط إذا لا يوجد قديم ولا جديد
   const hasNewMain = (mainPond.value?.getFiles?.() || []).some(
     (it) => !!it?.file
   );
@@ -274,75 +316,164 @@ function validate() {
   return Object.keys(errors).length === 0;
 }
 
+/* ========== بناء FormData للحقول المعدّلة فقط ========== */
+function buildChangedFormData() {
+  const fd = new FormData();
+  let changed = false;
+
+  const now = {
+    subcategory_id: form.subCategory || selectedSubcategoryId.value || null,
+    city_id: form.city || null,
+    title: normStr(form.title),
+    description: normStr(form.details),
+    email: normStr(form.email),
+    price: normNumStr(form.price),
+    whatsapp: normStr(form.whatsapp),
+    duration_days: normNumStr(form.durationDays),
+    currency: normStr(form.currency),
+    negotiable: !!form.negotiable,
+  };
+
+  const appendIfChanged = (key, val, normalizeTo = (x) => x) => {
+    const before = original[key];
+    const nowVal = normalizeTo(val);
+
+    // لا نرسل email إذا أصبحت فارغة لتجنّب قواعد الـ email
+    if (key === "email" && nowVal === "" && before !== "") return;
+
+    if (key === "negotiable") {
+      if (isBool(before) && before !== nowVal) {
+        fd.append("negotiable", nowVal ? "1" : "0");
+        changed = true;
+      }
+      return;
+    }
+
+    const mappedKey =
+      key === "subcategory_id"
+        ? "subcategory_id"
+        : key === "city_id"
+        ? "city_id"
+        : key;
+
+    if ((before ?? "") !== nowVal) {
+      fd.append(mappedKey, nowVal);
+      changed = true;
+    }
+  };
+
+  appendIfChanged("subcategory_id", now.subcategory_id, (v) =>
+    v ? String(v) : ""
+  );
+  appendIfChanged("city_id", now.city_id, (v) => (v ? String(v) : ""));
+  appendIfChanged("title", now.title);
+  appendIfChanged("description", now.description);
+  appendIfChanged("email", now.email);
+  appendIfChanged("price", now.price);
+  appendIfChanged("whatsapp", now.whatsapp);
+  appendIfChanged("duration_days", now.duration_days);
+  appendIfChanged("currency", now.currency);
+  appendIfChanged("negotiable", now.negotiable);
+  fd.append("user_id", user.value.id);
+  // الصورة الرئيسية
+  const mainNew = (mainPond.value?.getFiles?.() || []).find((it) => !!it?.file);
+  if (mainNew?.file && mainNew.file.type?.startsWith("image/")) {
+    const f = mainNew.file;
+    fd.append(
+      "main_image",
+      f,
+      f.name || `main.${(f.type || "image/jpeg").split("/")[1]}`
+    );
+    changed = true;
+  } else {
+    const hadOld = !!original.main_image;
+    const stillHas = hasExistingMain.value;
+    if (hadOld && !stillHas) {
+      fd.append("remove_main_image", "1");
+      changed = true;
+    }
+  }
+
+  // معرض الصور (أرسل فقط المضافة)
+  const galleryFiles = (galleryPond.value?.getFiles?.() || []).filter(
+    (it) => !!it?.file
+  );
+  if (galleryFiles.length > 0) {
+    galleryFiles.forEach((it, idx) => {
+      const f = it.file;
+      if (f && f.type?.startsWith("image/")) {
+        fd.append(
+          "gallery[]",
+          f,
+          f.name || `gallery_${idx}.${(f.type || "image/jpeg").split("/")[1]}`
+        );
+      }
+    });
+    changed = true;
+  }
+  // إن رغبت بمسح المعرض بدون رفع جديد، أرسل clear_gallery=1 وادعمه في الكنترولر.
+
+  // الحقول المخصصة (أرسل المتغيّر فقط)
+  const changedCF = {};
+  for (const [id, val] of Object.entries(customFieldValues)) {
+    const after = normStr(val);
+    const before = normStr(original.custom_fields?.[String(id)] ?? "");
+    if (after !== "" || before !== "") {
+      if (after !== before) {
+        changedCF[id] = after;
+      }
+    }
+  }
+  Object.entries(changedCF).forEach(([id, value]) => {
+    fd.append(`custom_fields[${id}]`, value);
+    changed = true;
+  });
+
+  return { fd, changed };
+}
+
 /* ========== حفظ التعديلات ========== */
 async function submitEdit() {
   if (!validate()) return;
 
   submitting.value = true;
   try {
-    const fd = new FormData();
+    const { fd, changed } = buildChangedFormData();
 
-    // أساسية
-    fd.append(
-      "subcategory_id",
-      String(form.subCategory || selectedSubcategoryId.value || "")
-    );
-    fd.append("city_id", String(form.city));
-    fd.append("title", form.title);
-    fd.append("description", form.details);
-    fd.append("price", String(form.price));
-    fd.append("whatsapp", form.whatsapp);
-    fd.append("duration_days", String(form.durationDays));
-    fd.append("currency", form.currency);
-    fd.append("user_id", user.value.id);
-    if (form.email) fd.append("email", form.email);
-    if (typeof form.negotiable === "boolean") {
-      fd.append("negotiable", form.negotiable ? "1" : "0");
+    if (!changed) {
+      showToast("info", "لا توجد تغييرات لإرسالها.");
+      return;
     }
 
-    // صورة رئيسية جديدة فقط إذا رفع المستخدم ملف جديد
+    // إن كان السيرفر يستخدم PATCH عبر POST:
+    // fd.append("_method", "PATCH");
+
+    const resp = await updateAd(adId.value, fd);
+    showToast("success", resp?.message || "تم تحديث الإعلان بنجاح ✅");
+    router.push({ path: "/profile/ads" });
+
+    // تحديث النسخة الأصلية بعد النجاح
+    original.subcategory_id =
+      form.subCategory || selectedSubcategoryId.value || null;
+    original.city_id = form.city || null;
+    original.title = normStr(form.title);
+    original.description = normStr(form.details);
+    original.email = normStr(form.email);
+    original.price = normNumStr(form.price);
+    original.whatsapp = normStr(form.whatsapp);
+    original.duration_days = normNumStr(form.durationDays);
+    original.currency = normStr(form.currency);
+    original.negotiable = !!form.negotiable;
+
     const mainNew = (mainPond.value?.getFiles?.() || []).find(
       (it) => !!it?.file
     );
-    if (mainNew?.file && mainNew.file.type?.startsWith("image/")) {
-      const f = mainNew.file;
-      fd.append(
-        "main_image",
-        f,
-        f.name || `main.${(f.type || "image/jpeg").split("/")[1]}`
-      );
-    }
+    if (mainNew?.file) original.main_image = "updated";
+    if (!hasExistingMain.value) original.main_image = "";
 
-    // ✅ اسم حقل المعرض كما في الكنترولر: gallery[]
-    const galleryFiles = (galleryPond.value?.getFiles?.() || []).filter(
-      (it) => !!it?.file
+    original.custom_fields = Object.fromEntries(
+      Object.entries(customFieldValues).map(([k, v]) => [String(k), normStr(v)])
     );
-    if (galleryFiles.length > 0) {
-      galleryFiles.forEach((it, idx) => {
-        const f = it.file;
-        if (f && f.type?.startsWith("image/")) {
-          fd.append(
-            "gallery[]",
-            f,
-            f.name || `gallery_${idx}.${(f.type || "image/jpeg").split("/")[1]}`
-          );
-        }
-      });
-      // ملاحظة: بمجرد إرسال gallery[] سيحذف السيرفر القديم ويضيف الجديد (حسب منطقك في الكنترولر)
-    }
-
-    // الحقول المخصصة
-    for (const [id, value] of Object.entries(customFieldValues)) {
-      if (value !== "" && value !== null && value !== undefined) {
-        fd.append(`custom_fields[${id}]`, value);
-      }
-    }
-
-    // تحديث
-    const resp = await updateAd(adId.value, fd);
-
-    showToast("success", resp?.message || "تم تحديث الإعلان بنجاح ✅");
-    router.push({ path: "/profile/ads" });
   } catch (e) {
     showToast(
       "danger",
