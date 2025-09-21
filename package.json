@@ -1,5 +1,5 @@
 {
-  "name": "TaskSwift-app",
+  "name": "AZZA-APP",
   "private": true,
   "scripts": {
     "build": "nuxt build",

@@ -430,7 +430,7 @@ onMounted(() => {
               </h3>
               <div class="mb-3 text-center">
                 <img
-                  src="../media/avatars/azza-logo.png"
+                  src="~/public/media/avatars/logo.png"
                   class="rounded-circle border"
                   width="100"
                   height="100"

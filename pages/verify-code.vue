@@ -53,7 +53,7 @@ watch(otp, (v) => {
 });
 
 const formData = reactive({
-  login: route.query.login,
+  email: route.query.email,
   verification_code: otp,
 });
 // handle form

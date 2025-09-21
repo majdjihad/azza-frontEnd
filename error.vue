@@ -18,7 +18,7 @@ const props = defineProps({
   padding: 0 15px;
   min-height: 100vh;
   min-width: 100%;
-  background-image: url("~/assets/media/auth/bg14.jpg");
+  background-image: url("~/public/media/auth/bg14.jpg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

@@ -112,7 +112,6 @@ const formHandle = async () => {
           path: "/verify-code",
           query: {
             email: form.email,
-            mode: "register",
           },
         });
         showToast("success", response.message);
