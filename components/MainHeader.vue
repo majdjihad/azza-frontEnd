@@ -14,7 +14,7 @@ useMain();
 const favoritesMenuVisible = ref(false);
 
 async function toggleFavoritesMenu() {
-  if (!isLoggedIn.value) return navigateTo("/login");
+  // if (!isLoggedIn.value) return navigateTo("/login");
   const willOpen = !favoritesMenuVisible.value;
   favoritesMenuVisible.value = willOpen;
   if (willOpen) {
@@ -36,6 +36,7 @@ const profile = computed(() => {
     avatar: u.photo || defaultAvatar,
   };
 });
+const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
 </script>
 
 <template>
@@ -46,18 +47,18 @@ const profile = computed(() => {
     >
       <div class="d-flex align-items-center">
         <template v-if="!isLoggedIn">
-          <NuxtLink to="/register" class="text-dark fs-5 mx-2"
+          <NuxtLink to="/register" class="text-dark fs-6 mx-2"
             >إنشاء حساب</NuxtLink
           >
         </template>
 
         <NuxtLink
           to="/terms-of-use"
-          class="text-dark fs-5 border-start border-end px-2"
+          class="text-dark fs-6 border-start border-end px-2"
         >
           شروط الاستخدام
         </NuxtLink>
-        <NuxtLink to="/privacy-policy" class="text-dark fs-5 mx-2">
+        <NuxtLink to="/privacy-policy" class="text-dark fs-6 mx-2">
           سياسة الخصوصية
         </NuxtLink>
       </div>
@@ -87,9 +88,13 @@ const profile = computed(() => {
         class="d-flex justify-content-between align-items-center py-3 px-9 bg-white border-bottom"
       >
         <NuxtLink to="/">
-          <img src="/media/logos/azza-logo.png" alt="azza logo" height="40" />
+          <NuxtImg
+            src="/media/logos/azza-logo.png"
+            class="img-fluid logo-img"
+            alt="azza logo"
+            height="40"
+          />
         </NuxtLink>
-
         <div class="d-flex align-items-center gap-9">
           <!-- Favorites -->
           <div class="position-relative dropdown" v-if="isLoggedIn">
@@ -106,7 +111,9 @@ const profile = computed(() => {
               :show="favoritesMenuVisible"
               :favorites="mainStore.adsFavorites?.ads?.data ?? []"
               :loading="favoritesMenuVisible && mainStore.favoritesListLoad"
+              @close="favoritesMenuVisible = false"
               v-click-outside="() => (favoritesMenuVisible = false)"
+              desktopPlacement="end"
             />
           </div>
 
@@ -168,7 +175,7 @@ const profile = computed(() => {
             <span class="navbar-toggler-icon"></span>
           </button>
 
-          <div class="order-md-2">
+          <div class="order-md-2" v-if="showAddButton">
             <NuxtLink :to="isLoggedIn ? '/ads/create' : '/login'">
               <button
                 class="btn btn-lg btn-main d-flex align-items-center gap-2"

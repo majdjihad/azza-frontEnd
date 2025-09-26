@@ -501,7 +501,9 @@ function removeMain() {
 <template>
   <div class="container py-4">
     <div class="d-flex align-items-center pb-9">
-      <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+      <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        >الرئيسية</NuxtLink
+      >
       <Icon
         name="mdi:chevron-left-circle-outline"
         class="fs-3 mx-3 text-secondary"
@@ -887,7 +889,7 @@ function removeMain() {
                   class="col-9"
                   req
                 />
-                <div
+                <!-- <div
                   class="form-check-sm col-3 bg-secondary rounded-1 rounded-end-0 d-flex align-items-center align-self-center"
                   style="margin-top: 18px; padding: 11px"
                 >
@@ -900,7 +902,7 @@ function removeMain() {
                   <label class="form-check-label me-1 text-white" for="neg"
                     >قابل للتفاوض</label
                   >
-                </div>
+                </div> -->
               </div>
 
               <div class="col-md-6">

@@ -1,53 +1,53 @@
-// Import PrimeVue theme utilities
-import Aura from "@primevue/themes/aura";
+// nuxt.config.ts
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
-  // Enable Nuxt DevTools for development
   devtools: { enabled: true },
 
-  // Register Nuxt modules
   modules: [
-    "@pinia/nuxt", // State management
-    "nuxt-icon", // Icon system
-    "@primevue/nuxt-module", // UI component library
+    "@pinia/nuxt",
+    "nuxt-icon",
+    "@nuxt/image",
+    "@nuxtjs/robots",
+    "@nuxtjs/sitemap",
   ],
 
-  // PrimeVue configuration
-  primevue: {
-    options: {
-      theme: {
-        preset: Aura,
-        option: {
-          prefix: "p",
-          cssLayer: false,
-        },
-      },
-    },
+  // Sitemap (بدون hostname/siteUrl هنا)
+  sitemap: {
+    autoLastmod: true,
+    defaults: { changefreq: "daily", priority: 0.7 },
+    exclude: ["/admin/**", "/dashboard/**"],
+    experimentalCompression: true,
   },
 
-  // Global CSS imports
+  robots: {
+    groups: [
+      { userAgent: "*", allow: ["/"], disallow: ["/admin", "/dashboard"] },
+    ],
+    sitemap: [
+      `${
+        process.env.NUXT_PUBLIC_SITE_URL || "https://azza-ak.com"
+      }/sitemap.xml`,
+    ],
+  },
+
   css: [
     "bootstrap/dist/css/bootstrap.css",
     "~/assets/plugins/global/plugins.bundle.css",
     "~/assets/css/style.bundle.css",
-    "primeicons/primeicons.css",
     "~/assets/css/style.css",
     "filepond/dist/filepond.min.css",
     "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css",
   ],
 
-  // Vue plugins
-  plugins: [
-    "~/plugins/toastification.js", // Toast notifications
-    "~/plugins/clickOutside.js", // Click outside directive
-  ],
+  plugins: ["~/plugins/toastification.js", "~/plugins/clickOutside.js"],
+  build: { transpile: ["vue-toastification"] },
 
-  // Build configuration
-  build: {
-    transpile: ["vue-toastification"],
+  experimental: {
+    renderJsonPayloads: true,
+    respectNoSSRHeader: true, // لتعطيل SSR بهيدر x-nuxt-no-ssr
   },
 
-  // App-wide head configuration
   app: {
     head: {
       htmlAttrs: { lang: "ar", dir: "rtl" },
@@ -60,7 +60,7 @@ export default defineNuxtConfig({
             "منصة عربية متكاملة للإعلانات المبوبة — أضف إعلانك بسهولة وتصفح عروض العقارات، الأجهزة، الأثاث، المفقودات والخدمات. تواصل مباشر وآمن بين البائع والمشتري.",
         },
       ],
-      script: [
+            script: [
         {
           // Metronic plugins bundle
           type: "text/javascript",
@@ -72,10 +72,10 @@ export default defineNuxtConfig({
           src: "https://preview.keenthemes.com/metronic8/demo32/assets/js/scripts.bundle.js",
         },
       ],
+
     },
   },
 
-  // Runtime configuration with environment variables
   runtimeConfig: {
     public: {
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL,
@@ -94,22 +94,35 @@ export default defineNuxtConfig({
         "منصة إلكترونية عربية لبيع وشراء كل شيء: عقارات، أجهزة، أثاث، مفقودات وخدمات — تواصل آمن ومباشر بين البائعين والمشترين.",
       siteImage: "/media/avatars/logo.png",
     },
-    modules: ["@nuxtjs/robots", "@nuxtjs/sitemap"],
   },
 
-  // Auto-import utilities
-  imports: {
-    dirs: ["./utils"],
+  // @nuxt/image
+  image: {
+    screens: { xs: 320, sm: 640, md: 768, lg: 1024, xl: 1280, xxl: 1536 },
+    quality: 75,
+    format: ["webp", "avif", "jpeg"],
   },
 
-  // Disable server-side rendering globally
-  ssr: false,
+  nitro: { compressPublicAssets: true },
 
-  // Route-specific SSR rules
+  ssr: true,
+
   routeRules: {
-    "/": { ssr: true }, // Enable SSR only for landing page
+    "/": { prerender: true },
+    "/categories/**": { isr: 3600 },
+    "/ads/**": { swr: 1800 },
+
+    // تعطيل SSR لهذه المسارات عبر الهيدر
+    "/admin": { headers: { "x-nuxt-no-ssr": "1" } },
+    "/admin/**": { headers: { "x-nuxt-no-ssr": "1" } },
+    "/dashboard": { headers: { "x-nuxt-no-ssr": "1" } },
+    "/dashboard/**": { headers: { "x-nuxt-no-ssr": "1" } },
+
+    "/images/**": {
+      headers: { "cache-control": "public, max-age=31536000, immutable" },
+    },
   },
 
-  // Set compatibility date for Nuxt features
+  imports: { dirs: ["./utils"] },
   compatibilityDate: "2025-08-01",
 });

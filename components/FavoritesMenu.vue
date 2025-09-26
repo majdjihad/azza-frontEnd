@@ -1,12 +1,27 @@
 <script setup>
 import { useMainStore } from "~/stores/mainStore";
+import { reactive, computed } from "vue";
 
 // Props
 const props = defineProps({
   show: { type: Boolean, default: false },
   favorites: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
+  /**
+   * مكان القائمة على الشاشات المتوسطة والكبيرة:
+   * - "end"   (افتراضي): بمحاذاة الطرف المناسب للـ RTL/LTR
+   * - "start": الجهة المقابلة
+   * - "center": منتصف الشاشة أفقيًا
+   */
+  desktopPlacement: {
+    type: String,
+    default: "end",
+    validator: (v) => ["start", "end", "center"].includes(v),
+  },
 });
+
+// Emits
+const emit = defineEmits(["close", "update:show"]);
 
 const mainStore = useMainStore();
 
@@ -26,15 +41,49 @@ const handleToggleFavorite = async (id) => {
     loadingIds.delete(id);
   }
 };
+
+// ✅ إغلاق اللوحة
+const handleClose = () => {
+  emit("update:show", false);
+  emit("close");
+};
+
+// ✅ كلاس المكان للديسكتوب
+const desktopClass = computed(() => {
+  return {
+    "place-end": props.desktopPlacement === "end",
+    "place-start": props.desktopPlacement === "start",
+    "place-center": props.desktopPlacement === "center",
+  };
+});
 </script>
 
 <template>
   <div
     v-if="show"
-    class="dropdown-menu show shadow w-100 p-3 position-absolute start-0"
-    style="max-height: 500px; min-width: 350px; overflow-y: auto"
+    class="fav-panel-container mobile-fullscreen"
+    role="dialog"
+    aria-modal="true"
+    aria-label="قائمة المفضلة"
+    :class="desktopClass"
   >
-    <h5 class="fw-bold border-bottom text-end pb-2 mb-3">
+    <!-- 🔘 ترويسة الموبايل (ملء الشاشة) مع زر إغلاق — تظهر فقط على الشاشات الصغيرة -->
+    <div
+      class="mobile-header d-md-none sticky-top bg-white pb-2 mb-3 border-bottom"
+    >
+      <div class="d-flex align-items-center justify-content-between px-3">
+        <h5 class="fw-bold m-0">المفضلة ({{ favorites.length }})</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="إغلاق"
+          @click="handleClose"
+        ></button>
+      </div>
+    </div>
+
+    <!-- عنوان الديسكتوب — يظهر فقط على الشاشات الكبيرة -->
+    <h5 class="fw-bold border-bottom text-end pb-2 mb-3 d-none d-md-block">
       المفضلة ({{ favorites.length }})
     </h5>
 
@@ -105,14 +154,12 @@ const handleToggleFavorite = async (id) => {
               </span>
             </button>
 
-            <div class="fw-semibold fs-6 title-2lines">
-              {{ item.title }}
-            </div>
+            <div class="fw-semibold fs-6 title-2lines">{{ item.title }}</div>
             <div class="d-flex justify-content-between align-items-center mt-1">
               <small class="text-muted">{{ item.city }}</small>
-              <small class="text-primary fw-bold">
-                {{ item.price }} {{ item.currency }}
-              </small>
+              <small class="text-primary fw-bold"
+                >{{ item.price }} {{ item.currency }}</small
+              >
             </div>
           </div>
         </div>
@@ -122,10 +169,7 @@ const handleToggleFavorite = async (id) => {
 </template>
 
 <style scoped>
-.dropdown-menu {
-  right: 0;
-  left: auto;
-}
+/* ===== أساسيات العناصر ===== */
 .fav-item .col.position-relative {
   padding-inline-end: 2.25rem;
 }
@@ -138,7 +182,6 @@ const handleToggleFavorite = async (id) => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-/* ✅ shimmer animation */
 .shimmer {
   position: relative;
   overflow: hidden;
@@ -161,6 +204,65 @@ const handleToggleFavorite = async (id) => {
 @keyframes shimmer {
   100% {
     transform: translateX(300px);
+  }
+}
+
+/* ===== موبايل: ملء الشاشة ===== */
+@media (max-width: 768px) {
+  .mobile-fullscreen {
+    position: fixed !important;
+    top: 0;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    min-width: auto !important;
+    border-radius: 0;
+    overflow-y: auto;
+    z-index: 1050;
+    background: #fff; /* خلفية بيضاء للوحة */
+    padding: 0 0 1rem 0; /* نترك المسافات داخل المحتوى */
+  }
+
+  /* إبقاء المحتوى تحت الترويسة المثبتة */
+  .mobile-header + * {
+    scroll-margin-top: 56px;
+  }
+}
+
+/* ===== دِسك توب/تابلت: صندوق منسق بمكان مرن ===== */
+@media (min-width: 769px) {
+  .fav-panel-container {
+    position: absolute; /* تتبع أقرب عنصر position غير static (غالبًا حاوية الهيدر) */
+    top: 100%; /* تحت الزر المفترض */
+    margin-top: 8px;
+    min-width: 350px;
+    max-height: 500px;
+    overflow-y: auto;
+    z-index: 1050;
+    background: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+
+  /* محاذاة الطرف المناسب للاتجاه (RTL/LTR) */
+  .fav-panel-container.place-end {
+    inset-inline-end: 1rem; /* يمين في LTR ويسار في RTL */
+  }
+
+  /* محاذاة الطرف المقابل */
+  .fav-panel-container.place-start {
+    inset-inline-start: 1rem; /* يسار في LTR ويمين في RTL */
+  }
+
+  /* توسيط أفقي */
+  .fav-panel-container.place-center {
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
   }
 }
 </style>

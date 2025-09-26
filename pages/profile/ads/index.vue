@@ -202,7 +202,9 @@ async function performDelete() {
       <div>
         <h3 class="fw-bold mb-1">إعلاناتي</h3>
         <div class="d-flex align-items-center my-9">
-          <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+          <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+            >الرئيسية</NuxtLink
+          >
           <Icon
             name="mdi:chevron-left-circle-outline"
             class="fs-3 mx-3 text-secondary"
@@ -290,7 +292,7 @@ async function performDelete() {
 
           <!-- لا توجد إعلانات -->
           <div v-else class="text-center p-4">
-            <img src="/media/empty-ads.png" alt="اعلانات فارغة" />
+            <NuxtImg src="/media/empty-ads.png" alt="اعلانات فارغة" />
             <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
             <p class="text-muted">
               انشر أول إعلان لتبدأ رحلتك مع الزبائن المهتمين!

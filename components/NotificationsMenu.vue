@@ -1,5 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  nextTick,
+  onBeforeUnmount,
+} from "vue";
 import { useRouter } from "#app";
 import { useAuth } from "~/composables/useAuth";
 import { useMain } from "~/composables/useMain";
@@ -38,6 +45,9 @@ async function toggle() {
   const willOpen = !open.value;
   open.value = willOpen;
   if (willOpen) await fetchAll(1);
+}
+function closePanel() {
+  open.value = false;
 }
 
 // جلب البيانات
@@ -89,7 +99,7 @@ const mappedItems = computed(() => items.value.map(mapNotification));
 
 // إجراءات على عنصر
 async function handleOpen(id) {
-  await showNotification(id); // سيُعلِمه كمقروء إذا لم يكن كذلك
+  await showNotification(id);
   await fetchAll(pagination.value.current_page);
 }
 async function handleMarkRead(id) {
@@ -133,8 +143,8 @@ onMounted(async () => {
 const skeletonCount = computed(() =>
   Math.min(5, pagination.value.per_page || 5)
 );
-let tooltipInstances = [];
 
+let tooltipInstances = [];
 function initTooltips() {
   const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
   // نظّف القديمة
@@ -153,7 +163,6 @@ function initTooltips() {
   });
 }
 
-// مثال: لو عندك متغير open لفتح القائمة
 watch(
   () => open.value,
   async (v) => {
@@ -176,10 +185,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="position-relative dropdown">
-    <!-- زر الجرس + العدّاد (تصميم احترافي) -->
+    <!-- زر الجرس + العدّاد -->
     <button
       @click="toggle"
-      class="btn btn-link text-decoration-none d-flex flex-column align-items-center"
+      class="btn btn-link text-decoration-none d-flex flex-column align-items-center position-relative"
       :class="open ? 'text-primary' : 'text-secondary'"
       aria-label="عرض الإشعارات"
     >
@@ -196,9 +205,25 @@ onBeforeUnmount(() => {
       role="dialog"
       aria-modal="true"
     >
-      <!-- رأس -->
+      <!-- 🔘 ترويسة الهاتف (تظهر فقط على الشاشات الصغيرة) -->
+      <div class="mobile-header d-md-none sticky-top bg-white border-bottom">
+        <div
+          class="d-flex align-items-center justify-content-between px-3"
+          style="height: 56px"
+        >
+          <h6 class="fw-bold m-0">الإشعارات ({{ unreadCount }})</h6>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="إغلاق"
+            @click="closePanel"
+          ></button>
+        </div>
+      </div>
+
+      <!-- رأس الديسكتوب — يظهر فقط على الشاشات الكبيرة -->
       <div
-        class="notif-header d-flex justify-content-between align-items-center py-1"
+        class="notif-header d-none d-md-flex justify-content-between align-items-center py-1"
       >
         <div class="text-end">
           <div class="fw-bold">الإشعارات({{ unreadCount }})</div>
@@ -240,7 +265,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- محتوى -->
+      <!-- المحتوى -->
       <div class="notif-body">
         <div v-if="error" class="alert alert-danger text-end mb-2 mx-3">
           {{ error }}
@@ -273,13 +298,10 @@ onBeforeUnmount(() => {
         </ul>
       </div>
 
-      <!-- الترقيم -->
-      <!-- <div
-        class="notif-footer d-flex justify-content-between align-items-center"
-      >
+      <!-- (اختياري) الترقيم
+      <div class="notif-footer d-none d-md-flex justify-content-between align-items-center">
         <small class="text-muted">
-          الصفحة {{ pagination.current_page }} من {{ pagination.last_page }} —
-          إجمالي {{ pagination.total }}
+          الصفحة {{ pagination.current_page }} من {{ pagination.last_page }} — إجمالي {{ pagination.total }}
         </small>
         <div class="btn-group">
           <button
@@ -292,14 +314,13 @@ onBeforeUnmount(() => {
           <button
             class="btn btn-sm btn-outline-secondary rounded-pill"
             @click="goTo(pagination.current_page + 1)"
-            :disabled="
-              pagination.current_page >= pagination.last_page || loading
-            "
+            :disabled="pagination.current_page >= pagination.last_page || loading"
           >
             التالي
           </button>
         </div>
-      </div> -->
+      </div>
+      -->
     </div>
   </div>
 </template>
@@ -339,7 +360,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 2px #fff;
 }
 
-/* القائمة */
+/* القائمة (الديسكتوب/الافتراضي) */
 .notif-menu {
   width: 420px;
   max-width: calc(100vw - 24px);
@@ -350,7 +371,7 @@ onBeforeUnmount(() => {
   background: #fff;
 }
 
-/* الرأس */
+/* الرأس (الديسكتوب) */
 .notif-header {
   padding: 14px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -408,18 +429,6 @@ onBeforeUnmount(() => {
 .skeleton-line.short {
   width: 60%;
 }
-.skeleton-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-.skeleton-btn {
-  height: 28px;
-  width: 82px;
-  border-radius: 999px;
-  background: #eee;
-}
 @keyframes shimmer {
   0% {
     background-position: -450px 0;
@@ -440,12 +449,33 @@ onBeforeUnmount(() => {
   text-align: center;
   color: var(--bs-secondary);
 }
-.empty-illustration {
-  font-size: 40px;
-  line-height: 1;
-  margin-bottom: 8px;
-}
 .btn-delete:hover {
   color: var(--bs-danger) !important;
+}
+
+/* ===== الهاتف: ملء الشاشة + زر إغلاق علوي ===== */
+@media (max-width: 768px) {
+  .notif-menu {
+    position: fixed !important;
+    top: 0;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    min-width: auto !important;
+    border-radius: 0 !important;
+    overflow: hidden; /* الجسم نفسه فيه سكرول داخلي */
+    z-index: 1050;
+    box-shadow: none;
+  }
+  .mobile-header + .notif-body {
+    /* اجعل المحتوى تحت الترويسة مع سكرول داخلي */
+    height: calc(100% - 56px);
+    max-height: none;
+    overflow-y: auto;
+  }
 }
 </style>

@@ -112,7 +112,7 @@ onMounted(() => {
       <!-- Top Image + Chips + Avatar -->
       <div class="position-relative">
         <NuxtLink :to="`/ads/${ad?.id}`">
-          <img :src="ad?.main_image" class="card-img-top" :alt="ad?.title" />
+          <NuxtImg :src="ad?.main_image" class="card-img-top" :alt="ad?.title" />
         </NuxtLink>
 
         <span

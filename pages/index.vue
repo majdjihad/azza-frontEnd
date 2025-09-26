@@ -170,7 +170,7 @@ const carouselId = "offersCarousel";
                 <select
                   id="inputCategoryGroup"
                   v-model="categoryIdSelected"
-                  class="bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  class="bg-white text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
                   :class="{ 'text-muted': !categoryIdSelected }"
                 >
                   <!-- placeholder -->
@@ -203,7 +203,7 @@ const carouselId = "offersCarousel";
                 <select
                   id="inputCityGroup"
                   v-model="cityIdSelected"
-                  class="form-select bg-white text-dark p-0 py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  class="bg-white text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
                   :class="{ 'text-muted': !cityIdSelected }"
                 >
                   <!-- placeholder -->
@@ -254,7 +254,7 @@ const carouselId = "offersCarousel";
                 class="bg-white w-25 px-2"
                 style="position: relative; top: -25px"
               >
-                <img :src="cat.image_url" class="w-100" :alt="cat.name" />
+                <NuxtImg :src="cat.image_url" class="w-100" :alt="cat.name" />
               </div>
               <div class="position-absolute bottom-0">
                 <h4>{{ cat.name }}</h4>
@@ -274,7 +274,7 @@ const carouselId = "offersCarousel";
         </div>
 
         <div
-          class="bg-primary text-white rounded p-9 mt-5 d-flex flex-column flex-md-row align-items-center justify-content-between"
+          class="bg-primary text-white rounded p-9 mt-5 d-flex flex-column flex-md-row align-items-start justify-content-between"
         >
           <div>
             <h2 class="fw-bold text-white">بيع ما لا تحتاج واكسب المال</h2>
@@ -399,7 +399,7 @@ const carouselId = "offersCarousel";
             <Icon name="line-md:arrow-left" size="20" />
           </button>
           <NuxtLink to="/ads" class="btn-view-all">
-            <h5 class="mb-0 text-white">عرض الكل</h5>
+            <h5 class="mb-0 text-white w-100">عرض الكل</h5>
             <Icon
               name="material-symbols:arrow-back-rounded"
               class="text-white"

@@ -435,11 +435,6 @@ function resetAll() {
               <div
                 class="card-body text-center position-absolute top-50 start-50 translate-middle w-100"
               >
-                <img
-                  src="/media/categories/أثاث.png"
-                  alt=""
-                  class="w-25 mb-4"
-                />
                 <div
                   class="rounded px-3 py-2 bg-dark bg-opacity-50 text-white fw-bold"
                 >

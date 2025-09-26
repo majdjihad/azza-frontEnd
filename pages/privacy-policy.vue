@@ -1,4 +1,6 @@
 <script setup>
+const config = useRuntimeConfig();
+
 useHead({
   title: "سياسة الخصوصية - منصة AZZA",
 });
@@ -9,8 +11,8 @@ useSeo({
   image: "/media/avatars/logo.png",
   canonicalPath: "/privacy-policy",
   type: "article",
-  publishedAt: "2025-01-01",
-  modifiedAt: "2025-01-01",
+  publishedAt: "2025-09-01",
+  modifiedAt: "2025-09-01",
 });
 </script>
 <template>
@@ -18,7 +20,9 @@ useSeo({
     <div class="p-md-5">
       <div>
         <div class="d-flex align-items-center">
-          <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+          <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+            >الرئيسية</NuxtLink
+          >
           <Icon
             name="mdi:chevron-left-circle-outline"
             class="fs-3 mx-3 text-secondary"
@@ -122,9 +126,9 @@ useSeo({
                 في حال وجود أي استفسارات بخصوص سياسة الخصوصية، يمكنكم التواصل
                 معنا عبر البريد الإلكتروني:
                 <a
-                  href="mailto:info@azza.com"
+                  href="mailto:{{ config.public.companyEmail }}"
                   class="text-primary text-decoration-underline"
-                  >info@azza.com</a
+                  >{{ config.public.companyEmail }}</a
                 >
               </p>
             </div>

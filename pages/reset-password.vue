@@ -211,7 +211,7 @@ const formHandle = async () => {
                     <div class="modal-dialog py-4">
                       <div class="modal-content text-center">
                         <div class="modal-body text-center">
-                          <img src="/media/password.png" alt="password" />
+                          <NuxtImg src="/media/password.png" alt="password" />
                           <p>تم تغيير كلمة المرور بنجاح</p>
                         </div>
                         <div class="d-flex justify-content-center py-5">

@@ -228,10 +228,10 @@ function onFiltersChange(f) {
         </div>
       </div>
 
-      <div class="d-flex align-items-start justify-content-between">
+      <div class="d-lg-flex align-items-start justify-content-between">
         <div class="collapse collapse-horizontal show" id="collapseExample">
           <SidebarFilters
-            style="width: 350px"
+            class="sidebar-filters"
             @update:filters="onFiltersChange"
           />
         </div>

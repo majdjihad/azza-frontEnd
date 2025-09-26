@@ -268,7 +268,9 @@ onBeforeUnmount(() => {
 
     <div v-else>
       <div class="d-flex align-items-center py-9">
-        <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          >الرئيسية</NuxtLink
+        >
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"

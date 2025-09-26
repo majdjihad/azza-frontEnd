@@ -63,6 +63,7 @@ body { background-color: white; }
   background-color: var(--bs-primary) !important;
   border: none !important;
   color: #fff !important;
+  font-size: 16px;
   font-family: var(--font-main) !important;
   font-weight: 600;
   padding: 0.9rem 1.2rem;
@@ -101,10 +102,12 @@ body { background-color: white; }
   height: 42px;
   display: inline-flex;
   align-items: center;
+  justify-content: space-around;
   gap: 0.5rem;
   border: 1px solid #eef0f4;
   background: var(--bs-primary);
   transition: 0.2s ease;
+  width: 100%;
 }
 .btn-view-all:hover {
   background: var(--bs-primary-hover);
@@ -193,4 +196,35 @@ input[type="checkbox"]:checked {
 .price input[type="text"] {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
+}
+.sidebar-filters {
+  width: 350px !important;
+}
+/* هاتف فقط: أقل من sm (Bootstrap) */
+@media (max-width: 575.98px) {
+  .btn-main {
+    font-size: 10px;
+    padding: 0.7rem 1rem;
+  }
+  /* عناوين HTML */
+  h1, .h1 { font-size: 1.45rem !important; line-height: 1.2; }
+  h2, .h2 { font-size: 1.20rem !important; line-height: 1.25; }
+  h3, .h3 { font-size: 1.10rem !important; line-height: 1.3; }
+  h4, .h4 { font-size: 1.05rem !important; line-height: 1.35; }
+  h5, .h5 { font-size: 0.75rem !important; line-height: 1.4; }
+  h6, .h6 { font-size: 0.55rem !important; line-height: 1.45; }
+
+  /* Utilities من Bootstrap: fs-1 ... fs-6 */
+  .fs-1 { font-size: 1.45rem !important; }
+  .fs-2 { font-size: 1.20rem !important; }
+  .fs-3 { font-size: 1.00rem !important; }
+  .fs-4 { font-size: 0.95rem !important; }
+  .fs-5 { font-size: 0.75rem !important; }
+  .fs-6 { font-size: 0.55rem !important; }
+  .logo-img {
+    height: 30px !important;
+  }
+  .sidebar-filters {
+    width: 100% !important;
+  }
 }

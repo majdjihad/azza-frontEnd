@@ -132,7 +132,9 @@ async function handleLogout() {
       <h1>الملف الشخصي</h1>
 
       <div class="d-flex align-items-center mb-4">
-        <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          >الرئيسية</NuxtLink
+        >
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
@@ -403,7 +405,7 @@ async function handleLogout() {
       <div class="modal-dialog py-4">
         <div class="modal-content text-center">
           <div class="modal-body text-center">
-            <img src="/media/password.png" alt="password" />
+            <NuxtImg src="/media/password.png" alt="password" />
             <p class="mt-3 mb-0">تم تغيير كلمة المرور بنجاح</p>
           </div>
           <div class="d-flex justify-content-center py-4">
