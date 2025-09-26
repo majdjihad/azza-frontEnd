@@ -723,7 +723,7 @@ function resetAll() {
                 class="col-9"
                 req
               />
-              <!-- <div
+              <div
                 class="form-check-sm col-3 bg-secondary rounded-1 rounded-end-0 d-flex align-items-center align-self-center"
                 style="margin-top: 18px; padding: 11px"
               >
@@ -736,7 +736,7 @@ function resetAll() {
                 <label class="form-check-label me-1 text-white" for="neg"
                   >قابل للتفاوض</label
                 >
-              </div> -->
+              </div>
             </div>
 
             <div class="col-md-6">
