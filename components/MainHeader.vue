@@ -13,15 +13,22 @@ useMain();
 
 const favoritesMenuVisible = ref(false);
 
-async function toggleFavoritesMenu() {
-  // if (!isLoggedIn.value) return navigateTo("/login");
-  const willOpen = !favoritesMenuVisible.value;
-  favoritesMenuVisible.value = willOpen;
-  if (willOpen) {
-    if (!mainStore.adsFavorites?.ads?.data?.length) {
+// ✅ تحميل المفضلات تلقائياً عند تسجيل الدخول
+watch(
+  () => isLoggedIn.value,
+  async (logged) => {
+    if (logged) {
       await mainStore.getAllAdsFavorites();
+    } else {
+      mainStore.adsFavorites = {}; // تصفير عند تسجيل الخروج
     }
-  }
+  },
+  { immediate: true } // ينفذ مباشرة عند تحميل الصفحة
+);
+
+async function toggleFavoritesMenu() {
+  if (!isLoggedIn.value) return navigateTo("/login");
+  favoritesMenuVisible.value = !favoritesMenuVisible.value;
 }
 
 const route = useRoute();
@@ -43,7 +50,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
   <header class="header">
     <!-- Row 1 -->
     <div
-      class="d-flex justify-content-between bg-light align-items-center py-2 px-9"
+      class="d-flex justify-content-between bg-light align-items-center py-2 px-3 px-md-9"
     >
       <div class="d-flex align-items-center">
         <template v-if="!isLoggedIn">
@@ -64,19 +71,39 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
       </div>
 
       <div class="d-flex flex-row-reverse gap-6">
-        <NuxtLink :to="config.public.facebookUrl">
+        <NuxtLink
+          target="_blank"
+          rel="noopener noreferrer"
+          :to="config.public.facebookUrl"
+        >
           <Icon name="fa6-brands:facebook-f" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink :to="config.public.instagramUrl">
+        <NuxtLink
+          target="_blank"
+          rel="noopener noreferrer"
+          :to="config.public.instagramUrl"
+        >
           <Icon name="fa6-brands:instagram" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink :to="config.public.twitterUrl">
+        <NuxtLink
+          target="_blank"
+          rel="noopener noreferrer"
+          :to="config.public.twitterUrl"
+        >
           <Icon name="fa6-brands:x-twitter" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink :to="config.public.whatsappUrl">
+        <NuxtLink
+          target="_blank"
+          rel="noopener noreferrer"
+          :to="config.public.whatsappUrl"
+        >
           <Icon name="fa6-brands:whatsapp" class="fs-3 text-secondary" />
         </NuxtLink>
-        <NuxtLink :to="config.public.tiktokUrl">
+        <NuxtLink
+          target="_blank"
+          rel="noopener noreferrer"
+          :to="config.public.tiktokUrl"
+        >
           <Icon name="fa6-brands:tiktok" class="fs-3 text-secondary" />
         </NuxtLink>
       </div>
@@ -85,7 +112,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
     <div class="sticky-top">
       <!-- Row 2 -->
       <div
-        class="d-flex justify-content-between align-items-center py-3 px-9 bg-white border-bottom"
+        class="d-flex justify-content-between align-items-center py-3 px-md-9 bg-white border-bottom"
       >
         <NuxtLink to="/">
           <NuxtImg
@@ -117,7 +144,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             />
           </div>
 
-          <!-- Notifications (الزر + القائمة داخل المكوّن نفسه) -->
+          <!-- Notifications -->
           <NotificationsMenu v-if="isLoggedIn" />
 
           <!-- إعلاناتي -->
@@ -130,8 +157,9 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             <span class="text-secondary fs-5 mt-4">أعلانتي</span>
           </NuxtLink>
 
-          <!-- حساب المستخدم / تسجيل الدخول -->
-          <div
+          <!-- حساب المستخدم -->
+          <NuxtLink
+            to="/profile"
             v-if="isLoggedIn"
             class="d-flex justify-center align-items-start gap-3"
           >
@@ -139,19 +167,18 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
               :src="profile?.avatar || defaultAvatar"
               alt="userProfile"
               width="40"
+              height="40"
               class="rounded-circle"
             />
             <div>
-              <NuxtLink
-                to="/profile"
-                class="text-dark text-decoration-none d-flex flex-column align-items-start justify-content-center"
+              <div
+                class="text-dark text-decoration-none d-none d-md-flex flex-column align-items-start justify-content-center"
               >
                 <span class="text-dark fs-5">{{ profile?.name }}</span>
                 <span class="text-secondary fs-7">حسابي</span>
-              </NuxtLink>
+              </div>
             </div>
-          </div>
-
+          </NuxtLink>
           <div v-else>
             <NuxtLink to="/login" class="btn btn-main">تسجيل الدخول</NuxtLink>
           </div>
@@ -159,10 +186,23 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
       </div>
 
       <!-- Row 3 -->
-      <nav class="navbar navbar-expand-md px-9 bg-white shadow-sm">
+      <nav class="navbar navbar-expand-md px-md-9 bg-white shadow-sm">
         <div
           class="container-fluid d-flex justify-content-between align-items-center"
         >
+          <div
+            v-if="allowedPaths.includes(route.name)"
+            class="btn d-inline-flex align-items-center border-start rounded-0"
+            data-bs-toggle="collapse"
+            href="#collapseExample"
+            role="button"
+            aria-expanded="false"
+            aria-controls="collapseExample"
+          >
+            <Icon class="fs-1 ms-2" name="fluent:navigation-32-filled" />
+            <span class="fs-3 h5 m-0">كل الأقسام</span>
+          </div>
+
           <button
             class="navbar-toggler"
             type="button"
@@ -185,20 +225,6 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
               </button>
             </NuxtLink>
           </div>
-
-          <div
-            v-if="allowedPaths.includes(route.name)"
-            class="btn d-inline-flex align-items-center border-start rounded-0"
-            data-bs-toggle="collapse"
-            href="#collapseExample"
-            role="button"
-            aria-expanded="false"
-            aria-controls="collapseExample"
-          >
-            <Icon class="fs-3 ms-2" name="fluent:navigation-32-filled" />
-            <span class="fs-3 h5 m-0">كل الأقسام</span>
-          </div>
-
           <div
             class="collapse navbar-collapse order-md-1 justify-content-center"
             id="mainNavbar"
@@ -259,6 +285,10 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
 <style scoped>
 .header {
   font-family: "Expo Arabic", sans-serif;
+}
+.navbar-toggler {
+  border: 0;
+  font-size: 15px;
 }
 .nav-link {
   font-size: 16px;

@@ -12,7 +12,6 @@ const error = ref(null);
 /** مطابق لشكل العرض السابق */
 const userInfo = ref(null); // { id, name, photo, joined_at, phone, email, whatsapp, city, ads_count }
 const adsPager = ref({ data: [] });
-const ads = computed(() => adsPager.value?.data ?? []);
 
 useHead(() => ({
   title: userInfo.value?.name ? `${userInfo.value.name}` : "الملف الشخصي",

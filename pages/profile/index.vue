@@ -199,8 +199,9 @@ async function handleLogout() {
           <div class="d-flex justify-center align-items-center gap-3">
             <img
               :src="mainStore.profile.avatar"
-              alt="userProfile"
+              alt="mainStore.profile.fullName"
               width="60"
+              height="60"
               class="rounded-circle"
             />
             <div

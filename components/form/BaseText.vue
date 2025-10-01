@@ -16,7 +16,7 @@
       <input
         :id="id"
         :type="type"
-        class="form-control text-end fs-6 rounded-1"
+        class="form-control text-end rounded-1"
         :class="{
           'is-invalid': !!error,
           'border-start-0': !!$slots.prepend,

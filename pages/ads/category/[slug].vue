@@ -282,7 +282,7 @@ const sidebarDefaults = computed(() => ({
       </div>
 
       <div class="d-lg-flex align-items-start justify-content-start">
-        <div class="collapse collapse-horizontal show" id="collapseExample">
+        <div class="collapse collapse-horizontal" id="collapseExample">
           <SidebarFilters
             v-if="categoryStore?.categoryData?.ads?.items"
             :default-filters="sidebarDefaults"

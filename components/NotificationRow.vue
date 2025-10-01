@@ -138,15 +138,6 @@ function markRead() {
   color: #1e40af;
 }
 
-/* حالة غير المقروء: بدون مبالغة، توهج خفيف */
-.row.unread {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 244, 220, 0.35),
-    transparent 70%
-  );
-}
-
 /* الأزرار */
 .actions {
   display: flex;

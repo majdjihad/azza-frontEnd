@@ -15,9 +15,6 @@ onMounted(async () => {
   nextTick(() => emitFilters());
 });
 
-/* عملات (واجهية) */
-const currencies = ref(["شيكل", "دولار", "يورو", "دينار"]);
-
 /* Props */
 const props = defineProps({
   defaultFilters: {
@@ -44,7 +41,6 @@ const filters = reactive({
   region: props.defaultFilters.region || "",
   priceMin: props.defaultFilters.priceMin ?? null,
   priceMax: props.defaultFilters.priceMax ?? null,
-  currency: props.defaultFilters.currency || currencies.value[0],
   category_id: props.defaultFilters.category_id || "",
 });
 
@@ -376,28 +372,6 @@ watch(
           <div class="card-body py-0">
             <div class="d-flex justify-content-between align-items-center">
               <h4 class="fw-bold mb-3">السعر</h4>
-              <div class="btn-group">
-                <button
-                  type="button"
-                  class="btn btn-currency p-1 dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {{ filters.currency }}
-                  <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-                  <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
-                </button>
-                <ul class="dropdown-menu shadow-none">
-                  <li v-for="(cur, i) in currencies" :key="i">
-                    <button
-                      class="dropdown-item btn text-end"
-                      @click="filters.currency = cur"
-                    >
-                      {{ cur }}
-                    </button>
-                  </li>
-                </ul>
-              </div>
             </div>
 
             <div class="d-flex align-items-stretch gap-2 w-75">

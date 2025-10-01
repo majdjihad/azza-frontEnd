@@ -15,18 +15,17 @@ const props = defineProps({
   },
 });
 
-/* ====== قلب المفضلة ====== */
-const loader = ref(false);
+/* ====== قلب المفضلة (بدون loader) ====== */
 const handleToggleFavorite = async () => {
+  // قلب محلي فوري
+  props.ad.is_favorite = !props.ad.is_favorite;
+
   try {
-    loader.value = true;
     await mainStore.changeFavoriteAds(props.ad.id);
-    // خيار: قلب محلي (إذا كان المصدر لا ينعكس فورًا)
-    props.ad.is_favorite = !props.ad.is_favorite;
   } catch (e) {
     console.error("Error toggling favorite:", e);
-  } finally {
-    loader.value = false;
+    // رجوع للحالة السابقة إذا صار خطأ
+    props.ad.is_favorite = !props.ad.is_favorite;
   }
 };
 
@@ -47,7 +46,6 @@ const adUrl = computed(() => {
 const shareText = computed(() => {
   const parts = [];
   if (props.ad?.title) parts.push(props.ad.title);
-  if (category.value) parts.push(`(${category.value})`);
   if (props.ad?.price)
     parts.push(`السعر: ${props.ad.price} ${props.ad?.currency || ""}`.trim());
   const city = props.ad?.city?.name || props.ad?.city;
@@ -112,7 +110,11 @@ onMounted(() => {
       <!-- Top Image + Chips + Avatar -->
       <div class="position-relative">
         <NuxtLink :to="`/ads/${ad?.id}`">
-          <NuxtImg :src="ad?.main_image" class="card-img-top" :alt="ad?.title" />
+          <NuxtImg
+            :src="ad?.main_image"
+            class="card-img-top"
+            :alt="ad?.title"
+          />
         </NuxtLink>
 
         <span
@@ -163,6 +165,8 @@ onMounted(() => {
           <div class="meta d-flex align-items-center gap-1 fs-5">
             <!-- تواصل واتساب -->
             <NuxtLink
+              target="_blank"
+              rel="noopener noreferrer"
               :to="`https://wa.me/${ad?.whatsapp}`"
               class="btn text-secondary btn-sm p-1"
               aria-label="تواصل"
@@ -177,23 +181,16 @@ onMounted(() => {
               aria-label="مفضلة"
               @click="handleToggleFavorite"
             >
-              <icon
-                v-if="loader"
-                name="svg-spinners:ring-resize"
-                class="indicator-label fs-1"
+              <Icon
+                v-if="ad?.is_favorite"
+                class="text-primary"
+                name="mdi:cards-heart"
+                size="22"
               />
-              <span v-else>
-                <Icon
-                  v-if="ad?.is_favorite"
-                  class="text-primary"
-                  name="mdi:cards-heart"
-                  size="22"
-                />
-                <Icon v-else name="mdi:heart-outline" size="22" />
-              </span>
+              <Icon v-else name="mdi:heart-outline" size="22" />
             </button>
 
-            <!-- مشاركة: Toast مخصص -->
+            <!-- مشاركة -->
             <button
               class="btn text-secondary btn-sm p-1"
               aria-label="مشاركة"

@@ -7,12 +7,6 @@ const props = defineProps({
   show: { type: Boolean, default: false },
   favorites: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
-  /**
-   * مكان القائمة على الشاشات المتوسطة والكبيرة:
-   * - "end"   (افتراضي): بمحاذاة الطرف المناسب للـ RTL/LTR
-   * - "start": الجهة المقابلة
-   * - "center": منتصف الشاشة أفقيًا
-   */
   desktopPlacement: {
     type: String,
     default: "end",
@@ -22,14 +16,13 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits(["close", "update:show"]);
-
 const mainStore = useMainStore();
 
 // ✅ لودر لكل عنصر باستخدام Set تفاعلي
 const loadingIds = reactive(new Set());
 const isLoading = (id) => loadingIds.has(id);
 
-// ✅ تبديل المفضلة لعنصر معيّن فقط
+// ✅ تبديل المفضلة
 const handleToggleFavorite = async (id) => {
   if (!id || isLoading(id)) return;
   loadingIds.add(id);
@@ -42,13 +35,13 @@ const handleToggleFavorite = async (id) => {
   }
 };
 
-// ✅ إغلاق اللوحة
+// ✅ إغلاق
 const handleClose = () => {
   emit("update:show", false);
   emit("close");
 };
 
-// ✅ كلاس المكان للديسكتوب
+// ✅ مكان الديسكتوب
 const desktopClass = computed(() => {
   return {
     "place-end": props.desktopPlacement === "end",
@@ -67,12 +60,12 @@ const desktopClass = computed(() => {
     aria-label="قائمة المفضلة"
     :class="desktopClass"
   >
-    <!-- 🔘 ترويسة الموبايل (ملء الشاشة) مع زر إغلاق — تظهر فقط على الشاشات الصغيرة -->
+    <!-- ترويسة الموبايل -->
     <div
       class="mobile-header d-md-none sticky-top bg-white pb-2 mb-3 border-bottom"
     >
-      <div class="d-flex align-items-center justify-content-between px-3">
-        <h5 class="fw-bold m-0">المفضلة ({{ favorites.length }})</h5>
+      <div class="d-flex align-items-center justify-content-between py-3">
+        <h3 class="fw-bold m-0">المفضلة ({{ favorites.length }})</h3>
         <button
           type="button"
           class="btn-close"
@@ -82,7 +75,7 @@ const desktopClass = computed(() => {
       </div>
     </div>
 
-    <!-- عنوان الديسكتوب — يظهر فقط على الشاشات الكبيرة -->
+    <!-- ترويسة الديسكتوب -->
     <h5 class="fw-bold border-bottom text-end pb-2 mb-3 d-none d-md-block">
       المفضلة ({{ favorites.length }})
     </h5>
@@ -124,17 +117,20 @@ const desktopClass = computed(() => {
 
     <!-- القائمة -->
     <template v-else>
-      <div v-for="item in favorites" :key="item.id" class="border-bottom py-2">
-        <div class="row g-3 align-items-start fav-item">
+      <div
+        v-for="item in favorites"
+        :key="item.id"
+        class="border-bottom py-2 fav-item-wrapper"
+      >
+        <div class="row g-3 align-items-center fav-item">
           <div class="col-auto">
             <img
-              :src="item.image || '/media/bg-home/bg1.png'"
+              :src="'/media/bg-home/bg1.png'"
               class="rounded thumb"
               style="width: 56px; height: 56px; object-fit: cover"
-              alt="صورة الإعلان"
+              :alt="item.title"
             />
           </div>
-
           <div class="col text-end position-relative p-0">
             <button
               type="button"
@@ -154,10 +150,10 @@ const desktopClass = computed(() => {
               </span>
             </button>
 
-            <div class="fw-semibold fs-6 title-2lines">{{ item.title }}</div>
+            <p class="fw-semibold title-2lines">{{ item.title }}</p>
             <div class="d-flex justify-content-between align-items-center mt-1">
               <small class="text-muted">{{ item.city }}</small>
-              <small class="text-primary fw-bold"
+              <small class="text-primary mt-4 fw-bold"
                 >{{ item.price }} {{ item.currency }}</small
               >
             </div>
@@ -169,7 +165,6 @@ const desktopClass = computed(() => {
 </template>
 
 <style scoped>
-/* ===== أساسيات العناصر ===== */
 .fav-item .col.position-relative {
   padding-inline-end: 2.25rem;
 }
@@ -207,7 +202,7 @@ const desktopClass = computed(() => {
   }
 }
 
-/* ===== موبايل: ملء الشاشة ===== */
+/* ===== موبايل ===== */
 @media (max-width: 768px) {
   .mobile-fullscreen {
     position: fixed !important;
@@ -222,21 +217,22 @@ const desktopClass = computed(() => {
     border-radius: 0;
     overflow-y: auto;
     z-index: 1050;
-    background: #fff; /* خلفية بيضاء للوحة */
-    padding: 0 0 1rem 0; /* نترك المسافات داخل المحتوى */
+    background: #fff;
+    padding: 0 1rem 1rem 1rem; /* ✅ إضافة مسافة يمين ويسار */
   }
-
-  /* إبقاء المحتوى تحت الترويسة المثبتة */
+  .fav-item-wrapper {
+    padding-inline: 0.5rem; /* ✅ مسافة داخلية لعناصر القائمة */
+  }
   .mobile-header + * {
     scroll-margin-top: 56px;
   }
 }
 
-/* ===== دِسك توب/تابلت: صندوق منسق بمكان مرن ===== */
+/* ===== ديسكتوب ===== */
 @media (min-width: 769px) {
   .fav-panel-container {
-    position: absolute; /* تتبع أقرب عنصر position غير static (غالبًا حاوية الهيدر) */
-    top: 100%; /* تحت الزر المفترض */
+    position: absolute;
+    top: 100%;
     margin-top: 8px;
     min-width: 350px;
     max-height: 500px;
@@ -247,18 +243,12 @@ const desktopClass = computed(() => {
     border-radius: 0.5rem;
     padding: 1rem;
   }
-
-  /* محاذاة الطرف المناسب للاتجاه (RTL/LTR) */
   .fav-panel-container.place-end {
-    inset-inline-end: 1rem; /* يمين في LTR ويسار في RTL */
+    inset-inline-end: 1rem;
   }
-
-  /* محاذاة الطرف المقابل */
   .fav-panel-container.place-start {
-    inset-inline-start: 1rem; /* يسار في LTR ويمين في RTL */
+    inset-inline-start: 1rem;
   }
-
-  /* توسيط أفقي */
   .fav-panel-container.place-center {
     left: 50%;
     transform: translateX(-50%);

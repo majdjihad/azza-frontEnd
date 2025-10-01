@@ -3,6 +3,7 @@ import { useMainStore } from "~/stores/mainStore";
 
 useHead({ title: "الرئيسية" });
 
+definePageMeta({ middleware: ["auth"] });
 // ✅ SEO للصفحة الرئيسية
 useSeo({
   title: "منصّة AZZA | بيع وشراء بسهولة وأمان",
@@ -137,7 +138,7 @@ const carouselId = "offersCarousel";
           <!-- صندوق البحث -->
           <div class="row g-0 align-items-stretch w-100 justify-content-center">
             <!-- نص البحث -->
-            <div class="col-md-3">
+            <div class="col-md-3 overflow-hidden">
               <div class="input-group d-flex align-items-stretch h-100">
                 <span
                   class="input-group-text bg-white p-3 text-secondary rounded-0 border-0 border-end"
@@ -146,7 +147,8 @@ const carouselId = "offersCarousel";
                 </span>
                 <input
                   type="text"
-                  class="form-control search-input bg-white py-6 text-dark fs-3 border-0 rounded-0"
+                  name="text-search"
+                  class="form-control search-input bg-white py-6 text-dark border-0 rounded-0"
                   placeholder="ادخل كلمة البحث هنا"
                   v-model="inputQuery"
                 />

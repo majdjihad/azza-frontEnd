@@ -139,27 +139,43 @@ const config = useRuntimeConfig();
 
         <div class="d-flex justify-content-center mb-2 d-none d-lg-block">
           <NuxtLink
+            target="_blank"
+            rel="noopener noreferrer"
             :to="config.public.facebookUrl"
             class="text-white fs-3 mx-2"
           >
             <Icon name="bi:facebook" />
           </NuxtLink>
           <NuxtLink
+            target="_blank"
+            rel="noopener noreferrer"
             :to="config.public.instagramUrl"
             class="text-white fs-3 mx-2"
           >
             <Icon name="bi:instagram" />
           </NuxtLink>
-          <NuxtLink :to="config.public.twitterUrl" class="text-white fs-3 mx-2">
+          <NuxtLink
+            :to="config.public.twitterUrl"
+            class="text-white fs-3 mx-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Icon name="bi:twitter-x" />
           </NuxtLink>
           <NuxtLink
+            target="_blank"
+            rel="noopener noreferrer"
             :to="config.public.whatsappUrl"
             class="text-white fs-3 mx-2"
           >
             <Icon name="bi:whatsapp" />
           </NuxtLink>
-          <NuxtLink :to="config.public.tiktokUrl" class="text-white fs-3 mx-2">
+          <NuxtLink
+            target="_blank"
+            rel="noopener noreferrer"
+            :to="config.public.tiktokUrl"
+            class="text-white fs-3 mx-2"
+          >
             <Icon name="bi:tiktok" />
           </NuxtLink>
         </div>

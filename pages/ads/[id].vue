@@ -334,8 +334,8 @@ onBeforeUnmount(() => {
             <div class="row g-3 mb-3" v-if="listing.images?.length">
               <div class="col-md-8">
                 <div class="gallery-main">
-                  <img
-                    :src="listing.images[2] || listing.images[0]"
+                  <NuxtImg
+                    :src="listing.images[0]"
                     class="w-100 rounded-1"
                     alt=""
                   />
@@ -343,8 +343,11 @@ onBeforeUnmount(() => {
               </div>
               <div class="col-md-4 col-6">
                 <div class="gallery-thumbs d-md-grid d-flex gap-3">
-                  <img
-                    v-for="(img, i) in listing.images.slice(0, 2)"
+                  <NuxtImg
+                    v-for="(img, i) in listing.images.slice(
+                      1,
+                      listing.images?.length
+                    )"
                     :key="i"
                     :src="img"
                     class="w-100 rounded-1"
@@ -417,7 +420,7 @@ onBeforeUnmount(() => {
                   class="m-auto mb-3 text-center"
                 >
                   <div>
-                    <img
+                    <NuxtImg
                       :src="listing.publisher.avatar"
                       class="rounded-circle border"
                       width="100"
@@ -438,7 +441,7 @@ onBeforeUnmount(() => {
                 <div class="user-data gap-2 my-3 pb-3 px-3">
                   <NuxtLink
                     :to="`tel:${listing.publisher?.phone}`"
-                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.phone"
                   >
                     <span class="p-6 bg-primary rounded">
@@ -456,9 +459,11 @@ onBeforeUnmount(() => {
                   </NuxtLink>
 
                   <NuxtLink
+                    rel="noopener noreferrer"
                     :to="`https://wa.me/${listing.publisher?.whatsapp}`"
-                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.whatsapp"
+                    target="_blank"
                   >
                     <span class="p-6 rounded" style="background-color: #4fad52">
                       <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
@@ -475,7 +480,7 @@ onBeforeUnmount(() => {
 
                   <NuxtLink
                     :to="`mailto:${listing.publisher?.email}`"
-                    class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.email"
                   >
                     <span class="p-6 rounded" style="background-color: #a5acb9">

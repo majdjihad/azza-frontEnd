@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
           class="d-flex align-items-center justify-content-between px-3"
           style="height: 56px"
         >
-          <h6 class="fw-bold m-0">الإشعارات ({{ unreadCount }})</h6>
+          <h3 class="fw-bold m-0">الإشعارات ({{ unreadCount }})</h3>
           <button
             type="button"
             class="btn-close"
@@ -395,7 +395,7 @@ onBeforeUnmount(() => {
 /* الجسم */
 .notif-body {
   max-height: 420px;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 8px 0;
 }
 

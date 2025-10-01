@@ -153,7 +153,9 @@ function onFiltersChange(f) {
   <div class="container py-4 py-md-5">
     <div class="page-content">
       <div class="d-flex align-items-center mb-4">
-        <h1 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h1>
+        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          >الرئيسية</NuxtLink
+        >
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
@@ -229,7 +231,7 @@ function onFiltersChange(f) {
       </div>
 
       <div class="d-lg-flex align-items-start justify-content-between">
-        <div class="collapse collapse-horizontal show" id="collapseExample">
+        <div class="collapse collapse-horizontal" id="collapseExample">
           <SidebarFilters
             class="sidebar-filters"
             @update:filters="onFiltersChange"

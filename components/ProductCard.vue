@@ -108,12 +108,6 @@ onMounted(() => {
       <NuxtLink :to="`/products/${item.id}`" class="offer-title text-dark h3">
         {{ item.name || item.title }}
       </NuxtLink>
-
-      <div class="d-flex align-items-center text-secondary gap-1 offer-meta">
-        <Icon name="mdi:map-marker-outline" size="18" />
-        <span class="fs-5" v-if="item?.city?.name">{{ item.city.name }}</span>
-        <span class="fs-5" v-else-if="item.city">{{ item.city }}</span>
-      </div>
     </div>
 
     <div
@@ -127,9 +121,11 @@ onMounted(() => {
       <div class="d-flex align-items-center gap-2">
         <!-- واتساب (إن توفر رقم) -->
         <NuxtLink
+          rel="noopener noreferrer"
           :to="config.public.whatsappUrl"
           class="btn btn-sm p-1"
           aria-label="تواصل"
+          target="_blank"
         >
           <Icon name="akar-icons:whatsapp-fill" size="24" />
         </NuxtLink>

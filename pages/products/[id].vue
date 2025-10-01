@@ -449,7 +449,7 @@ onMounted(() => {
               <div class="user-data gap-2 my-3 pb-3 px-3">
                 <NuxtLink
                   :to="`tel:${runtimeConfig.public.companyPhone}`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 bg-primary rounded">
                     <Icon
@@ -465,8 +465,10 @@ onMounted(() => {
                   </div>
                 </NuxtLink>
                 <NuxtLink
+                  target="_blank"
+                  rel="noopener noreferrer"
                   :to="`https://wa.me/${runtimeConfig.public.companyPhone}`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #4fad52">
                     <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
@@ -480,7 +482,7 @@ onMounted(() => {
                 </NuxtLink>
                 <NuxtLink
                   :to="`mailto:runtimeConfig.public.companyEmail`"
-                  class="d-flex w-md-100 w-50 mx-auto align-items-center btn p-0 mb-4"
+                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #a5acb9">
                     <Icon

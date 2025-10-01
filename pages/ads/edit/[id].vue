@@ -81,7 +81,6 @@ const errors = reactive({});
 const currencies = ref([
   { value: "شيكل", label: "شيكل" },
   { value: "دولار", label: "دولار" },
-  { value: "يورو", label: "يورو" },
   { value: "دينار", label: "دينار" },
 ]);
 
@@ -599,6 +598,12 @@ function removeMain() {
                 <div
                   class="card-body text-center position-absolute top-50 start-50 translate-middle w-100"
                 >
+                  <NuxtImg
+                    :src="cat?.icon"
+                    :alt="cat?.name"
+                    class="w-25 mb-4"
+                  />
+
                   <div
                     class="rounded px-3 py-2 bg-dark bg-opacity-50 d-inline-block text-white fw-bold"
                   >
