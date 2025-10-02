@@ -214,8 +214,14 @@ function validate() {
   if (!form.price || isNaN(Number(form.price)))
     errors.price = "أدخل السعر بشكل صحيح";
   if (!form.currency) errors.currency = "اختر العملة";
-  if (!form.whatsapp || form.whatsapp.trim().length < 6)
-    errors.whatsapp = "أدخل رقم واتساب صالح";
+  if (
+    !form.whatsapp ||
+    !/^(\+97259\d{7}|\+97256\d{7}|\+97059\d{7}|\+97056\d{7})$/.test(
+      form.whatsapp
+    )
+  ) {
+    errors.whatsapp = "أدخل رقم واتساب صالح مثل +97259XXXXXXX";
+  }
 
   if (mainFilesCount.value === 0) errors.mainImage = "الصورة الرئيسية مطلوبة";
 
@@ -577,7 +583,7 @@ function resetAll() {
 
         <div class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0 fw-semibold">باقي الصور (اختياري حتى 5)</h6>
+            <h6 class="mb-0 fw-semibold">باقي الصور (اختياري حتى 3)</h6>
             <small class="text-muted">حتى 1MB/صورة</small>
           </div>
 
@@ -586,7 +592,7 @@ function resetAll() {
               ref="galleryPond"
               class="pond"
               :allow-multiple="true"
-              :max-files="5"
+              :max-files="3"
               :accepted-file-types="['image/*']"
               max-file-size="1MB"
               :instant-upload="false"
@@ -814,7 +820,7 @@ function resetAll() {
         <button
           :disabled="submitting"
           @click="submit"
-          class="btn btn-lg btn-view-all"
+          class="btn btn-lg btn-view-all w-auto"
         >
           <div v-if="!submitting">
             <span class="mb-0 text-white">نشر الاعلان</span>

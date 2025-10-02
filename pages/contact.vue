@@ -224,7 +224,7 @@ async function onSubmit() {
           <div class="text-center my-8">
             <button
               type="submit"
-              class="btn btn-lg btn-view-all"
+              class="btn btn-lg btn-view-all w-auto"
               :disabled="sending"
             >
               <template v-if="!sending">

@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
         <main class="col-lg-9 order-1 order-lg-2">
           <div class="card shadow-sm p-9">
             <div
-              class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
+              class="d-flex flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
             >
               <div>
                 <h2 class="mb-1">{{ listing.title || "..." }}</h2>
@@ -341,13 +341,10 @@ onBeforeUnmount(() => {
                   />
                 </div>
               </div>
-              <div class="col-md-4 col-6">
+              <div class="col-md-4 col-6" v-if="listing.images.length > 1">
                 <div class="gallery-thumbs d-md-grid d-flex gap-3">
                   <NuxtImg
-                    v-for="(img, i) in listing.images.slice(
-                      1,
-                      listing.images?.length
-                    )"
+                    v-for="(img, i) in listing.images"
                     :key="i"
                     :src="img"
                     class="w-100 rounded-1"
@@ -518,7 +515,7 @@ onBeforeUnmount(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     قابل البائع أو المشتري في مكان عام وآمن مثل المولات ومحطات
                     الوقود.
                   </p>
@@ -528,7 +525,7 @@ onBeforeUnmount(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     يفضل اصطحاب شخص آخر عند اللقاء.
                   </p>
                 </li>
@@ -537,7 +534,7 @@ onBeforeUnmount(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     تحقق من المنتج بعناية قبل الشراء.
                   </p>
                 </li>
@@ -546,7 +543,7 @@ onBeforeUnmount(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     لا تدفع أي مبلغ قبل المعاينة والتأكد من المنتج.
                   </p>
                 </li>
@@ -555,7 +552,7 @@ onBeforeUnmount(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     تأكد من أن المنتج غير مسروق أو مخالف للقانون.
                   </p>
                 </li>
@@ -578,6 +575,24 @@ onBeforeUnmount(() => {
               <template v-else>لا توجد عناصر ذات صلة</template>
             </h2>
           </div>
+          <template v-if="relatedProducts.length">
+            <div
+              v-for="(group, idx) in productSlides"
+              :key="'p-' + idx"
+              :class="['carousel-item', { active: idx === 0 }]"
+            >
+              <div class="row g-3 g-md-4">
+                <div
+                  v-for="item in group"
+                  :key="item.id"
+                  class="col-12 col-sm-6 col-lg-3"
+                >
+                  <ProductCard :item="item" />
+                </div>
+              </div>
+            </div>
+          </template>
+
           <div
             class="d-flex align-items-center gap-2 offers-toolbar"
             v-if="relatedProducts.length > 4 || relatedAds.length > 4"
@@ -609,27 +624,8 @@ onBeforeUnmount(() => {
           v-if="relatedProducts.length || relatedAds.length"
         >
           <div class="carousel-inner">
-            <!-- منتجات -->
-            <template v-if="relatedProducts.length">
-              <div
-                v-for="(group, idx) in productSlides"
-                :key="'p-' + idx"
-                :class="['carousel-item', { active: idx === 0 }]"
-              >
-                <div class="row g-3 g-md-4">
-                  <div
-                    v-for="item in group"
-                    :key="item.id"
-                    class="col-12 col-sm-6 col-lg-3"
-                  >
-                    <ProductCard :item="item" />
-                  </div>
-                </div>
-              </div>
-            </template>
-
             <!-- إعلانات -->
-            <template v-else>
+            <template v-if="relatedAds.length">
               <div
                 v-for="(group, idx) in relatedAdSlides"
                 :key="'a-' + idx"

@@ -124,8 +124,8 @@ const desktopClass = computed(() => {
       >
         <div class="row g-3 align-items-center fav-item">
           <div class="col-auto">
-            <img
-              :src="'/media/bg-home/bg1.png'"
+            <NuxtImg
+              :src="item?.image"
               class="rounded thumb"
               style="width: 56px; height: 56px; object-fit: cover"
               :alt="item.title"

@@ -3,7 +3,6 @@ import { useMainStore } from "~/stores/mainStore";
 
 useHead({ title: "الرئيسية" });
 
-definePageMeta({ middleware: ["auth"] });
 // ✅ SEO للصفحة الرئيسية
 useSeo({
   title: "منصّة AZZA | بيع وشراء بسهولة وأمان",

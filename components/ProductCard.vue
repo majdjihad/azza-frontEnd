@@ -101,7 +101,10 @@ onMounted(() => {
 <template>
   <div class="offer-card h-100 d-flex flex-column position-relative">
     <NuxtLink :to="`/products/${item.id}`" class="offer-media">
-      <NuxtImg :src="item.main_image" :alt="item.title || item.name" />
+      <NuxtImg
+        :src="item?.main_image || item?.image"
+        :alt="item.title || item.name"
+      />
     </NuxtLink>
 
     <div class="offer-body">

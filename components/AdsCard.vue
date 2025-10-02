@@ -111,7 +111,7 @@ onMounted(() => {
       <div class="position-relative">
         <NuxtLink :to="`/ads/${ad?.id}`">
           <NuxtImg
-            :src="ad?.main_image"
+            :src="ad?.main_image || ad?.image"
             class="card-img-top"
             :alt="ad?.title"
           />

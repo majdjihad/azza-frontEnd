@@ -245,10 +245,10 @@ async function handleLogout() {
                   {{ mainStore.profile.email }}
                 </div>
               </div>
-              <div class="col-12 mt-4 col-md-6">
+              <div class="col-12 mt-4 col-md-6" v-if="mainStore.profile?.city">
                 <div class="label-muted fw-bold fs-4 mb-2">المدينة</div>
                 <div class="form-tile bg-muted p-4 rounded">
-                  {{ mainStore.profile.city }}
+                  {{ mainStore.profile?.city }}
                 </div>
               </div>
               <div class="col-12 mt-4 col-md-6">

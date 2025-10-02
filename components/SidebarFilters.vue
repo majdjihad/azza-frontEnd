@@ -1,4 +1,5 @@
 <script setup>
+import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
 import { useCategoryStore } from "~/stores/categoryStore";
 import { useMainStore } from "~/stores/mainStore";
 import SkeletonSidebar from "./Skeleton/SkeletonSidebar.vue";
@@ -7,11 +8,33 @@ const categoryStore = useCategoryStore();
 const mainStore = useMainStore();
 const route = useRoute();
 
+/* حفظ/استعادة موضع التمرير لمنع القفز */
+let _savedScroll = 0;
+function preserveScroll() {
+  if (typeof window === "undefined") return;
+  _savedScroll =
+    window.scrollY ||
+    window.pageYOffset ||
+    document.documentElement.scrollTop ||
+    0;
+  // نعيد الموضع بعد دورة الحدث التالية (يضمن أن أي سلوك افتراضي قد حصل قد انتهى)
+  setTimeout(() => {
+    // لو تغيّر الموضع نعيده
+    const now =
+      window.scrollY ||
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      0;
+    if (Math.abs(now - _savedScroll) > 0) {
+      window.scrollTo({ top: _savedScroll, left: 0, behavior: "auto" });
+    }
+  }, 0);
+}
+
 /* تحميل بيانات المدن + بيانات التصنيفات مرة واحدة */
 onMounted(async () => {
   if (!categoryStore?.citiesData) await categoryStore.getCitiesData();
   if (!mainStore?.filterData) await mainStore.getFilterData();
-  // بعد التحميل الأوّلي، أرسل الفلاتر الحالية فورًا
   nextTick(() => emitFilters());
 });
 
@@ -20,7 +43,7 @@ const props = defineProps({
   defaultFilters: {
     type: Object,
     default: () => ({
-      categories: [], // subcategory_ids
+      categories: [],
       city_id: "",
       region: "",
       priceMin: null,
@@ -36,7 +59,7 @@ const emit = defineEmits(["update:filters"]);
 
 /* الحالة الداخلية للفلاتر */
 const filters = reactive({
-  categories: [...(props.defaultFilters.categories || [])], // subcategory_ids
+  categories: [...(props.defaultFilters.categories || [])],
   city_id: props.defaultFilters.city_id || "",
   region: props.defaultFilters.region || "",
   priceMin: props.defaultFilters.priceMin ?? null,
@@ -51,7 +74,11 @@ const priceMinText = ref(
 const priceMaxText = ref(
   filters.priceMax !== null ? String(filters.priceMax) : ""
 );
-function sanitizePrice(which) {
+
+/* تنظيف الرقم وتبديل القيم إن لزم */
+function sanitizePrice(which, e) {
+  // إيقاف انتشار الحدث محليًا لتقليل تأثيرات جانبية
+  e?.stopPropagation?.();
   if (which === "min") {
     priceMinText.value = (priceMinText.value || "").replace(/[^\d]/g, "");
     filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
@@ -120,9 +147,8 @@ const categories = computed(() => {
   });
 
   if (isCategoryRoute.value && pageCategory.value) {
-    return [mapCat(pageCategory.value)]; // تصنيف واحد + أبناؤه
+    return [mapCat(pageCategory.value)];
   }
-  // لا يوجد تصنيف من المسار (أو لم نجد مطابقًا) => أعرض الكل
   return raw.map(mapCat);
 });
 
@@ -130,7 +156,8 @@ const categories = computed(() => {
 const selectedCategories = ref([...filters.categories]);
 const expanded = reactive({});
 
-function toggleParent(p) {
+function toggleParent(p, e) {
+  e?.stopPropagation?.();
   const childVals = (p.children || []).map((ch) => ch.value);
   if (!childVals.length) {
     const exists = selectedCategories.value.includes(p.value);
@@ -182,6 +209,7 @@ const isIndeterminate = computed(
   () => selectedCategories.value.length > 0 && !allChecked.value
 );
 function toggleAll(e) {
+  e?.stopPropagation?.();
   selectedCategories.value = e.target.checked ? [...allValues.value] : [];
 }
 
@@ -189,10 +217,8 @@ function toggleAll(e) {
 watch(
   () => pageCategory.value?.id,
   (id) => {
-    // اضبط category_id كي يرسَل مع الفلاتر — هذا ما كان يمنع الطلب في وضع تصنيف واحد
     filters.category_id = id ?? "";
 
-    // دع فقط التصنيفات الفرعية المسموحة لهذا التصنيف
     const allowed = new Set(
       (pageCategory.value?.subcategories || []).map((sc) => Number(sc?.id))
     );
@@ -200,10 +226,8 @@ watch(
       allowed.has(Number(sid))
     );
 
-    // افتح التصنيف الوحيد تلقائيًا
     if (id) expanded[id] = true;
 
-    // أعد الإرسال فورًا
     emitFilters();
   },
   { immediate: true }
@@ -218,7 +242,6 @@ function emitFilters() {
     priceMin: filters.priceMin ?? undefined,
     priceMax: filters.priceMax ?? undefined,
     currency: filters.currency,
-    // مهم: category_id من تصنيف الصفحة إن وُجد
     category_id: filters.category_id || undefined,
   });
 }
@@ -233,7 +256,7 @@ watch(
     () => filters.priceMax,
     () => filters.currency,
     () => filters.category_id,
-    () => routeCategorySlug.value, // تغيّر المسار
+    () => routeCategorySlug.value,
   ],
   () => emitFilters(),
   { deep: true, immediate: true }
@@ -241,7 +264,14 @@ watch(
 </script>
 
 <template>
-  <aside class="filters-sidebar mx-2 position-relative top-0">
+  <!-- نستخدم capture listeners على Aside للحفاظ على موضع التمرير قبل أي تفاعل -->
+  <aside
+    class="filters-sidebar mx-2 position-relative top-0"
+    @mousedown.capture="preserveScroll"
+    @touchstart.capture="preserveScroll"
+    @keydown.capture="preserveScroll"
+    @input.capture="preserveScroll"
+  >
     <div
       v-if="
         mainStore?.filterData?.categories && categoryStore?.citiesData?.cities
@@ -258,7 +288,7 @@ watch(
               type="checkbox"
               :checked="allChecked"
               :indeterminate.prop="isIndeterminate"
-              @change="toggleAll($event)"
+              @change.stop="toggleAll($event)"
               id="cat-all"
             />
             <label
@@ -271,7 +301,7 @@ watch(
             </label>
           </div>
 
-          <!-- قائمة الأقسام (تصنيف المسار فقط إن وُجد، وإلا الكل) -->
+          <!-- قائمة الأقسام -->
           <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
             <div
               class="d-flex align-items-center justify-content-between app-item"
@@ -283,7 +313,7 @@ watch(
                   :id="`p-${i}`"
                   :checked="isParentChecked(p)"
                   :indeterminate.prop="isParentIndeterminate(p)"
-                  @change="toggleParent(p)"
+                  @change.stop="toggleParent(p, $event)"
                 />
                 <label
                   class="form-check-label d-inline-flex gap-2"
@@ -297,7 +327,10 @@ watch(
                 v-if="p.children && p.children.length"
                 class="btn btn-sm btn-link text-decoration-none"
                 type="button"
-                @click="expanded[p.value] = !expanded[p.value]"
+                @click.stop="
+                  expanded[p.value] = !expanded[p.value];
+                  preserveScroll();
+                "
                 :aria-expanded="!!expanded[p.value]"
               >
                 <Icon
@@ -325,6 +358,7 @@ watch(
                   :id="`c-${i}-${j}`"
                   :value="ch.value"
                   v-model="selectedCategories"
+                  @change.stop="preserveScroll"
                 />
                 <label
                   class="form-check-label w-100 d-flex"
@@ -353,6 +387,8 @@ watch(
                 class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
                 id="inputCityGroup"
                 v-model="filters.city_id"
+                @change.stop
+                @click.stop
               >
                 <option value="">اختر المدينة</option>
                 <option
@@ -385,7 +421,8 @@ watch(
                   inputmode="numeric"
                   class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                   v-model="priceMinText"
-                  @input="sanitizePrice('min')"
+                  @input.stop="sanitizePrice('min', $event)"
+                  @click.stop
                 />
               </div>
               <div class="input-group">
@@ -398,7 +435,8 @@ watch(
                   inputmode="numeric"
                   class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                   v-model="priceMaxText"
-                  @input="sanitizePrice('max')"
+                  @input.stop="sanitizePrice('max', $event)"
+                  @click.stop
                 />
               </div>
             </div>
@@ -408,7 +446,7 @@ watch(
         <!-- زر إرسال يدوي (اختياري) -->
         <button
           class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
-          @click="emitFilters()"
+          @click.stop="emitFilters()"
         >
           بحث
         </button>
@@ -428,6 +466,7 @@ watch(
         />
       </div>
     </div>
+
     <SkeletonSidebar v-else />
   </aside>
 </template>
@@ -436,6 +475,12 @@ watch(
 .filters-sidebar {
   width: 100%;
 }
+
+/* منع smooth scroll داخل الشريط لتقليل القفزات */
+.filters-sidebar *:focus {
+  scroll-behavior: auto !important;
+}
+
 .card {
   border-radius: 12px;
 }
