@@ -98,7 +98,7 @@ function parsePageFromUrl(url) {
       url,
       typeof window !== "undefined"
         ? window.location.origin
-        : "https://example.com"
+        : "https://azza-ak.com/"
     );
     const n = Number(u.searchParams.get("page"));
     return Number.isFinite(n) && n > 0 ? n : 1;

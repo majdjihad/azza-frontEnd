@@ -148,7 +148,7 @@ async function onSubmit() {
           </div>
         </div>
         <form class="px-9" @submit.prevent="onSubmit" novalidate>
-          <div class="row g-4 rounded-1 p-9 bg-white shadow-sm">
+          <div class="row g-4 rounded-1 p-md-9 bg-white shadow-sm">
             <div class="mb-4 py-4">
               <h2 class="fw-bold text-primary mb-2">نحن هنا من أجلك!</h2>
               <p class="fs-5 text-dark mb-0">

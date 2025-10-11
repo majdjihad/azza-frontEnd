@@ -376,4 +376,7 @@ function onFiltersChange(f) {
 .dropdown-item.active {
   color: var(--bs-primary);
 }
+.router-link-exact-active.active {
+  color: white !important;
+}
 </style>

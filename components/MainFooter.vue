@@ -188,7 +188,7 @@ const config = useRuntimeConfig();
 .footer {
   overflow: hidden;
 }
-.footer a:hover {
-  color: #0d6efd; /* لون Bootstrap الأساسي */
+li a:hover {
+  color: #1839a0 !important;
 }
 </style>

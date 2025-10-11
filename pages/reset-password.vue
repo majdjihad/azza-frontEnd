@@ -104,7 +104,7 @@ const formHandle = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4">
+              <ul class="list-unstyled lh-lg mb-0 mt-4 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"

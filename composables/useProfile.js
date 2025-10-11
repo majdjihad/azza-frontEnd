@@ -12,7 +12,7 @@ export const useProfile = () => {
     });
   }
   async function getProfile(userIdentify) {
-    return await $larafetch(`api/profile/${userIdentify}`, {
+    return await $larafetch(`api/users/${userIdentify}`, {
       method: "GET",
     });
   }

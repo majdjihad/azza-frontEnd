@@ -21,7 +21,7 @@ const runtimeConfig = useRuntimeConfig?.();
 function getOrigin() {
   if (process.client && typeof window !== "undefined")
     return window.location.origin;
-  return runtimeConfig?.public?.siteUrl || "https://example.com";
+  return runtimeConfig?.public?.siteUrl || "https://azza-ak.com/";
 }
 
 const productUrl = computed(() => {

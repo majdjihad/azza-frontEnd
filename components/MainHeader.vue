@@ -112,7 +112,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
     <div class="sticky-top">
       <!-- Row 2 -->
       <div
-        class="d-flex justify-content-between align-items-center py-3 px-md-9 bg-white border-bottom"
+        class="d-flex justify-content-between align-items-center p-3 px-md-9 bg-white border-bottom"
       >
         <NuxtLink to="/">
           <NuxtImg
@@ -184,27 +184,13 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
           </div>
         </div>
       </div>
-
       <!-- Row 3 -->
       <nav class="navbar navbar-expand-md px-md-9 bg-white shadow-sm">
         <div
           class="container-fluid d-flex justify-content-between align-items-center"
         >
-          <div
-            v-if="allowedPaths.includes(route.name)"
-            class="btn d-inline-flex align-items-center border-start rounded-0"
-            data-bs-toggle="collapse"
-            href="#collapseExample"
-            role="button"
-            aria-expanded="false"
-            aria-controls="collapseExample"
-          >
-            <Icon class="fs-1 ms-2" name="fluent:navigation-32-filled" />
-            <span class="fs-3 h5 m-0">كل الأقسام</span>
-          </div>
-
           <button
-            class="navbar-toggler"
+            class="navbar-toggler ms-2"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#mainNavbar"
@@ -214,7 +200,18 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
           >
             <span class="navbar-toggler-icon"></span>
           </button>
-
+          <div
+            v-if="allowedPaths.includes(route.name)"
+            class="btn d-inline-flex align-items-center border-start rounded-0 me-2"
+            data-bs-toggle="collapse"
+            href="#collapseExample"
+            role="button"
+            aria-expanded="false"
+            aria-controls="collapseExample"
+          >
+            <Icon class="fs-1 ms-2" name="fluent:navigation-32-filled" />
+            <span class="fs-3 h5 m-0">كل الأقسام</span>
+          </div>
           <div class="order-md-2" v-if="showAddButton">
             <NuxtLink :to="isLoggedIn ? '/ads/create' : '/login'">
               <button
@@ -225,6 +222,8 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
               </button>
             </NuxtLink>
           </div>
+
+          <!-- ✅ روابط القائمة -->
           <div
             class="collapse navbar-collapse order-md-1 justify-content-center"
             id="mainNavbar"
@@ -302,5 +301,11 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 !important;
+}
+a:hover {
+  color: #1839a0 !important;
 }
 </style>

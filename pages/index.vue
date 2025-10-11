@@ -2,6 +2,7 @@
 import { useMainStore } from "~/stores/mainStore";
 
 useHead({ title: "الرئيسية" });
+definePageMeta({ middleware: ["auth"] });
 
 // ✅ SEO للصفحة الرئيسية
 useSeo({
@@ -373,7 +374,6 @@ const carouselId = "offersCarousel";
     <section class="container container-ads pt-4 mb-9 py-md-5">
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-4">
-          <span class="badge-chip p-2 ms-1 secondary">جديد</span>
           <div>
             <h2 class="fs-1 section-title mb-0">أحدث الإعلانات</h2>
             <div class="fs-3 small-muted">
@@ -400,7 +400,12 @@ const carouselId = "offersCarousel";
             <Icon name="line-md:arrow-left" size="20" />
           </button>
           <NuxtLink to="/ads" class="btn-view-all">
-            <h5 class="mb-0 text-white w-100">عرض الكل</h5>
+            <h5
+              class="mb-0 text-white w-100"
+              v-if="mainStore?.homePageData?.ads_section"
+            >
+              عرض الكل
+            </h5>
             <Icon
               name="material-symbols:arrow-back-rounded"
               class="text-white"

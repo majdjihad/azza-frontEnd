@@ -24,7 +24,7 @@ const otpRef = ref(null);
 
 const resendBtn = ref(null);
 const timerSpan = ref(null);
-const countdown = ref(0.2 * 60);
+const countdown = ref(5 * 60);
 const isDisabled = ref(true);
 
 onMounted(() => {
@@ -96,7 +96,7 @@ const resendVerificationCode = async () => {
   try {
     resendCodeInProgress.value = true;
     const { submit } = useSubmit(
-      () => resendVerification({ login: formData.login }),
+      () => resendVerification({ login: formData.email }),
       {
         onSuccess: (response) => {
           // Handle the response
@@ -133,7 +133,7 @@ const resendVerificationCode = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -223,7 +223,7 @@ const resendVerificationCode = async () => {
                 </div>
                 <div class="text-end my-3">
                   <button
-                    class="btn btn-main mt-3"
+                    class="btn btn-main mt-3 w-100 w-md-auto justify-content-center"
                     :disabled="inProgress"
                     type="submit"
                   >

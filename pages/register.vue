@@ -148,7 +148,7 @@ const formHandle = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4">
+              <ul class="list-unstyled lh-lg mb-0 mt-4 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -201,7 +201,7 @@ const formHandle = async () => {
               <h1 class="fw-bold text-end mb-4">
                 <span class="display-4">👋</span>مرحبًا بك
               </h1>
-              <ul class="nav nav-underline justify-content-start mb-4">
+              <ul class="nav nav-underline justify-content-start mb-4 p-0">
                 <li class="nav-item d-flex align-items-center">
                   <NuxtLink class="text-secondary fw-bold" to="/login"
                     >تسجيل الدخول</NuxtLink
@@ -287,7 +287,7 @@ const formHandle = async () => {
                 </div>
                 <div class="text-center mt-3">
                   <button
-                    class="btn btn-main px-4"
+                    class="btn btn-main px-4 w-100 w-md-auto justify-content-center"
                     :disabled="inProgress"
                     type="submit"
                   >

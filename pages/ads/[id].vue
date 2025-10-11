@@ -127,7 +127,7 @@ watch(
 // بناء origin مناسب للـ SSR/Client
 function getOrigin() {
   if (process.client && typeof window !== 'undefined') return window.location.origin
-  return runtimeConfig.public?.siteUrl || 'https://example.com'
+  return runtimeConfig.public?.siteUrl || 'https://azza-ak.com/'
 }
 const adUrl = computed(() => {
   const origin = getOrigin()

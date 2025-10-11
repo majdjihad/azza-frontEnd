@@ -164,7 +164,7 @@ const loginGoogle = async () => {
                 من المستخدمين في مختلف الفئات <br />وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -217,7 +217,7 @@ const loginGoogle = async () => {
               <h1 class="fw-bold text-end mb-4">
                 <span class="display-4">👋</span>مرحبًا بك
               </h1>
-              <ul class="nav nav-underline justify-content-start mb-4">
+              <ul class="nav nav-underline justify-content-start mb-4 p-0">
                 <li class="nav-item">
                   <span class="nav-link active fw-bold">تسجيل الدخول</span>
                 </li>
@@ -229,7 +229,7 @@ const loginGoogle = async () => {
               </ul>
               <form @submit.prevent="onSubmit" novalidate>
                 <div>
-                  <div class="w-md-50 w-75">
+                  <div class="w-md-50 w-100">
                     <BaseText
                       label="البريد الإلكتروني أو رقم الهاتف"
                       placeholder="البريد الإلكتروني أو رقم الهاتف"
@@ -244,7 +244,7 @@ const loginGoogle = async () => {
                       "
                     />
                   </div>
-                  <div class="w-md-50 w-75">
+                  <div class="w-md-50 w-100">
                     <BasePassword
                       label="كلمة المرور"
                       placeholder="كلمة المرور"
@@ -265,7 +265,7 @@ const loginGoogle = async () => {
                 </div>
                 <div class="text-end mt-3">
                   <button
-                    class="btn btn-main px-4"
+                    class="btn btn-main px-4 w-100 w-md-auto justify-content-center"
                     :disabled="inProgress"
                     type="submit"
                   >

@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { useRuntimeConfig } from "#app";
 import { useMainStore } from "~/stores/mainStore";
 import { useAuth } from "~/composables/useAuth";
 

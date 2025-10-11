@@ -96,8 +96,9 @@ const resendVerificationCode = async () => {
   if (inProgress.value) return;
   try {
     resendCodeInProgress.value = true;
+    console.log("Resending to:", route.query.login);
     const { submit } = useSubmit(
-      () => resendVerification({ login: formData.login }),
+      () => resendVerification({ login: route.query.login }),
       {
         onSuccess: (response) => {
           // Handle the response
@@ -134,7 +135,7 @@ const resendVerificationCode = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -221,7 +222,7 @@ const resendVerificationCode = async () => {
                 </div>
                 <div class="text-end my-3">
                   <button
-                    class="btn btn-main mt-3"
+                    class="btn btn-main mt-3 w-100 w-md-auto justify-content-center"
                     :disabled="inProgress"
                     type="submit"
                   >

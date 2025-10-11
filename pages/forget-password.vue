@@ -74,6 +74,7 @@ const formHandle = async () => {
           path: "/forget-verify-code",
           query: {
             token: response?.data?.reset_token,
+            login: raw,
           },
         });
         showToast("success", response?.message || "تم الإرسال بنجاح");
@@ -107,7 +108,7 @@ const formHandle = async () => {
                 من المستخدمين في مختلف الفئات وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4">
+              <ul class="list-unstyled lh-lg mb-0 mt-4 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
@@ -186,7 +187,7 @@ const formHandle = async () => {
                 </div>
                 <div class="text-end my-3">
                   <button
-                    class="btn btn-main px-8"
+                    class="btn btn-main px-8 w-100 w-md-auto justify-content-center"
                     :disabled="inProgress"
                     type="submit"
                   >
