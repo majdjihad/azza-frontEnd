@@ -985,7 +985,7 @@ function removeMain() {
           <button
             :disabled="submitting"
             @click="submitEdit"
-            class="btn btn-lg btn-view-all"
+            class="btn btn-lg btn-view-all w-100 w-md-auto"
           >
             <div v-if="!submitting">
               <span class="mb-0 text-white">حفظ التعديل</span>

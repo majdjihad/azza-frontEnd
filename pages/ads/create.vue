@@ -258,6 +258,7 @@ async function submit() {
     fd.append("duration_days", String(form.durationDays));
     fd.append("currency", form.currency);
     fd.append("user_id", user.value.id);
+    fd.append("negotiable",form.negotiable)
     if (form.email) fd.append("email", form.email);
 
     // === الصورة الرئيسية (مع التحقق والاسم) ===

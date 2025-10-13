@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useCategoryStore } from "~/stores/categoryStore";
 import { useMainStore } from "~/stores/mainStore";
 import SkeletonSidebar from "./Skeleton/SkeletonSidebar.vue";
@@ -8,7 +8,7 @@ const categoryStore = useCategoryStore();
 const mainStore = useMainStore();
 const route = useRoute();
 
-/* حفظ/استعادة موضع التمرير لمنع القفز */
+/* حفظ/استعادة موضع التمرير */
 let _savedScroll = 0;
 function preserveScroll() {
   if (typeof window === "undefined") return;
@@ -17,9 +17,7 @@ function preserveScroll() {
     window.pageYOffset ||
     document.documentElement.scrollTop ||
     0;
-  // نعيد الموضع بعد دورة الحدث التالية (يضمن أن أي سلوك افتراضي قد حصل قد انتهى)
   setTimeout(() => {
-    // لو تغيّر الموضع نعيده
     const now =
       window.scrollY ||
       window.pageYOffset ||
@@ -31,11 +29,10 @@ function preserveScroll() {
   }, 0);
 }
 
-/* تحميل بيانات المدن + بيانات التصنيفات مرة واحدة */
+/* تحميل بيانات المدن + الفلاتر */
 onMounted(async () => {
   if (!categoryStore?.citiesData) await categoryStore.getCitiesData();
   if (!mainStore?.filterData) await mainStore.getFilterData();
-  nextTick(() => emitFilters());
 });
 
 /* Props */
@@ -65,6 +62,7 @@ const filters = reactive({
   priceMin: props.defaultFilters.priceMin ?? null,
   priceMax: props.defaultFilters.priceMax ?? null,
   category_id: props.defaultFilters.category_id || "",
+  currency: props.defaultFilters.currency || "شيكل",
 });
 
 /* حقولا السعر النصية */
@@ -75,10 +73,10 @@ const priceMaxText = ref(
   filters.priceMax !== null ? String(filters.priceMax) : ""
 );
 
-/* تنظيف الرقم وتبديل القيم إن لزم */
+/* تنظيف الأرقام */
 function sanitizePrice(which, e) {
-  // إيقاف انتشار الحدث محليًا لتقليل تأثيرات جانبية
   e?.stopPropagation?.();
+
   if (which === "min") {
     priceMinText.value = (priceMinText.value || "").replace(/[^\d]/g, "");
     filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
@@ -86,20 +84,18 @@ function sanitizePrice(which, e) {
     priceMaxText.value = (priceMaxText.value || "").replace(/[^\d]/g, "");
     filters.priceMax = priceMaxText.value ? Number(priceMaxText.value) : null;
   }
+
+  // ✅ فقط تحقق بدون قلب القيم
   if (
     filters.priceMin !== null &&
     filters.priceMax !== null &&
     filters.priceMin > filters.priceMax
   ) {
-    const tmp = filters.priceMin;
-    filters.priceMin = filters.priceMax;
-    filters.priceMax = tmp;
-    priceMinText.value = String(filters.priceMin);
-    priceMaxText.value = String(filters.priceMax);
+    console.warn("⚠️ تأكد أن السعر الأدنى أصغر من الأعلى");
   }
 }
 
-/* ====== تحديد تصنيف المسار ====== */
+/* ====== معالجة التصنيفات ====== */
 const slugify = (s) =>
   String(s || "")
     .trim()
@@ -118,11 +114,9 @@ const isCategoryRoute = computed(
     !!routeCategorySlug.value
 );
 
-/* الحصول على كائن تصنيف الصفحة (إن أمكن) */
 const pageCategory = computed(() => {
   const slug = routeCategorySlug.value;
   if (!slug) return null;
-
   const fromCategoryStore = categoryStore?.categoryData?.category;
   if (
     fromCategoryStore &&
@@ -135,24 +129,22 @@ const pageCategory = computed(() => {
   return raw.find((c) => slugify(c?.slug || c?.name) === slugify(slug)) || null;
 });
 
-/* تحويل استجابة التصنيفات لبنية المكوّن */
 const categories = computed(() => {
   const raw = mainStore?.filterData?.categories || [];
   const mapCat = (cat) => ({
     name: cat?.name,
-    value: cat?.id, // category_id
+    value: cat?.id,
     children: Array.isArray(cat?.subcategories)
       ? cat.subcategories.map((sc) => ({ name: sc?.name, value: sc?.id }))
       : [],
   });
-
   if (isCategoryRoute.value && pageCategory.value) {
     return [mapCat(pageCategory.value)];
   }
   return raw.map(mapCat);
 });
 
-/* اختيار التصنيفات الفرعية */
+/* اختيار التصنيفات */
 const selectedCategories = ref([...filters.categories]);
 const expanded = reactive({});
 
@@ -191,7 +183,6 @@ function isParentIndeterminate(p) {
   return hit > 0 && hit < childVals.length;
 }
 
-/* تحديد الكل/إلغاء الكل */
 const allValues = computed(() => {
   const vals = [];
   for (const p of categories.value) {
@@ -213,29 +204,12 @@ function toggleAll(e) {
   selectedCategories.value = e.target.checked ? [...allValues.value] : [];
 }
 
-/* ====== تهيئة category_id وتنظيف subcategory_ids عند تغيّر تصنيف الصفحة ====== */
-watch(
-  () => pageCategory.value?.id,
-  (id) => {
-    filters.category_id = id ?? "";
-
-    const allowed = new Set(
-      (pageCategory.value?.subcategories || []).map((sc) => Number(sc?.id))
-    );
-    selectedCategories.value = selectedCategories.value.filter((sid) =>
-      allowed.has(Number(sid))
-    );
-
-    if (id) expanded[id] = true;
-
-    emitFilters();
-  },
-  { immediate: true }
-);
-
-/* إرسال الفلاتر للخارج */
-function emitFilters() {
+/* ====== تطبيق الفلاتر عند النقر فقط ====== */
+function applyFilters() {
   filters.categories = [...selectedCategories.value];
+  filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
+  filters.priceMax = priceMaxText.value ? Number(priceMaxText.value) : null;
+
   emit("update:filters", {
     categories: filters.categories,
     city_id: filters.city_id || undefined,
@@ -245,26 +219,9 @@ function emitFilters() {
     category_id: filters.category_id || undefined,
   });
 }
-
-/* أرسل على أي تغيير (مع immediate لضمان أول إرسال) */
-watch(
-  [
-    selectedCategories,
-    () => filters.city_id,
-    () => filters.region,
-    () => filters.priceMin,
-    () => filters.priceMax,
-    () => filters.currency,
-    () => filters.category_id,
-    () => routeCategorySlug.value,
-  ],
-  () => emitFilters(),
-  { deep: true, immediate: true }
-);
 </script>
 
 <template>
-  <!-- نستخدم capture listeners على Aside للحفاظ على موضع التمرير قبل أي تفاعل -->
   <aside
     class="filters-sidebar mx-2 position-relative top-0"
     @mousedown.capture="preserveScroll"
@@ -277,11 +234,11 @@ watch(
         mainStore?.filterData?.categories && categoryStore?.citiesData?.cities
       "
     >
+      <!-- الأقسام -->
       <div class="card border-0 mb-3 bg-muted">
         <div class="card-body">
           <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
 
-          <!-- تحديد الكل -->
           <div class="form-check form-check-reverse mb-2">
             <input
               class="form-check-input"
@@ -301,7 +258,6 @@ watch(
             </label>
           </div>
 
-          <!-- قائمة الأقسام -->
           <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
             <div
               class="d-flex align-items-center justify-content-between app-item"
@@ -342,7 +298,6 @@ watch(
               </button>
             </div>
 
-            <!-- أبناء التصنيف -->
             <div
               v-if="p.children && p.children.length && expanded[p.value]"
               class="mt-2 ps-4"
@@ -358,7 +313,6 @@ watch(
                   :id="`c-${i}-${j}`"
                   :value="ch.value"
                   v-model="selectedCategories"
-                  @change.stop="preserveScroll"
                 />
                 <label
                   class="form-check-label w-100 d-flex"
@@ -372,7 +326,7 @@ watch(
         </div>
       </div>
 
-      <!-- المدينة -->
+      <!-- المدينة والسعر -->
       <div class="border bg-muted my-5 rounded">
         <div class="card bg-muted border-0 my-9">
           <div class="card-body py-0">
@@ -387,8 +341,6 @@ watch(
                 class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
                 id="inputCityGroup"
                 v-model="filters.city_id"
-                @change.stop
-                @click.stop
               >
                 <option value="">اختر المدينة</option>
                 <option
@@ -403,13 +355,10 @@ watch(
           </div>
         </div>
 
-        <!-- السعر + العملة -->
+        <!-- السعر -->
         <div class="card bg-muted border-0 my-9">
           <div class="card-body py-0">
-            <div class="d-flex justify-content-between align-items-center">
-              <h4 class="fw-bold mb-3">السعر</h4>
-            </div>
-
+            <h4 class="fw-bold mb-3">السعر</h4>
             <div class="d-flex align-items-stretch gap-2 w-75">
               <div class="input-group">
                 <span
@@ -422,7 +371,6 @@ watch(
                   class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                   v-model="priceMinText"
                   @input.stop="sanitizePrice('min', $event)"
-                  @click.stop
                 />
               </div>
               <div class="input-group">
@@ -436,23 +384,20 @@ watch(
                   class="form-control rounded-0 border-end-0 rounded-start p-0 bg-white"
                   v-model="priceMaxText"
                   @input.stop="sanitizePrice('max', $event)"
-                  @click.stop
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <!-- زر إرسال يدوي (اختياري) -->
         <button
           class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
-          @click.stop="emitFilters()"
+          @click.stop="applyFilters()"
         >
           بحث
         </button>
       </div>
 
-      <!-- صور جانبية -->
       <div class="text-center">
         <img
           src="~/public/media/bg-home/jawwal1.jpg"
@@ -475,29 +420,14 @@ watch(
 .filters-sidebar {
   width: 100%;
 }
-
-/* منع smooth scroll داخل الشريط لتقليل القفزات */
 .filters-sidebar *:focus {
   scroll-behavior: auto !important;
 }
-
 .card {
   border-radius: 12px;
 }
 .child-item {
   padding-right: 50px;
-}
-.btn-currency::after {
-  display: none;
-}
-.dropdown-toggle .icon-up {
-  display: none;
-}
-.dropdown-toggle[aria-expanded="true"] .icon-down {
-  display: none;
-}
-.dropdown-toggle[aria-expanded="true"] .icon-up {
-  display: inline;
 }
 @media (min-width: 992px) {
   .filters-sidebar {

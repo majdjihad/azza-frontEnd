@@ -413,7 +413,7 @@ onBeforeUnmount(() => {
 
               <template v-if="listing.publisher">
                 <NuxtLink
-                  :to="`/users/${listing.publisher.id}`"
+                  :to="`/profile/${listing.publisher.id}`"
                   class="m-auto mb-3 text-center"
                 >
                   <div>
@@ -429,7 +429,7 @@ onBeforeUnmount(() => {
                 </NuxtLink>
 
                 <NuxtLink
-                  :to="`/users/${listing.publisher.id}`"
+                  :to="`/profile/${listing.publisher.id}`"
                   class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
                 >
                   عرض جميع المنتجات
