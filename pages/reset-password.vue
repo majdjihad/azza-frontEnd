@@ -110,42 +110,42 @@ const formHandle = async () => {
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span >انضم إلى مئات المستخدمين على منصتنا</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">تسجيل الدخول سهل وآمن وسريع</span>
+                  <span >تسجيل الدخول سهل وآمن وسريع</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span >نشر الإعلانات ورفع الصور بسهولة</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">استعرض العروض في المنطقة الأقرب لك</span>
+                  <span >استعرض العروض في المنطقة الأقرب لك</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span >إدارة إعلاناتك وتتبعها في أي وقت</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span class="fs-4">اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span >اضف التفاصيل والصور لوصف إعلانك بدقة</span>
                 </li>
               </ul>
             </div>
@@ -161,7 +161,7 @@ const formHandle = async () => {
 
               <form @submit.prevent="onSubmit" novalidate>
                 <div>
-                  <div class="w-md-50 w-75">
+                  <div class="w-md-50 w-100">
                     <BasePassword
                       label="كلمة المرور الجديدة"
                       placeholder="أدخل كلمة المرور الجديدة"
@@ -169,7 +169,7 @@ const formHandle = async () => {
                       :error="errors.password"
                     />
                   </div>
-                  <div class="w-md-50 w-75">
+                  <div class="w-md-50 w-100">
                     <BasePassword
                       label="تأكيد كلمة المرور"
                       placeholder="تأكيد كلمة المرور"

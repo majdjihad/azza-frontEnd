@@ -198,7 +198,10 @@ onMounted(() => {
               />
             </span>
             <div class="d-flex flex-column rounded">
-              <span class="text-end">اتصل الآن</span>
+              <span class="text-muted text-end">اتصل الآن</span>
+              <span class="text-muted text-end fw-bold">{{
+                userInfo?.phone
+              }}</span>
             </div>
           </NuxtLink>
           <NuxtLink
@@ -210,7 +213,10 @@ onMounted(() => {
               <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
             </span>
             <div class="d-flex flex-column rounded">
-              <span class="text-end">تواصل عبر الواتساب</span>
+              <span class="text-muted text-end">تواصل عبر الواتساب</span>
+              <span class="text-muted text-end fw-bold">{{
+                userInfo?.whatsapp
+              }}</span>
             </div>
           </NuxtLink>
           <NuxtLink
@@ -225,7 +231,12 @@ onMounted(() => {
               />
             </span>
             <div class="d-flex flex-column rounded">
-              <span class="text-end">تواصل عبر البريد الالكتروني</span>
+              <span class="text-muted text-end"
+                >تواصل عبر البريد الالكتروني</span
+              >
+              <span class="text-muted text-end fw-bold">{{
+                userInfo?.email
+              }}</span>
             </div>
           </NuxtLink>
         </div>

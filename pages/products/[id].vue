@@ -511,7 +511,7 @@ onMounted(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     قابل البائع أو المشتـــري في مكان عام وآمــن مثــل المولات
                     محطات الوقود، أو بالقرب من المترو.
                   </p>
@@ -521,7 +521,7 @@ onMounted(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     يُفضل أن تصطحب معك شخصًا آخـر عنـد إتمــام أي لقــاء.
                   </p>
                 </li>
@@ -530,7 +530,7 @@ onMounted(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     تحقّق من المنتج بعناية قبــل الشــراء، وتأكــد من أنه
                     يطابــق المواصفات المتفق عليها والسعر المعروض.
                   </p>
@@ -540,7 +540,7 @@ onMounted(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     لا ترسل أو تدفع أي مبلغ مالي قبل معاينة المنتــج والتأكــد
                     منه بشكل كامل.
                   </p>
@@ -550,7 +550,7 @@ onMounted(() => {
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
-                  <p class="fs-6 p-0 col-10 text-muted">
+                  <p class="p-0 col-10 text-muted">
                     تأكد أيضًا مـن أن المنتج غيــر مســــروق أو مخالــف
                     للقوانيـــن المحلية.
                   </p>

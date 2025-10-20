@@ -180,7 +180,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             </div>
           </NuxtLink>
           <div v-else>
-            <NuxtLink to="/login" class="btn btn-main">تسجيل الدخول</NuxtLink>
+            <NuxtLink to="/login" class="btn btn-main fs-3">تسجيل الدخول</NuxtLink>
           </div>
         </div>
       </div>

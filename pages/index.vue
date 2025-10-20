@@ -304,7 +304,10 @@ const carouselId = "offersCarousel";
             <h2 class="fs-1 fw-bold mb-1">عروضنا الخاصة</h2>
             <div class="fs-3 offers-subtitle">عروض حصرية من إدارة الموقع</div>
           </div>
-          <div class="d-flex align-items-center gap-2 offers-toolbar">
+          <div
+            class="d-flex align-items-center gap-2 offers-toolbar"
+            v-if="mainStore?.homePageData?.products_section"
+          >
             <button
               class="btn-carousel"
               :data-bs-target="`#${carouselId}`"
@@ -382,7 +385,10 @@ const carouselId = "offersCarousel";
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2 offers-toolbar">
+        <div
+          class="d-flex align-items-center gap-2 offers-toolbar"
+          v-if="mainStore?.homePageData?.ads_section"
+        >
           <button
             class="btn-carousel"
             data-bs-target="#adsCarousel"
@@ -400,12 +406,7 @@ const carouselId = "offersCarousel";
             <Icon name="line-md:arrow-left" size="20" />
           </button>
           <NuxtLink to="/ads" class="btn-view-all">
-            <h5
-              class="mb-0 text-white w-100"
-              v-if="mainStore?.homePageData?.ads_section"
-            >
-              عرض الكل
-            </h5>
+            <h5 class="mb-0 text-white w-100">عرض الكل</h5>
             <Icon
               name="material-symbols:arrow-back-rounded"
               class="text-white"

@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
         <main class="col-lg-9 order-1 order-lg-2">
           <div class="card shadow-sm p-9">
             <div
-              class="d-flex flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
+              class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
             >
               <div>
                 <h2 class="mb-1">{{ listing.title || "..." }}</h2>
@@ -360,7 +360,7 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- تفاصيل إضافية -->
-            <div class="ads-data">
+            <div class="ads-data" v-if="listing.customFields">
               <div class="py-4"><h4 class="pb-1">تفاصيل إضافية</h4></div>
 
               <template v-if="listing.customFields?.length">
