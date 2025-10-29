@@ -507,7 +507,7 @@ function removeMain() {
         name="mdi:chevron-left-circle-outline"
         class="fs-3 mx-3 text-secondary"
       />
-      <h2 class="fs-3 m-0 fw-semibold text-muted">تعديل إعلان</h2>
+      <span class="fs-3 m-0 fw-semibold text-muted">تعديل إعلان</span>
     </div>
 
     <div v-if="loadingPage" class="text-center text-muted py-5">

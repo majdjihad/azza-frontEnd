@@ -138,12 +138,14 @@ function goToPage(n) {
   <div class="container py-4 py-md-5">
     <div class="page-content">
       <div class="d-flex align-items-center mb-4">
-        <h1 class="fs-3 m-0 fw-normal text-primary d-inline">المنتجات</h1>
+        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          >الرئيسية</NuxtLink
+        >
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <span class="fs-3 m-0 fw-semibold text-muted">قائمة المنتجات</span>
+        <span class="fs-3 m-0 text-muted">قائمة المنتجات</span>
       </div>
 
       <div

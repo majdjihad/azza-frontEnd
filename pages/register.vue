@@ -145,51 +145,51 @@ const formHandle = async () => {
                 <span class="fw-bold fs-1 d-block"
                   >اكتشــــــف آلاف الإعلانــــــات</span
                 >
-                من المستخدمين في مختلف الفئات وبأفضل الأسعار
+                من المستخدمين في مختلف الفئات <br />وبأفضل الأسعار
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4 p-0">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span>انضم إلى مئات المستخدمين على منصتنا</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >تسجيل الدخول سهل وآمن وسريع</span>
+                  <span>تسجيل الدخول سهل وآمن وسريع</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span>نشر الإعلانات ورفع الصور بسهولة</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >استعرض العروض في المنطقة الأقرب لك</span>
+                  <span>استعرض العروض في المنطقة الأقرب لك</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span>إدارة إعلاناتك وتتبعها في أي وقت</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span>اضف التفاصيل والصور لوصف إعلانك بدقة</span>
                 </li>
               </ul>
             </div>
@@ -405,7 +405,7 @@ const formHandle = async () => {
   position: absolute;
   left: 0;
   bottom: 50%;
-  width: 41%;
+  width: 40%;
   height: 1px;
   background-color: #e5e1e9;
 }
@@ -414,7 +414,7 @@ const formHandle = async () => {
   position: absolute;
   right: 0;
   bottom: 50%;
-  width: 41%;
+  width: 40%;
   height: 1px;
   background-color: #e5e1e9;
 }
@@ -431,5 +431,13 @@ li .active::after {
   position: absolute;
   right: 0;
   bottom: 0;
+}
+@media (max-width: 575px) {
+  .other-register::before {
+    width: 33%;
+  }
+  .other-register::after {
+    width: 33%;
+  }
 }
 </style>

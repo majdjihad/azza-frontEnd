@@ -127,7 +127,7 @@ const carouselId = "offersCarousel";
 
       <section class="hero-content position-relative z-1">
         <div class="container text-center">
-          <h2 class="hero-subtitle bg-primary d-inline p-5 text-white">
+          <h2 class="hero-subtitle bg-primary d-inline p-5 px-9 text-white">
             أكثر من 100,000 إعلان نشط
           </h2>
           <h1 class="text-center hero-title fs-1 fw-bold my-9 py-9 text-white">
@@ -139,7 +139,9 @@ const carouselId = "offersCarousel";
           <div class="row g-0 align-items-stretch w-100 justify-content-center">
             <!-- نص البحث -->
             <div class="col-md-3 overflow-hidden">
-              <div class="input-group d-flex align-items-stretch h-100">
+              <div
+                class="input-group d-flex align-items-stretch h-100 bg-white"
+              >
                 <span
                   class="input-group-text bg-white p-3 text-secondary rounded-0 border-0 border-end"
                 >
@@ -302,7 +304,9 @@ const carouselId = "offersCarousel";
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
             <h2 class="fs-1 fw-bold mb-1">عروضنا الخاصة</h2>
-            <div class="fs-3 offers-subtitle">عروض حصرية من إدارة الموقع</div>
+            <div class="fs-3 offers-subtitle text-muted">
+              عروض حصرية من إدارة الموقع
+            </div>
           </div>
           <div
             class="d-flex align-items-center gap-2 offers-toolbar"
@@ -325,7 +329,7 @@ const carouselId = "offersCarousel";
               <Icon name="line-md:arrow-left" size="20" />
             </button>
             <NuxtLink to="/products" class="btn-view-all">
-              <h5 class="mb-0 text-white">عرض الكل</h5>
+              <span class="mb-0 text-white">عرض الكل</span>
               <Icon
                 name="material-symbols:arrow-back-rounded"
                 class="text-white"
@@ -379,7 +383,7 @@ const carouselId = "offersCarousel";
         <div class="d-flex align-items-center gap-4">
           <div>
             <h2 class="fs-1 section-title mb-0">أحدث الإعلانات</h2>
-            <div class="fs-3 small-muted">
+            <div class="fs-3 offers-subtitle text-muted">
               ابقَ على اطلاع.. لا تفوت الفرص الجديدة!
             </div>
           </div>
@@ -405,8 +409,9 @@ const carouselId = "offersCarousel";
           >
             <Icon name="line-md:arrow-left" size="20" />
           </button>
+
           <NuxtLink to="/ads" class="btn-view-all">
-            <h5 class="mb-0 text-white w-100">عرض الكل</h5>
+            <span class="mb-0 text-white">عرض الكل</span>
             <Icon
               name="material-symbols:arrow-back-rounded"
               class="text-white"
@@ -542,7 +547,7 @@ label:focus {
 
 .btn-view-all {
   border-radius: 0.8rem;
-  padding-inline: 16px;
+  padding-inline: 8px;
   height: 42px;
   display: inline-flex;
   align-items: center;

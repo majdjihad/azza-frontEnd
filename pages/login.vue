@@ -398,7 +398,7 @@ li .active::after {
   position: absolute;
   left: 0;
   bottom: 50%;
-  width: 37%;
+  width: 40%;
   height: 1px;
   background-color: #e5e1e9;
 }
@@ -407,8 +407,16 @@ li .active::after {
   position: absolute;
   right: 0;
   bottom: 50%;
-  width: 37%;
+  width: 40%;
   height: 1px;
   background-color: #e5e1e9;
+}
+@media (max-width: 575px) {
+.other-login::before {
+  width: 33%;
+}
+.other-login::after {
+  width: 33%;
+}
 }
 </style>

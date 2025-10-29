@@ -123,17 +123,17 @@ onMounted(() => {
         </span>
 
         <NuxtLink :to="`/profile/${ad?.user_id}`" class="avatar-holder">
-          <img
+          <NuxtImg
             :src="ad?.user_photo"
             width="50"
-            class="rounded-circle"
+            class="rounded-circle avatar-img"
             alt="user"
           />
         </NuxtLink>
       </div>
 
-      <div class="card-body pt-5">
-        <div class="text-muted small mb-1" v-if="ad?.created_at">
+      <div class="card-body pt-5 px-2">
+        <div class="ad-desc small mb-1" v-if="ad?.created_at">
           منذ {{ ad?.created_at }}
         </div>
 
@@ -142,21 +142,21 @@ onMounted(() => {
         </NuxtLink>
 
         <p class="ad-desc mb-3">
-          {{ ad?.description?.split(" ").slice(0, 5).join(" ")
-          }}{{ ad?.description?.split(" ").length > 5 ? "..." : "" }}
+          {{ ad?.description?.split(" ").slice(0, 15).join(" ")
+          }}{{ ad?.description?.split(" ").length > 15 ? "..." : "" }}
         </p>
 
         <div class="d-flex align-items-center justify-content-start gap-2">
-          <span class="fs-5 text-primary">{{ ad?.price }}</span>
-          <span class="fs-5 text-primary">{{ ad?.currency }}</span>
+          <span class="text-primary">{{ ad?.price }}</span>
+          <span class="text-primary">{{ ad?.currency }}</span>
         </div>
 
         <div class="mt-3 d-flex align-items-center justify-content-between">
           <div
-            class="text-muted small d-flex align-items-center gap-1"
+            class="text-muted small fw-bold d-flex align-items-center gap-1"
             v-if="ad?.city"
           >
-            <Icon name="material-symbols:location-on-outline" size="18" />
+            <Icon name="material-symbols:location-on-outline" size="20" />
             <span v-if="ad?.city?.name">{{ ad?.city?.name }}</span>
             <span v-else>{{ ad?.city }}</span>
           </div>
@@ -265,8 +265,8 @@ onMounted(() => {
   background: #fff;
   transition: 0.25s ease;
 }
-.ad-card:hover img {
-  filter: grayscale(0.5);
+.ad-card:hover .card-img-top {
+  filter: brightness(0.9);
 }
 .ad-card:hover .ad-title {
   text-decoration: underline;
@@ -396,6 +396,9 @@ onMounted(() => {
   background: linear-gradient(90deg, #1d4ed8, #22c55e);
   border-radius: 0 0 12px 12px;
   animation: toast-progress 5s linear forwards;
+}
+.avatar-img {
+  border: 4px solid white;
 }
 @keyframes toast-progress {
   from {

@@ -314,9 +314,9 @@ onMounted(() => {
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <h2 class="fs-3 m-0 fw-semibold text-muted">
+        <span class="fs-3 m-0 text-muted">
           {{ listing.title || "..." }}
-        </h2>
+        </span>
       </div>
 
       <div class="row g-4 flex-row-reverse">
@@ -569,7 +569,6 @@ onMounted(() => {
             <p class="fs-3 offers-subtitle text-muted">مقترحات لك</p>
             <h2 class="fs-1 fw-bold mb-1">
               <template v-if="relatedProducts.length">منتجات مشابهة</template>
-              <template v-else>لا توجد منتجات ذات صلة</template>
             </h2>
           </div>
 

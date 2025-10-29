@@ -2,7 +2,7 @@
 const config = useRuntimeConfig();
 </script>
 <template>
-  <footer class="footer bg-white border-top pt-9">
+  <footer class="footer bg-white border-top pt-9 shadow">
     <div class="">
       <div class="row text-end px-6">
         <div class="col-md-4 col-10 mb-4">
@@ -14,7 +14,7 @@ const config = useRuntimeConfig();
               class="ms-2 logo-img"
             />
           </div>
-          <p class="text-muted fs-5 p-md-9 pt-3">
+          <p class="text-muted fs-5 p-md-9 pt-3 pb-3 pb-md-0">
             موقعنا هو منصة إلكترونية متكاملة للإعلانات العربية تتيح للمستخدمين
             إضافة إعلاناتهم بسهولة وتصفح العروض الخاصة في مختلف التصنيفات مثل
             العقارات، الأجهزة، الأثاث، المفقودات والخدمات. نوفر بيئة موثوقة
@@ -44,7 +44,7 @@ const config = useRuntimeConfig();
             <li>
               <NuxtLink
                 to="/terms-of-use"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-5 text-decoration-none text-muted"
                 >شروط الاستخدام</NuxtLink
               >
             </li>
@@ -107,9 +107,9 @@ const config = useRuntimeConfig();
             </li>
           </ul>
         </div>
-        <div class="col-4 col-md-2 p-0 mb-4">
+        <ul class="col-4 col-md-2 p-0 mb-4">
           <h5 class="fw-bold mb-3">بيانات التواصل</h5>
-          <p class="d-flex align-items-center mb-1">
+          <li class="d-flex align-items-center mb-1">
             <span class="ms-2 px-2 py-1 bg-primary rounded-circle">
               <Icon
                 name="material-symbols:phone-in-talk-watchface-indicator"
@@ -119,16 +119,16 @@ const config = useRuntimeConfig();
             <span class="ms-1 text-muted fs-5">{{
               config.public.companyPhone
             }}</span>
-          </p>
-          <p class="d-flex align-items-center mb-1">
+          </li>
+          <li class="d-flex align-items-center mb-1">
             <span class="ms-2 px-2 py-1 bg-primary rounded-circle">
               <Icon name="bi:envelope-fill" class="text-white" />
             </span>
             <span class="ms-1 text-muted fs-5">{{
               config.public.companyEmail
             }}</span>
-          </p>
-        </div>
+          </li>
+        </ul>
       </div>
       <div
         class="py-2 px-6 text-center bg-primary text-white d-flex flex-column-reverse flex-lg-row justify-content-between align-items-center"
@@ -187,6 +187,9 @@ const config = useRuntimeConfig();
 <style scoped>
 .footer {
   overflow: hidden;
+}
+li {
+  margin: 5px 0;
 }
 li a:hover {
   color: #1839a0 !important;

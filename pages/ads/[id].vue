@@ -272,19 +272,21 @@ onBeforeUnmount(() => {
           >الرئيسية</NuxtLink
         >
         <Icon
+          v-if="listing.category"
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <h2 class="fs-3 m-0 fw-semibold text-muted">
+        <span v-if="listing.category" class="fs-3 m-0 text-muted">
           {{ listing.category || "—" }}
-        </h2>
+        </span>
         <Icon
+          v-if="listing.title"
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <h2 class="fs-3 m-0 fw-semibold text-muted">
+        <span v-if="listing.title" class="fs-3 m-0 text-muted">
           {{ listing.title || "..." }}
-        </h2>
+        </span>
       </div>
 
       <div class="row g-4 flex-row-reverse">

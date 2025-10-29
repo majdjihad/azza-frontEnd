@@ -139,7 +139,7 @@ async function handleLogout() {
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <h2 class="fs-3 m-0 fw-semibold text-muted">الملف الشخصي</h2>
+        <span class="fs-3 m-0 text-muted">الملف الشخصي</span>
       </div>
 
       <!-- حالة تحميل: Skeleton -->

@@ -147,6 +147,15 @@ function onFiltersChange(f) {
 
   router.push({ path: route.path, query: q });
 }
+/* ========= عدد الإعلانات المعروضة ========= */
+const itemsPerPage = ref(9); // القيمة الافتراضية
+
+function setItemsPerPage(n) {
+  itemsPerPage.value = n;
+}
+
+/* قائمة الإعلانات المفلترة حسب العدد المحدد */
+const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
 </script>
 
 <template>
@@ -160,7 +169,7 @@ function onFiltersChange(f) {
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <span class="fs-3 m-0 fw-semibold text-muted">الإعلانات</span>
+        <span class="fs-3 m-0 text-muted">الإعلانات</span>
       </div>
 
       <div
@@ -169,64 +178,98 @@ function onFiltersChange(f) {
         <span class="fs-3">بيع وشراء أي شيء في فلسطين (10,000)</span>
 
         <!-- زر الترتيب (فرز محلي بدون أي استدعاء API) -->
-        <div class="btn-group">
-          <button
-            type="button"
-            class="dropdown-toggle fs-3"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <span>{{ sortLabel }}</span>
-            <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
-            <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
-          </button>
+        <!-- أزرار التحكم (الترتيب وعدد الإعلانات) -->
+        <div class="d-flex align-items-center gap-4">
+          <!-- ✅ زر الترتيب -->
+          <div class="btn-group">
+            <button
+              type="button"
+              class="dropdown-toggle fs-3"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <span>{{ sortLabel }}</span>
+              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+            </button>
 
-          <ul class="dropdown-menu">
-            <li>
-              <button
-                type="button"
-                class="dropdown-item text-end"
-                :class="{
-                  active: sortKey === 'created_at' && sortDir === 'desc',
-                }"
-                @click="setSort('created_at', 'desc')"
-              >
-                الأحدث
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="dropdown-item text-end"
-                :class="{
-                  active: sortKey === 'created_at' && sortDir === 'asc',
-                }"
-                @click="setSort('created_at', 'asc')"
-              >
-                الأقدم
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="dropdown-item text-end"
-                :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
-                @click="setSort('price', 'asc')"
-              >
-                الأرخص سعر
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="dropdown-item text-end"
-                :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
-                @click="setSort('price', 'desc')"
-              >
-                الأعلى سعر
-              </button>
-            </li>
-          </ul>
+            <ul class="dropdown-menu">
+              <li>
+                <button
+                  type="button"
+                  class="dropdown-item text-end"
+                  :class="{
+                    active: sortKey === 'created_at' && sortDir === 'desc',
+                  }"
+                  @click="setSort('created_at', 'desc')"
+                >
+                  الأحدث
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="dropdown-item text-end"
+                  :class="{
+                    active: sortKey === 'created_at' && sortDir === 'asc',
+                  }"
+                  @click="setSort('created_at', 'asc')"
+                >
+                  الأقدم
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="dropdown-item text-end"
+                  :class="{ active: sortKey === 'price' && sortDir === 'asc' }"
+                  @click="setSort('price', 'asc')"
+                >
+                  الأرخص سعر
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="dropdown-item text-end"
+                  :class="{ active: sortKey === 'price' && sortDir === 'desc' }"
+                  @click="setSort('price', 'desc')"
+                >
+                  الأعلى سعر
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- ✅ زر عرض عدد الإعلانات -->
+          <div class="btn-group">
+            <button
+              type="button"
+              class="dropdown-toggle fs-3"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <span>عرض {{ itemsPerPage }}</span>
+              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+            </button>
+
+            <ul class="dropdown-menu">
+              <li v-for="n in [3, 6, 9, 12]" :key="n">
+                <button
+                  type="button"
+                  class="dropdown-item text-end"
+                  :class="{ active: itemsPerPage === n }"
+                  @click="setItemsPerPage(n)"
+                >
+                <span>
+
+                  {{ n }}
+                </span>
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -257,7 +300,7 @@ function onFiltersChange(f) {
             <template v-if="sortedAds?.length">
               <div class="row g-4">
                 <div
-                  v-for="ad in sortedAds"
+                  v-for="ad in visibleAds"
                   :key="ad.id"
                   class="col-12 col-md-6 col-xl-4"
                 >

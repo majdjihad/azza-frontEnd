@@ -102,6 +102,7 @@ onMounted(() => {
   <div class="offer-card h-100 d-flex flex-column position-relative">
     <NuxtLink :to="`/products/${item.id}`" class="offer-media">
       <NuxtImg
+        class="product-img p-3"
         :src="item?.main_image || item?.image"
         :alt="item.title || item.name"
       />
@@ -116,9 +117,15 @@ onMounted(() => {
     <div
       class="mt-auto d-flex align-items-center justify-content-between px-3 pb-3"
     >
-      <div class="text-end px-3 text-primary">
-        <span class="price ms-1">{{ formattedPrice }}</span>
-        <span class="badge-currency small">{{ item.currency }}</span>
+      <div>
+        <div class="text-muted small fw-bold d-flex align-items-center gap-1">
+          <Icon name="material-symbols:location-on-outline" size="20" />
+          <span>غزة - فلسطين</span>
+        </div>
+        <div class="text-end px-3 text-primary fw-bold">
+          <span class="price ms-1">{{ formattedPrice }}</span>
+          <span class="badge-currency small">{{ item.currency }}</span>
+        </div>
       </div>
 
       <div class="d-flex align-items-center gap-2">
@@ -126,7 +133,7 @@ onMounted(() => {
         <NuxtLink
           rel="noopener noreferrer"
           :to="config.public.whatsappUrl"
-          class="btn btn-sm p-1"
+          class="btn btn-sm p-1 rounded-1"
           aria-label="تواصل"
           target="_blank"
         >
@@ -200,13 +207,16 @@ onMounted(() => {
 <style scoped>
 .offer-card {
   border: 1px solid #eef0f4;
-  border-radius: 1.25rem;
+  border-radius: 5px;
   overflow: hidden;
   background: #fff;
   transition: 0.25s ease;
 }
+.offer-card .product-img {
+  border-radius: 15px !important;
+}
 .offer-card:hover img {
-  filter: grayscale(0.5);
+  filter: brightness(0.9);
 }
 .offer-card:hover .offer-title {
   text-decoration: underline;
@@ -215,7 +225,6 @@ onMounted(() => {
 /* الصورة */
 .offer-media {
   aspect-ratio: 16/11;
-  background: #f1f3f8;
   overflow: hidden;
 }
 .offer-media img {

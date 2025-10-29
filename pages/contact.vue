@@ -144,7 +144,7 @@ async function onSubmit() {
               name="mdi:chevron-left-circle-outline"
               class="fs-3 mx-3 text-secondary"
             />
-            <h2 class="fs-3 m-0 fw-semibold text-muted">تواصل معنا</h2>
+            <span class="fs-3 m-0 text-muted">تواصل معنا</span>
           </div>
         </div>
         <form class="px-9" @submit.prevent="onSubmit" novalidate>

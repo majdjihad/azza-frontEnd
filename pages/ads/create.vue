@@ -358,7 +358,7 @@ function resetAll() {
         name="mdi:chevron-left-circle-outline"
         class="fs-3 mx-3 text-secondary"
       />
-      <h2 class="fs-3 m-0 fw-semibold text-muted">إضافة إعلان جديد</h2>
+      <span class="fs-3 m-0 text-muted">إضافة إعلان جديد</span>
     </div>
     <!-- شريط تقدم -->
     <div class="d-flex align-items-center gap-3 mb-4">

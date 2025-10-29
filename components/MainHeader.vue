@@ -25,6 +25,17 @@ watch(
   },
   { immediate: true } // ينفذ مباشرة عند تحميل الصفحة
 );
+onMounted(() => {
+  document.querySelectorAll("#mainNavbar .nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      const navbar = document.getElementById("mainNavbar");
+      if (navbar && navbar.classList.contains("show")) {
+        const bsCollapse = bootstrap.Collapse.getInstance(navbar);
+        if (bsCollapse) bsCollapse.hide();
+      }
+    });
+  });
+});
 
 async function toggleFavoritesMenu() {
   if (!isLoggedIn.value) return navigateTo("/login");
@@ -70,7 +81,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
         </NuxtLink>
       </div>
 
-      <div class="d-flex flex-row-reverse gap-6">
+      <div class="d-flex flex-row-reverse gap-3 gap-md-6">
         <NuxtLink
           target="_blank"
           rel="noopener noreferrer"
@@ -180,14 +191,16 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             </div>
           </NuxtLink>
           <div v-else>
-            <NuxtLink to="/login" class="btn btn-main fs-3">تسجيل الدخول</NuxtLink>
+            <NuxtLink to="/login" class="btn btn-main btn-login fs-3"
+              >تسجيل الدخول</NuxtLink
+            >
           </div>
         </div>
       </div>
       <!-- Row 3 -->
       <nav class="navbar navbar-expand-md px-md-9 bg-white shadow-sm">
         <div
-          class="container-fluid d-flex justify-content-between align-items-center"
+          class="container-fluid d-flex justify-content-between align-items-center px-3 p-md-0"
         >
           <button
             class="navbar-toggler ms-2"
@@ -202,7 +215,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
           </button>
           <div
             v-if="allowedPaths.includes(route.name)"
-            class="btn d-inline-flex align-items-center border-start rounded-0 me-2"
+            class="btn d-inline-flex align-items-center border-start rounded-0 ms-2 p-0"
             data-bs-toggle="collapse"
             href="#collapseExample"
             role="button"
@@ -228,8 +241,8 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             class="collapse navbar-collapse order-md-1 justify-content-center"
             id="mainNavbar"
           >
-            <ul class="navbar-nav me-0 pe-0 mb-2 mb-lg-0">
-              <li class="nav-item px-8 mb-3">
+            <ul class="navbar-nav me-0 pe-0 mb-2 mb-lg-0 gap-md-6">
+              <li class="nav-item px-9 mb-3">
                 <NuxtLink
                   to="/"
                   class="nav-link text-dark px-1 pb-0"
@@ -240,7 +253,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
                   >الرئيسية</NuxtLink
                 >
               </li>
-              <li class="nav-item px-8 mb-3">
+              <li class="nav-item px-9 mb-3">
                 <NuxtLink
                   to="/products"
                   class="nav-link text-dark px-1 pb-0"
@@ -251,7 +264,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
                   >منتجاتنا</NuxtLink
                 >
               </li>
-              <li class="nav-item px-8 mb-3">
+              <li class="nav-item px-9 mb-3">
                 <NuxtLink
                   to="/ads"
                   class="nav-link text-dark px-1 pb-0"
@@ -262,7 +275,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
                   >تصفح الإعلانات</NuxtLink
                 >
               </li>
-              <li class="nav-item px-8 mb-3">
+              <li class="nav-item px-9 mb-3">
                 <NuxtLink
                   to="/contact"
                   class="nav-link text-dark px-1 pb-0"
@@ -305,7 +318,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
 .navbar-toggler:focus {
   box-shadow: 0 0 0 !important;
 }
-a:hover {
+li a:hover {
   color: #1839a0 !important;
 }
 </style>
