@@ -71,25 +71,25 @@ const carouselId = "offersCarousel";
             <div class="col-3">
               <img
                 src="/media/bg-home/bg1.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-2">
               <img
                 src="/media/bg-home/bg2.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-4">
               <img
                 src="/media/bg-home/bg3.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-3">
               <img
                 src="/media/bg-home/bg4.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
           </div>
@@ -97,25 +97,25 @@ const carouselId = "offersCarousel";
             <div class="col-2">
               <img
                 src="/media/bg-home/bg5.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-5">
               <img
                 src="/media/bg-home/bg6.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-3">
               <img
                 src="/media/bg-home/bg7.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
             <div class="col-2">
               <img
                 src="/media/bg-home/bg8.png"
-                class="img-fluid w-100 h-100 object-fit-cover"
+                class="img-fluid w-100 h-100 object-fit-cover img-home"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ const carouselId = "offersCarousel";
 
       <section class="hero-content position-relative z-1">
         <div class="container text-center">
-          <h2 class="hero-subtitle bg-primary d-inline p-5 px-9 text-white">
+          <h2 class="hero-subtitle bg-primary d-inline p-5 px-9 text-white fw-s">
             أكثر من 100,000 إعلان نشط
           </h2>
           <h1 class="text-center hero-title fs-1 fw-bold my-9 py-9 text-white">
@@ -476,6 +476,10 @@ const carouselId = "offersCarousel";
 .hero-section {
   height: 100vh;
   overflow: hidden;
+}
+.img-home {
+  border-left: 2px #fff solid;
+  border-right: 2px #fff solid;
 }
 .hero-overlay {
   background-color: rgba(0, 0, 0, 0.5);
