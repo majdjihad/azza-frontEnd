@@ -109,7 +109,10 @@ onMounted(() => {
     </NuxtLink>
 
     <div class="offer-body">
-      <NuxtLink :to="`/products/${item.id}`" class="offer-title text-dark h3">
+      <NuxtLink
+        :to="`/products/${item.id}`"
+        class="offer-title text-dark fw-medium fs-6"
+      >
         {{ item.name || item.title }}
       </NuxtLink>
     </div>
@@ -118,13 +121,13 @@ onMounted(() => {
       class="mt-auto d-flex align-items-center justify-content-between px-3 pb-3"
     >
       <div>
-        <div class="text-muted small fw-bold d-flex align-items-center gap-1">
-          <Icon name="material-symbols:location-on-outline" size="20" />
-          <span>غزة - فلسطين</span>
+        <div class="text-muted small d-flex align-items-center gap-1">
+          <Icon name="material-symbols:location-on" size="20" class="fw-bold" />
+          <span class="fs-6">غزة - فلسطين</span>
         </div>
-        <div class="text-end px-3 text-primary fw-bold">
-          <span class="price ms-1">{{ formattedPrice }}</span>
-          <span class="badge-currency small">{{ item.currency }}</span>
+        <div class="text-end text-primary mt-4">
+          <span class="price ms-1 fs-6 fw-bold">{{ formattedPrice }}</span>
+          <span class="badge-currency fs-6 fw-bold">{{ item.currency }}</span>
         </div>
       </div>
 
@@ -133,19 +136,19 @@ onMounted(() => {
         <NuxtLink
           rel="noopener noreferrer"
           :to="config.public.whatsappUrl"
-          class="btn btn-sm p-1 rounded-1"
+          class="btn text-secondary btn-sm p-1"
           aria-label="تواصل"
           target="_blank"
         >
-          <Icon name="akar-icons:whatsapp-fill" size="24" />
+          <Icon name="akar-icons:whatsapp-fill" size="22" />
         </NuxtLink>
         <!-- مشاركة: Toast مخصص لفيسبوك/واتساب -->
         <button
-          class="btn btn-sm p-1"
+          class="btn text-secondary btn-sm p-1"
           aria-label="مشاركة"
           @click="openShareToast"
         >
-          <Icon name="mdi:share-variant-outline" size="24" />
+          <Icon name="material-symbols:share" size="22" />
         </button>
       </div>
     </div>

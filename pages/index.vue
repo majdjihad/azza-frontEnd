@@ -58,6 +58,12 @@ const slides = computed(() =>
   chunk(mainStore?.homePageData?.products_section, 4)
 );
 const carouselId = "offersCarousel";
+const selectedCategoryName = ref("اسم القسم");
+
+const selectCategory = (id, name) => {
+  categoryIdSelected.value = id;
+  selectedCategoryName.value = name;
+};
 </script>
 
 <template>
@@ -127,7 +133,9 @@ const carouselId = "offersCarousel";
 
       <section class="hero-content position-relative z-1">
         <div class="container text-center">
-          <h2 class="hero-subtitle bg-primary d-inline p-5 px-9 text-white fw-s">
+          <h2
+            class="hero-subtitle bg-primary d-inline p-5 px-9 text-white fw-normal"
+          >
             أكثر من 100,000 إعلان نشط
           </h2>
           <h1 class="text-center hero-title fs-1 fw-bold my-9 py-9 text-white">
@@ -136,21 +144,23 @@ const carouselId = "offersCarousel";
           </h1>
 
           <!-- صندوق البحث -->
-          <div class="row g-0 align-items-stretch w-100 justify-content-center">
+          <div
+            class="row g-0 align-items-stretch w-100 m-auto justify-content-center"
+          >
             <!-- نص البحث -->
             <div class="col-md-3 overflow-hidden">
-              <div
-                class="input-group d-flex align-items-stretch h-100 bg-white"
-              >
-                <span
-                  class="input-group-text bg-white p-3 text-secondary rounded-0 border-0 border-end"
+              <div class="input-group d-flex align-items-stretch h-100">
+                <label
+                  for="input-search"
+                  class="input-group-text p-3 py-0 text-secondary rounded-0 border-0 border-end"
                 >
-                  <Icon name="mdi:form-textbox-password" class="fs-1" />
-                </span>
+                  <Icon name="mdi:form-textbox-password" class="fs-1 fw-bold" />
+                </label>
                 <input
                   type="text"
+                  id="input-search"
                   name="text-search"
-                  class="form-control search-input bg-white py-6 text-dark border-0 rounded-0"
+                  class="form-control search-input py-6 text-dark border-0 rounded-0"
                   placeholder="ادخل كلمة البحث هنا"
                   v-model="inputQuery"
                 />
@@ -158,56 +168,77 @@ const carouselId = "offersCarousel";
             </div>
 
             <!-- اختيار القسم -->
-            <div class="col-md-3 d-flex justify-content-center bg-white">
-              <div class="input-group row gap-0">
+            <div
+              class="col-md-3 d-flex justify-content-center align-items-stretch"
+            >
+              <div class="input-group row gap-0 w-100">
                 <div
-                  class="input-group-prepend col-3 text-center bg-white w-auto d-flex justify-content-start align-items-center p-0 border-end"
+                  class="input-group-prepend col-3 d-flex align-items-center justify-content-center border-end"
                 >
-                  <label
-                    class="input-group-text bg-white d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
-                    for="inputCategoryGroup"
-                  >
-                    <Icon name="mdi:tag-multiple" class="fs-1" />
-                  </label>
+                  <Icon
+                    name="mdi:tag-multiple"
+                    class="fs-1 fw-bold text-secondary"
+                  />
                 </div>
 
-                <select
-                  id="inputCategoryGroup"
-                  v-model="categoryIdSelected"
-                  class="bg-white text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
-                  :class="{ 'text-muted': !categoryIdSelected }"
-                >
-                  <!-- placeholder -->
-                  <option disabled value="">اختر القسم</option>
-                  <option
-                    v-for="cat in categories"
-                    :key="cat.id ?? cat.value ?? cat.slug ?? cat.name"
-                    :value="String(cat.id ?? cat.value ?? cat.name)"
-                  >
-                    {{ cat.name }}
-                  </option>
-                </select>
+                <div class="col-9 p-0 d-flex align-items-center justify-content-center">
+                  <div class="dropdown w-100">
+                    <button
+                      class="btn dropdown-toggle w-100 h-100 text-end border-0 fs-4 p-0 placeholder-btn"
+                      type="button"
+                      id="dropdownCategory"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <span
+                        :class="{
+                          'text-muted': selectedCategoryName === 'اسم القسم',
+                          'text-dark': selectedCategoryName !== 'اسم القسم',
+                        }"
+                      >
+                        {{ selectedCategoryName }}
+                      </span>
+                    </button>
+
+                    <ul
+                      class="dropdown-menu w-100 text-end"
+                      aria-labelledby="dropdownCategory"
+                    >
+                      <li v-for="cat in categories" :key="cat.id">
+                        <a
+                          class="dropdown-item fs-5 py-2"
+                          href="#"
+                          @click.prevent="selectCategory(cat.id, cat.name)"
+                        >
+                          {{ cat.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
-
             <!-- اختيار المدينة -->
-            <div class="col-md-3 d-flex justify-content-center bg-white">
+            <div class="col-md-3 d-flex justify-content-center">
               <div class="input-group row gap-0">
                 <div
-                  class="input-group-prepend col-3 text-center bg-white d-flex justify-content-start w-auto align-items-center p-0 border-end"
+                  class="input-group-prepend input-group-loc col-3 text-center d-flex justify-content-start w-auto align-items-center p-0 border-end"
                 >
                   <label
-                    class="input-group-text bg-white d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
+                    class="input-group-text p-3 py-0 d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
                     for="inputCityGroup"
                   >
-                    <Icon name="material-symbols:location-on" class="fs-1" />
+                    <Icon
+                      name="material-symbols:location-on"
+                      class="fs-1 fw-bold loc-icon"
+                    />
                   </label>
                 </div>
 
                 <select
                   id="inputCityGroup"
                   v-model="cityIdSelected"
-                  class="bg-white text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
+                  class="text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
                   :class="{ 'text-muted': !cityIdSelected }"
                 >
                   <!-- placeholder -->
@@ -242,30 +273,31 @@ const carouselId = "offersCarousel";
     <section class="categories-section">
       <div class="container my-5">
         <div
-          class="row g-3 py-4"
+          class="row g-3 py-4 justify-content-center"
           v-if="mainStore?.homePageData?.categories_section"
         >
           <div
             v-for="(cat, index) in mainStore?.homePageData?.categories_section"
             :key="index"
-            class="col-6 col-md-3 my-9 position-relative p-0"
+            class="col-6 col-sm-4 col-md-3 col-lg-2-4 my-3 position-relative my-9"
           >
             <NuxtLink
               :to="`ads/category/${cat.slug}`"
-              class="category-card h-150px text-center border rounded d-flex flex-column align-items-center justify-content-between mx-3"
+              class="category-card h-150px text-center border rounded d-flex flex-column align-items-center justify-content-between mx-2"
             >
-              <div
-                class="bg-white w-25 px-2"
-                style="position: relative; top: -25px"
-              >
-                <NuxtImg :src="cat.image_url" class="w-100" :alt="cat.name" />
+              <div class="bg-white px-2" style="position: relative; top: -25px">
+                <NuxtImg
+                  src="https://dashboard.azza-ak.com/storage/categories/1zhSnwYRc2pitDINXDdVhG2DsmP5Z1zbKNrbQtf1.jpg"
+                  style="width: 50px"
+                  :alt="cat.name"
+                />
               </div>
               <div class="position-absolute bottom-0">
-                <h4>{{ cat.name }}</h4>
+                <p class="fs-4 fw-semibold">{{ cat.name }}</p>
                 <div
-                  class="btn-category bg-white px-4 d-flex justify-content-center"
+                  class="btn-category bg-white px-3 d-flex justify-content-center"
                 >
-                  <button class="btn btn-sm mt-2">
+                  <button class="btn btn-sm fw-bold mt-2">
                     <Icon name="line-md:arrow-left" class="fs-1 fw-bold" />
                   </button>
                 </div>
@@ -273,23 +305,24 @@ const carouselId = "offersCarousel";
             </NuxtLink>
           </div>
         </div>
+
         <div v-else class="text-center py-9">
           <icon name="svg-spinners:ring-resize" class="indicator-label fs-1" />
         </div>
 
         <div
-          class="bg-primary text-white rounded p-9 mt-5 d-flex flex-column flex-md-row align-items-start justify-content-between"
+          class="bg-primary text-white rounded p-9 mt-5 d-flex flex-column flex-lg-row align-items-start justify-content-between"
         >
           <div>
             <h2 class="fw-bold text-white">بيع ما لا تحتاج واكسب المال</h2>
-            <p class="mb-0 mt-3 fs-3">
+            <p class="mb-0 mt-3 fs-3 fw-light">
               أضف إعلانك الآن لتصل إلى ملايين المشترين وتبيع كل ما تريد بأفضل
               الأسعار.
             </p>
           </div>
           <NuxtLink
             to="/ads/create"
-            class="btn-info mt-3 mt-md-0 d-flex align-items-center"
+            class="btn-info mt-3 mt-lg-0 d-flex align-items-center"
           >
             <span class="fs-3 ms-3">أضف إعلانك الآن</span>
             <Icon name="line-md:arrow-left" class="fs-1 fw-bold" />
@@ -297,13 +330,12 @@ const carouselId = "offersCarousel";
         </div>
       </div>
     </section>
-
     <!-- عروضنا الخاصة -->
-    <section class="offers-section my-4 py-4 px-3 px-sm-4 bg-muted">
+    <section class="offers-section my-9 py-9 px-3 px-sm-4">
       <div class="container">
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
-            <h2 class="fs-1 fw-bold mb-1">عروضنا الخاصة</h2>
+            <h2 class="fs-1 fw-bold mb-1 fw-medium">عروضنا الخاصة</h2>
             <div class="fs-3 offers-subtitle text-muted">
               عروض حصرية من إدارة الموقع
             </div>
@@ -378,14 +410,17 @@ const carouselId = "offersCarousel";
     </section>
 
     <!-- أحدث الإعلانات -->
-    <section class="container container-ads pt-4 mb-9 py-md-5">
+    <section class="container container-ads pt-4 my-9 py-9">
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-4">
           <div>
-            <h2 class="fs-1 section-title mb-0">أحدث الإعلانات</h2>
-            <div class="fs-3 offers-subtitle text-muted">
+            <span class="text-primary fs-3 fw-medium pe-3">جديد</span>
+            <h2 class="fs-1 section-title mb-0 mt-3 fw-medium">
+              أحدث الإعلانات
+            </h2>
+            <p class="fs-3 offers-subtitle text-muted">
               ابقَ على اطلاع.. لا تفوت الفرص الجديدة!
-            </div>
+            </p>
           </div>
         </div>
 
@@ -430,11 +465,11 @@ const carouselId = "offersCarousel";
               class="carousel-item"
               :class="{ active: idx === 0 }"
             >
-              <div class="row g-4">
+              <div class="row g-3 g-md-4">
                 <div
                   v-for="ad in group"
                   :key="ad.id"
-                  class="col-12 col-md-6 col-xl-3 shadow-sm"
+                  class="col-12 col-sm-6 col-lg-3 card ad-card overflow-hidden p-0 position-relative border-0 mt-6"
                 >
                   <AdsCard :ad="ad" />
                 </div>
@@ -443,7 +478,7 @@ const carouselId = "offersCarousel";
           </template>
           <template v-else>
             <div class="carousel-item active">
-              <div class="row g-4 my-4">
+              <div class="row g-3 g-md-4 my-4">
                 <div
                   v-for="n in 4"
                   :key="'skeleton-1-' + n"
@@ -474,7 +509,7 @@ const carouselId = "offersCarousel";
   color: white !important;
 }
 .hero-section {
-  height: 100vh;
+  height: 80vh;
   overflow: hidden;
 }
 .img-home {
@@ -488,7 +523,7 @@ const carouselId = "offersCarousel";
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 80vh;
 }
 
 .category-card:hover button {
@@ -515,6 +550,13 @@ label:focus {
   outline: none !important;
   box-shadow: none !important;
   border-color: transparent !important;
+}
+/* أضف هذا في ملف CSS الخاص بك */
+@media (min-width: 992px) {
+  .col-lg-2-4 {
+    flex: 0 0 auto;
+    width: 20%; /* 100 ÷ 5 */
+  }
 }
 
 .btn-category {
@@ -564,13 +606,6 @@ label:focus {
   background: var(--bs-primary-hover);
 }
 
-.badge-chip {
-  background: #e7f1f9;
-  color: #1b3a8a;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
 /* Mobile */
 @media (max-width: 768px) {
   .hero-title {
@@ -609,9 +644,48 @@ label:focus {
     padding: 15px;
   }
 }
-.search-input::placeholder {
-  color: #6c757d !important;
-  font-size: 1.35rem !important;
+.placeholder-btn {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  text-align: right !important;
+}
+
+.placeholder-btn::after {
+  display: none !important; /* إخفاء السهم الصغير */
+}
+
+.dropdown-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+.input-group,
+.input-group input,
+.input-group select,
+.input-group label {
+  background: #f1f1f4 !important;
+}
+.search-input::placeholder,
+select {
+  color: #6e6e6e !important;
+  font-size: 14px !important;
   font-weight: 400;
+}
+.input-group-cat,
+.input-group-loc {
+  margin: 10px 0;
+  border-right: 1px #89909dcc solid !important;
+}
+.input-group-cat option:hover {
+  background-color: red !important;
+}
+.offers-section {
+  background-color: #f7f7f7;
 }
 </style>

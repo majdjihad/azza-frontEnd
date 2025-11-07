@@ -199,7 +199,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
                 height="40"
                 class="rounded-circle"
               />
-              <div>
+              <div class="d-none d-md-block">
                 <div
                   class="text-dark text-decoration-none d-none d-md-flex flex-column align-items-start justify-content-center ps-md-9"
                 >

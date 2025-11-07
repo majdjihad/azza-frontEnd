@@ -104,8 +104,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container py-5">
-    <div class="card ad-card overflow-hidden p-0 position-relative my-2">
+    <div class="ad-card mx-4">
       <!-- Top Image + Chips + Avatar -->
       <div class="position-relative">
         <NuxtLink :to="`/ads/${ad?.id}`">
@@ -125,40 +124,46 @@ onMounted(() => {
         <NuxtLink :to="`/profile/${ad?.user_id}`" class="avatar-holder">
           <NuxtImg
             :src="ad?.user_photo"
-            width="50"
+            width="60"
             class="rounded-circle avatar-img"
             alt="user"
           />
         </NuxtLink>
       </div>
 
-      <div class="card-body pt-5 px-2">
-        <div class="ad-desc small mb-1" v-if="ad?.created_at">
+      <div class="card-body pt-5 px-5">
+        <div class="ad-desc small mb-1 fs-7" v-if="ad?.created_at">
           منذ {{ ad?.created_at }}
         </div>
 
         <NuxtLink :to="`/ads/${ad?.id}`" class="text-decoration-none">
-          <h5 class="ad-title mb-2">{{ ad?.title }}</h5>
+          <h5 class="ad-title mb-2 fw-medium">{{ ad?.title }}</h5>
         </NuxtLink>
 
-        <p class="ad-desc mb-3">
+        <p class="ad-desc ps-9 mb-3">
           {{ ad?.description?.split(" ").slice(0, 15).join(" ")
           }}{{ ad?.description?.split(" ").length > 15 ? "..." : "" }}
         </p>
 
-        <div class="d-flex align-items-center justify-content-start gap-2">
-          <span class="text-primary">{{ ad?.price }}</span>
-          <span class="text-primary">{{ ad?.currency }}</span>
+        <div class="d-flex align-items-center justify-content-start gap-0">
+          <span class="text-primary fs-6 fw-bold">{{ ad?.price }}</span>
+          <span class="text-primary fs-6 fw-bold">{{ ad?.currency }}</span>
         </div>
 
         <div class="mt-3 d-flex align-items-center justify-content-between">
           <div
-            class="text-muted small fw-bold d-flex align-items-center gap-1"
+            class="text-muted small d-flex align-items-center gap-1"
             v-if="ad?.city"
           >
-            <Icon name="material-symbols:location-on-outline" size="20" />
-            <span v-if="ad?.city?.name">{{ ad?.city?.name }}</span>
-            <span v-else>{{ ad?.city }}</span>
+            <Icon
+              name="material-symbols:location-on"
+              style="color: #a5acb9"
+              size="22"
+            />
+            <span class="fs-6" v-if="ad?.city?.name"
+              >{{ ad?.city?.name }} - فلسطين</span
+            >
+            <span class="fs-6" v-else>{{ ad?.city }} - فلسطين</span>
           </div>
 
           <div class="meta d-flex align-items-center gap-1 fs-5">
@@ -195,7 +200,7 @@ onMounted(() => {
               aria-label="مشاركة"
               @click="openShareToast"
             >
-              <Icon name="mdi:share-variant-outline" size="22" />
+              <Icon name="material-symbols:share" size="22" />
             </button>
           </div>
         </div>
@@ -253,7 +258,6 @@ onMounted(() => {
         </div>
       </transition>
     </div>
-  </div>
 </template>
 
 <style scoped>
@@ -276,16 +280,18 @@ onMounted(() => {
   object-fit: cover;
 }
 .badge-chip {
-  background: #e7f1f9;
-  color: #1b3a8a;
-  border-radius: 10px;
-  font-weight: 700;
+  background: #1839a066;
+  color: white;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 12px;
 }
 .ad-title {
   font-weight: 800;
 }
 .ad-desc {
-  color: #6b7280;
+  color: #6e6e6e;
+  font-weight: 400;
   line-height: 1.9;
 }
 
@@ -373,7 +379,9 @@ onMounted(() => {
   border-color: #cfeee9;
   background: #f0fbf9;
 }
-
+.text-muted {
+  color: #6e6e6e !important;
+}
 .share-toast__close {
   background: transparent;
   border: 0;

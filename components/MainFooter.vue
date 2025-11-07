@@ -14,7 +14,7 @@ const config = useRuntimeConfig();
               class="ms-2 logo-img"
             />
           </div>
-          <p class="text-muted fs-5 p-md-9 pt-3 pb-3 pb-md-0">
+          <p class="text-muted fw-medium fs-6 p-md-4 p-lg-9 pt-3 pb-3 pb-md-0">
             موقعنا هو منصة إلكترونية متكاملة للإعلانات العربية تتيح للمستخدمين
             إضافة إعلاناتهم بسهولة وتصفح العروض الخاصة في مختلف التصنيفات مثل
             العقارات، الأجهزة، الأثاث، المفقودات والخدمات. نوفر بيئة موثوقة
@@ -25,40 +25,40 @@ const config = useRuntimeConfig();
           <h5 class="fw-bold mb-3">الصفحات</h5>
           <ul class="list-unstyled p-0">
             <li>
-              <NuxtLink to="/" class="fs-5 text-muted text-decoration-none"
+              <NuxtLink to="/" class="fs-6 text-muted fw-medium text-decoration-none"
                 >الرئيسية</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/products"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >منتجاتنا</NuxtLink
               >
             </li>
             <li>
-              <NuxtLink to="/ads" class="fs-5 text-muted text-decoration-none"
+              <NuxtLink to="/ads" class="fs-6 text-muted fw-medium text-decoration-none"
                 >تصفح الإعلانات</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/terms-of-use"
-                class="fs-5 text-decoration-none text-muted"
+                class="fs-6 text-decoration-none text-muted fw-medium"
                 >شروط الاستخدام</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/privacy-policy"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >سياسة الخصوصية</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/contact"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >تواصل معنا</NuxtLink
               >
             </li>
@@ -70,38 +70,38 @@ const config = useRuntimeConfig();
             <li>
               <NuxtLink
                 to="/products"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >منتجاتنا</NuxtLink
               >
             </li>
             <li>
-              <NuxtLink to="/ads" class="fs-5 text-muted text-decoration-none"
+              <NuxtLink to="/ads" class="fs-6 text-muted fw-medium text-decoration-none"
                 >الإعلانات</NuxtLink
               >
             </li>
             <li>
-              <NuxtLink to="/" class="fs-5 text-muted text-decoration-none"
+              <NuxtLink to="/" class="fs-6 text-muted fw-medium text-decoration-none"
                 >الرئيسية</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/contact"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >تواصل معنا</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/ads/create"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >إضافة إعلان</NuxtLink
               >
             </li>
             <li>
               <NuxtLink
                 to="/privacy-policy"
-                class="fs-5 text-muted text-decoration-none"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >سياسة الخصوصية</NuxtLink
               >
             </li>
@@ -116,7 +116,7 @@ const config = useRuntimeConfig();
                 class="text-white"
               />
             </span>
-            <span class="ms-1 text-muted fs-5">{{
+            <span class="ms-1 text-muted">{{
               config.public.companyPhone
             }}</span>
           </li>
@@ -124,7 +124,7 @@ const config = useRuntimeConfig();
             <span class="ms-2 px-2 py-1 bg-primary rounded-circle">
               <Icon name="bi:envelope-fill" class="text-white" />
             </span>
-            <span class="ms-1 text-muted fs-5">{{
+            <span class="ms-1 text-muted">{{
               config.public.companyEmail
             }}</span>
           </li>
@@ -137,12 +137,12 @@ const config = useRuntimeConfig();
           جميع الحقوق محفوظة © 2025 - Azza – إحدى مشاريع مجموعة Akhlaa
         </p>
 
-        <div class="d-flex justify-content-center mb-2 d-none d-lg-block">
+        <div class="d-flex justify-content-center d-none d-lg-block">
           <NuxtLink
             target="_blank"
             rel="noopener noreferrer"
             :to="config.public.facebookUrl"
-            class="text-white fs-3 mx-2"
+            class="text-white fs-3 mx-3"
           >
             <Icon name="bi:facebook" />
           </NuxtLink>
@@ -150,13 +150,13 @@ const config = useRuntimeConfig();
             target="_blank"
             rel="noopener noreferrer"
             :to="config.public.instagramUrl"
-            class="text-white fs-3 mx-2"
+            class="text-white fs-3 mx-3"
           >
             <Icon name="bi:instagram" />
           </NuxtLink>
           <NuxtLink
             :to="config.public.twitterUrl"
-            class="text-white fs-3 mx-2"
+            class="text-white fs-3 mx-3"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -166,7 +166,7 @@ const config = useRuntimeConfig();
             target="_blank"
             rel="noopener noreferrer"
             :to="config.public.whatsappUrl"
-            class="text-white fs-3 mx-2"
+            class="text-white fs-3 mx-3"
           >
             <Icon name="bi:whatsapp" />
           </NuxtLink>
@@ -174,7 +174,7 @@ const config = useRuntimeConfig();
             target="_blank"
             rel="noopener noreferrer"
             :to="config.public.tiktokUrl"
-            class="text-white fs-3 mx-2"
+            class="text-white fs-3 mx-3"
           >
             <Icon name="bi:tiktok" />
           </NuxtLink>
@@ -193,5 +193,8 @@ li {
 }
 li a:hover {
   color: #1839a0 !important;
+}
+.text-muted {
+  color: #6c757d !important;
 }
 </style>
