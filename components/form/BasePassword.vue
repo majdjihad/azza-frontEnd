@@ -52,13 +52,13 @@ defineEmits(["update:modelValue"]);
 </script>
 <style scoped>
 .form-control {
-  background-color: #f6f6f6;
+  background-color: white !important;
 }
 .form-control::placeholder {
-  color: #a5acb9;
+  color: rgba(110, 110, 110, 0.8) !important;
   opacity: 1;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
 }
 .input-group button {
   z-index: 100;

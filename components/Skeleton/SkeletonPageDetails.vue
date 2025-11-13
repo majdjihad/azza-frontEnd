@@ -2,7 +2,7 @@
   <div class="row g-4 flex-row-reverse">
     <!-- ======= Main ======= -->
     <main class="col-lg-9 order-1 order-lg-2">
-      <div class="card shadow-sm p-9">
+      <div class="card border-0 p-9">
         <!-- عنوان + أكشنز -->
         <div
           class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
@@ -15,7 +15,6 @@
             </div>
           </div>
           <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
-            <div class="sk sk-pill" style="width: 120px; height: 38px"></div>
             <div class="sk sk-pill" style="width: 120px; height: 38px"></div>
           </div>
         </div>
@@ -66,25 +65,14 @@
       <!-- السعر -->
       <div class="card mb-3">
         <div class="card-body d-flex align-items-center gap-2">
-          <div class="sk sk-icon"></div>
-          <div class="sk sk-line" style="height: 28px; width: 80px"></div>
-          <div class="sk sk-line" style="height: 16px; width: 40px"></div>
-          <div
-            class="sk sk-line ms-auto"
-            style="height: 16px; width: 90px"
-          ></div>
+          <div class="sk sk-line" style="height: 28px; width: 200px"></div>
         </div>
       </div>
 
       <!-- بيانات الناشر -->
       <div class="card mb-3">
         <div class="card-body p-0">
-          <div
-            class="mx-4 mt-4 mb-3 sk sk-line"
-            style="height: 22px; width: 160px"
-          ></div>
-
-          <div class="mb-3 text-center">
+          <div class="my-3 text-center">
             <div class="sk sk-circle m-auto"></div>
             <div
               class="sk sk-line m-auto mt-3"
@@ -92,10 +80,10 @@
             ></div>
           </div>
 
-          <div class="mx-3 my-3">
-            <div class="sk sk-pill mb-3" style="height: 46px; width: 90%"></div>
-            <div class="sk sk-pill mb-3" style="height: 46px; width: 90%"></div>
-            <div class="sk sk-pill" style="height: 46px; width: 90%"></div>
+          <div class="mx-3 my-5 text-center">
+            <div class="sk sk-pill mb-3" style="height: 46px; width: 100%"></div>
+            <div class="sk sk-pill mb-3" style="height: 46px; width: 100%"></div>
+            <div class="sk sk-pill mb-3" style="height: 46px; width: 100%"></div>
           </div>
         </div>
       </div>
@@ -103,10 +91,10 @@
       <!-- نصائح -->
       <div class="card">
         <div class="card-body">
-          <div class="sk sk-line mb-3" style="height: 20px; width: 180px"></div>
-          <div class="sk sk-line mb-2" style="height: 12px; width: 95%"></div>
-          <div class="sk sk-line mb-2" style="height: 12px; width: 82%"></div>
-          <div class="sk sk-line mb-2" style="height: 12px; width: 90%"></div>
+          <div class="sk sk-line mb-3" style="height: 20px; width: 80px"></div>
+          <div class="sk sk-line mb-4" style="height: 15px; width: 95%"></div>
+          <div class="sk sk-line mb-4" style="height: 15px; width: 82%"></div>
+          <div class="sk sk-line mb-4" style="height: 15px; width: 90%"></div>
           <div class="sk sk-line" style="height: 12px; width: 70%"></div>
         </div>
       </div>

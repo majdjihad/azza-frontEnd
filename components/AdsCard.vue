@@ -101,163 +101,195 @@ onMounted(() => {
   window.addEventListener("keydown", onKey);
   onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
 });
+function translateTimeAgo(englishTime) {
+  if (!englishTime) return "";
+
+  // إزالة كلمة "ago" من النهاية
+  englishTime = englishTime.replace("ago", "").trim();
+
+  const [numStr, unit] = englishTime.split(" ");
+  const num = parseInt(numStr) || 0;
+
+  const map = {
+    second: ["ثانية واحدة", "ثانيتين", "ثوانٍ"],
+    minute: ["دقيقة واحدة", "دقيقتين", "دقائق"],
+    hour: ["ساعة واحدة", "ساعتين", "ساعات"],
+    day: ["يوم واحد", "يومين", "أيام"],
+    week: ["أسبوع واحد", "أسبوعين", "أسابيع"],
+    month: ["شهر واحد", "شهرين", "أشهر"],
+    year: ["سنة واحدة", "سنتين", "سنوات"],
+  };
+
+  // إزالة s من نهاية الكلمة إن وجدت (مثل "months" → "month")
+  const key = unit?.replace(/s$/, "").toLowerCase();
+
+  const forms = map[key];
+  if (!forms) return `منذ ${englishTime}`; // في حال نوع غير متوقع
+
+  let result = "";
+  if (num === 1) result = forms[0];
+  else if (num === 2) result = forms[1];
+  else result = `${num} ${forms[2]}`;
+
+  return `منذ ${result}`;
+}
 </script>
 
 <template>
-    <div class="ad-card mx-4">
-      <!-- Top Image + Chips + Avatar -->
-      <div class="position-relative">
-        <NuxtLink :to="`/ads/${ad?.id}`">
-          <NuxtImg
-            :src="ad?.main_image || ad?.image"
-            class="card-img-top"
-            :alt="ad?.title"
-          />
-        </NuxtLink>
+  <div class="ad-card mx-4 shadow-sm">
+    <!-- Top Image + Chips + Avatar -->
+    <div class="position-relative">
+      <NuxtLink :to="`/ads/${ad?.id}`">
+        <NuxtImg
+          src="/media/bg-home/bg1.png"
+          class="card-img-top"
+          :alt="ad?.title"
+        />
+      </NuxtLink>
 
-        <span
-          class="badge badge-chip position-absolute top-0 end-0 m-3 px-3 py-2"
-        >
-          {{ ad?.category }}
-        </span>
+      <span
+        class="badge badge-chip position-absolute top-0 end-0 m-3 px-3 py-2"
+      >
+        {{ ad?.category }}
+      </span>
 
-        <NuxtLink :to="`/profile/${ad?.user_id}`" class="avatar-holder">
-          <NuxtImg
-            :src="ad?.user_photo"
-            width="60"
-            class="rounded-circle avatar-img"
-            alt="user"
-          />
-        </NuxtLink>
+      <NuxtLink :to="`/profile/${ad?.user_id}`" class="avatar-holder">
+        <NuxtImg
+          :src="ad?.user_photo"
+          width="60"
+          class="rounded-circle avatar-img"
+          alt="user"
+        />
+      </NuxtLink>
+    </div>
+
+    <div class="card-body pt-5 px-5 pb-3">
+      <div class="ad-desc small mb-1 fs-7 fw-normal" v-if="ad?.created_at">
+        {{ translateTimeAgo(ad?.created_at) }}
       </div>
 
-      <div class="card-body pt-5 px-5">
-        <div class="ad-desc small mb-1 fs-7" v-if="ad?.created_at">
-          منذ {{ ad?.created_at }}
+      <NuxtLink :to="`/ads/${ad?.id}`" class="text-decoration-none">
+        <h5 class="ad-title mb-2 fw-medium">{{ ad?.title }}</h5>
+      </NuxtLink>
+
+      <p class="ad-desc ps-9 mb-3">
+        {{ ad?.description?.split(" ").slice(0, 13).join(" ")
+        }}{{ ad?.description?.split(" ").length > 13 ? "..." : "" }}
+      </p>
+
+      <div class="d-flex align-items-center justify-content-start gap-0">
+        <span class="text-primary fs-6 fw-bold">{{ ad?.price }}</span>
+        <span class="text-primary fs-6 fw-bold">{{ ad?.currency }}</span>
+      </div>
+
+      <div class="mt-3 d-flex align-items-center justify-content-between">
+        <div
+          class="text-muted small d-flex align-items-center gap-1"
+          v-if="ad?.city"
+        >
+          <Icon
+            name="material-symbols:location-on"
+            style="color: #a5acb9"
+            size="22"
+          />
+          <span class="fs-6" v-if="ad?.city?.name"
+            >{{ ad?.city?.name }} - فلسطين</span
+          >
+          <span class="fs-6" v-else>{{ ad?.city }} - فلسطين</span>
         </div>
 
-        <NuxtLink :to="`/ads/${ad?.id}`" class="text-decoration-none">
-          <h5 class="ad-title mb-2 fw-medium">{{ ad?.title }}</h5>
-        </NuxtLink>
+        <div class="meta d-flex align-items-center gap-1 fs-5">
+          <!-- تواصل واتساب -->
+          <NuxtLink
+            target="_blank"
+            rel="noopener noreferrer"
+            :to="`https://wa.me/${ad?.whatsapp}`"
+            class="btn text-secondary btn-sm p-1"
+            aria-label="تواصل"
+          >
+            <Icon name="akar-icons:whatsapp-fill" size="22" />
+          </NuxtLink>
 
-        <p class="ad-desc ps-9 mb-3">
-          {{ ad?.description?.split(" ").slice(0, 15).join(" ")
-          }}{{ ad?.description?.split(" ").length > 15 ? "..." : "" }}
-        </p>
-
-        <div class="d-flex align-items-center justify-content-start gap-0">
-          <span class="text-primary fs-6 fw-bold">{{ ad?.price }}</span>
-          <span class="text-primary fs-6 fw-bold">{{ ad?.currency }}</span>
-        </div>
-
-        <div class="mt-3 d-flex align-items-center justify-content-between">
-          <div
-            class="text-muted small d-flex align-items-center gap-1"
-            v-if="ad?.city"
+          <!-- مفضلة -->
+          <button
+            v-if="isLoggedIn"
+            class="btn text-secondary btn-sm p-1"
+            aria-label="مفضلة"
+            @click="handleToggleFavorite"
           >
             <Icon
-              name="material-symbols:location-on"
-              style="color: #a5acb9"
+              v-if="ad?.is_favorite"
+              class="text-primary"
+              name="mdi:cards-heart"
               size="22"
             />
-            <span class="fs-6" v-if="ad?.city?.name"
-              >{{ ad?.city?.name }} - فلسطين</span
-            >
-            <span class="fs-6" v-else>{{ ad?.city }} - فلسطين</span>
-          </div>
+            <Icon v-else name="mdi:heart-outline" size="22" />
+          </button>
 
-          <div class="meta d-flex align-items-center gap-1 fs-5">
-            <!-- تواصل واتساب -->
-            <NuxtLink
-              target="_blank"
-              rel="noopener noreferrer"
-              :to="`https://wa.me/${ad?.whatsapp}`"
-              class="btn text-secondary btn-sm p-1"
-              aria-label="تواصل"
-            >
-              <Icon name="akar-icons:whatsapp-fill" size="22" />
-            </NuxtLink>
-
-            <!-- مفضلة -->
-            <button
-              v-if="isLoggedIn"
-              class="btn text-secondary btn-sm p-1"
-              aria-label="مفضلة"
-              @click="handleToggleFavorite"
-            >
-              <Icon
-                v-if="ad?.is_favorite"
-                class="text-primary"
-                name="mdi:cards-heart"
-                size="22"
-              />
-              <Icon v-else name="mdi:heart-outline" size="22" />
-            </button>
-
-            <!-- مشاركة -->
-            <button
-              class="btn text-secondary btn-sm p-1"
-              aria-label="مشاركة"
-              @click="openShareToast"
-            >
-              <Icon name="material-symbols:share" size="22" />
-            </button>
-          </div>
+          <!-- مشاركة -->
+          <button
+            class="btn text-secondary btn-sm p-1"
+            aria-label="مشاركة"
+            @click="openShareToast"
+          >
+            <Icon name="material-symbols:share" size="22" />
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- ======= Share Toast ======= -->
-      <transition name="share-toast">
-        <div
-          v-if="shareToastOpen"
-          class="share-toast"
-          role="alert"
-          aria-live="polite"
-          @mouseenter="onToastMouseEnter"
-          @mouseleave="onToastMouseLeave"
-        >
-          <div class="share-toast__body">
-            <div class="share-toast__icon">
-              <Icon name="mdi:share-variant" size="22" />
-            </div>
+    <!-- ======= Share Toast ======= -->
+    <transition name="share-toast">
+      <div
+        v-if="shareToastOpen"
+        class="share-toast"
+        role="alert"
+        aria-live="polite"
+        @mouseenter="onToastMouseEnter"
+        @mouseleave="onToastMouseLeave"
+      >
+        <div class="share-toast__body">
+          <div class="share-toast__icon">
+            <Icon name="mdi:share-variant" size="22" />
+          </div>
 
-            <div class="share-toast__text">
-              <div class="share-toast__title">شارك الإعلان</div>
-              <div class="share-toast__sub">{{ ad?.title }}</div>
-            </div>
+          <div class="share-toast__text">
+            <div class="share-toast__title">شارك الإعلان</div>
+            <div class="share-toast__sub">{{ ad?.title }}</div>
+          </div>
 
-            <div class="share-toast__actions">
-              <button
-                class="btn-share fb"
-                @click="shareTo('fb')"
-                aria-label="Facebook"
-              >
-                <Icon name="mdi:facebook" size="18" />
-                <span>Facebook</span>
-              </button>
-              <button
-                class="btn-share wa"
-                @click="shareTo('wa')"
-                aria-label="WhatsApp"
-              >
-                <Icon name="akar-icons:whatsapp-fill" size="18" />
-                <span>WhatsApp</span>
-              </button>
-            </div>
-
+          <div class="share-toast__actions">
             <button
-              class="share-toast__close"
-              @click="closeShareToast"
-              aria-label="إغلاق"
+              class="btn-share fb"
+              @click="shareTo('fb')"
+              aria-label="Facebook"
             >
-              ×
+              <Icon name="mdi:facebook" size="18" />
+              <span>Facebook</span>
+            </button>
+            <button
+              class="btn-share wa"
+              @click="shareTo('wa')"
+              aria-label="WhatsApp"
+            >
+              <Icon name="akar-icons:whatsapp-fill" size="18" />
+              <span>WhatsApp</span>
             </button>
           </div>
 
-          <div class="share-toast__progress"></div>
+          <button
+            class="share-toast__close"
+            @click="closeShareToast"
+            aria-label="إغلاق"
+          >
+            ×
+          </button>
         </div>
-      </transition>
-    </div>
+
+        <div class="share-toast__progress"></div>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <style scoped>

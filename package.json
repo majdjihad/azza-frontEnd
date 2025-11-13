@@ -41,6 +41,7 @@
     "quill": "^2.0.3",
     "sass": "^1.89.2",
     "semver": "^7.7.2",
+    "timeago.js": "^4.0.2",
     "utils": "^0.2.2",
     "vue-filepond": "^7.0.4",
     "vue-toastification": "2.0.0-rc.5",

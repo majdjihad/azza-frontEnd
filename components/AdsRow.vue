@@ -109,37 +109,32 @@ function onEditClick() {
       <div class="dropdown">
         <button
           class="dropdown-toggle btn px-3 py-2"
-          role="button"
+          type="button"
           data-bs-toggle="dropdown"
+          data-bs-display="static"
           :aria-expanded="false"
           :aria-label="`إجراءات الإعلان: ${ad?.title}`"
         >
           <Icon name="carbon:barrier" class="fs-1 text-muted" />
         </button>
 
-        <ul class="dropdown-menu shadow-sm">
+        <ul class="dropdown-menu dropdown-menu-end">
           <li>
-            <NuxtLink
-              :to="`/ads/${ad.id}`"
-              class="btn btn-sm dropdown-item text-end"
-            >
+            <NuxtLink :to="`/ads/${ad.id}`" class="dropdown-item text-end">
               عرض الإعلان
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink
-              :to="`/ads/edit/${ad.id}`"
-              class="btn btn-sm dropdown-item text-end"
-            >
+            <NuxtLink :to="`/ads/edit/${ad.id}`" class="dropdown-item text-end">
               تعديل الإعلان
             </NuxtLink>
           </li>
           <li>
             <button
-              class="btn btn-sm dropdown-item text-danger text-end"
+              class="dropdown-item text-danger text-end"
               @click="onDeleteClick"
             >
-              <span>حذف الإعلان</span>
+              حذف الإعلان
             </button>
           </li>
         </ul>

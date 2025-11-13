@@ -103,7 +103,7 @@ onMounted(() => {
     <NuxtLink :to="`/products/${item.id}`" class="offer-media">
       <NuxtImg
         class="product-img p-3"
-        :src="item?.main_image || item?.image"
+        src="/media/bg-home/bg1.png"
         :alt="item.title || item.name"
       />
     </NuxtLink>
@@ -118,14 +118,14 @@ onMounted(() => {
     </div>
 
     <div
-      class="mt-auto d-flex align-items-center justify-content-between px-3 pb-3"
+      class="mt-auto d-flex align-items-center justify-content-between px-3 pb-3 m-0"
     >
       <div>
         <div class="text-muted small d-flex align-items-center gap-1">
           <Icon name="material-symbols:location-on" size="20" class="fw-bold" />
           <span class="fs-6">غزة - فلسطين</span>
         </div>
-        <div class="text-end text-primary mt-4">
+        <div class="text-end text-primary mt-1 pe-1">
           <span class="price ms-1 fs-6 fw-bold">{{ formattedPrice }}</span>
           <span class="badge-currency fs-6 fw-bold">{{ item.currency }}</span>
         </div>
@@ -357,8 +357,8 @@ onMounted(() => {
 /* Progress bar */
 .share-toast__progress {
   height: 3px;
-  width: 100%;
-  background: linear-gradient(90deg, #1d4ed8, #22c55e);
+  width: 50%;
+  background: #1d4ed8;
   border-radius: 0 0 12px 12px;
   animation: toast-progress 5s linear forwards;
 }

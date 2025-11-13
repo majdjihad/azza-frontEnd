@@ -134,30 +134,33 @@ async function onSubmit() {
   <section class="contact-section py-5" dir="rtl">
     <div class="container">
       <div class="p-md-5">
-        <div class="p-9">
+        <div class="p-md-9 py-9">
           <h1>تواصل معنا</h1>
           <div class="d-flex align-items-center">
-            <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+            <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
               >الرئيسية</NuxtLink
             >
             <Icon
               name="mdi:chevron-left-circle-outline"
-              class="fs-3 mx-3 text-secondary"
+              class="fs-3 mx-3 text-muted"
             />
             <span class="fs-3 m-0 text-muted">تواصل معنا</span>
           </div>
         </div>
-        <form class="px-9" @submit.prevent="onSubmit" novalidate>
-          <div class="row g-4 rounded-1 p-md-9 bg-white shadow-sm">
-            <div class="mb-4 py-4">
+        <form class="px-md-9" @submit.prevent="onSubmit" novalidate>
+          <div
+            class="row g-4 rounded-1 p-md-9 justify-content-center"
+            style="background-color: #f8f8f8"
+          >
+            <div class="mb-9 py-4">
               <h2 class="fw-bold text-primary mb-2">نحن هنا من أجلك!</h2>
-              <p class="fs-5 text-dark mb-0">
+              <p class="fs-6 mb-0" style="color: #333333">
                 يسعدنا تواصلك معنا للإجابة عن استفساراتك واستقبال اقتراحاتك. لا
                 تتردد في مراسلتنا وسنرد عليك في أقرب وقت ممكن.
               </p>
             </div>
 
-            <div class="row">
+            <div class="row justify-content-between ps-0">
               <div class="col-md-6">
                 <BaseText
                   label="الاسم الكامل"
@@ -256,8 +259,10 @@ async function onSubmit() {
 textarea.form-control-lg {
   min-height: 220px;
 }
-.bg-light::placeholder {
-  color: #b7bcc5;
+textarea::placeholder {
+  color: #a5acb9 !important;
+  font-weight: 400;
+  font-size: 12px;
 }
 .rounded-4 {
   border-radius: 0.5rem !important;

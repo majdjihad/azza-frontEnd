@@ -159,7 +159,7 @@ input::placeholder {
   color: #dbdfe9 !important;
 }
 input,textarea,select {
-    background-color: #f6f6f6 !important;
+    background-color: white !important;
 }
 input:focus,textarea:focus,select:focus {
   border: none; 

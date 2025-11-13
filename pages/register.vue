@@ -137,15 +137,17 @@ const formHandle = async () => {
 <template>
   <section class="py-5 pb-9">
     <div class="container">
-      <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-5">
+      <div
+        class="row flex-column-reverse flex-md-row g-9 justify-content-center align-items-stretch"
+      >
+        <div class="col-lg-4">
           <div class="info-panel h-100 text-white rounded-3">
             <div class="info-panel__content">
-              <h2 class="fw-normal mb-3 text-white">
-                <span class="fw-bold fs-1 d-block"
-                  >اكتشــــــف آلاف الإعلانــــــات</span
-                >
-                من المستخدمين في مختلف الفئات <br />وبأفضل الأسعار
+              <h2 class="mb-3 text-white fs-3 lh-base">
+                <span class="fw-bold">اكتشــــــف آلاف الإعلانــــــات </span>
+                <span class="fw-light">من المستخدمين</span>
+                <br />
+                <span class="fw-light"> في مختلف الفئات وبأفضل الأسعار </span>
               </h2>
 
               <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
@@ -154,61 +156,84 @@ const formHandle = async () => {
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span class="fs-6 fw-medium"
+                    >انضم إلى ملايين المستخدمين على منصتنا</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>تسجيل الدخول سهل وآمن وسريع</span>
+                  <span class="fs-6 fw-medium">
+                    تسجيل الدخول يعزز الأمان والمصداقيــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابــــــــع الرسائــــــــل والعـــــروض بسهـولــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>استعرض العروض في المنطقة الأقرب لك</span>
+                  <span class="fs-6 fw-medium"
+                    >نظّـــــم إعلاناتــــك المفضلــــة والمحفوظــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span class="fs-6 fw-medium"
+                    >اعرض أي شــــيء للبيـــع، للإيجــار، أو حتـــى لإعلان
+                    وظيفة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابع أداء إعلاناتـك وعدّلهـــا فـــي أي وقــــت</span
+                  >
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-6 fw-medium"
+                    >أضف الصور ومواصفات الإعلان لجذب المزيد من المهتمين</span
+                  >
                 </li>
               </ul>
             </div>
           </div>
         </div>
         <div class="col-lg-7">
-          <div class="card h-100">
+          <div class="card border-0 h-100" style="background-color: #f8f8f8">
             <div class="card-body p-4 p-md-5">
               <h1 class="fw-bold text-end mb-4">
-                <span class="display-4">👋</span>مرحبًا بك
+                <span class="display-4">👋</span>
+                <span>مرحبًا بك</span>
               </h1>
               <ul class="nav nav-underline justify-content-start mb-4 p-0">
                 <li class="nav-item d-flex align-items-center">
-                  <NuxtLink class="text-secondary fw-bold" to="/login"
+                  <NuxtLink class="fw-medium" style="color: #6e6e6e" to="/login"
                     >تسجيل الدخول</NuxtLink
                   >
                 </li>
                 <li class="nav-item">
-                  <span class="nav-link active fw-bold">إنشاء حساب</span>
+                  <span class="nav-link active fw-medium">إنشاء حساب</span>
                 </li>
               </ul>
               <form @submit.prevent="onSubmit" novalidate>
@@ -246,24 +271,41 @@ const formHandle = async () => {
                     <label
                       class="form-label mb-2 fw-medium text-dark"
                       for="inputCityGroup"
-                      >المدينة</label
                     >
-                    <select
-                      class="form-select"
-                      :class="{ 'is-invalid': !!errors.city }"
-                      id="inputCityGroup"
-                      v-model="form.city"
-                    >
-                      <option value="">اختر المدينة</option>
-                      <option
-                        :value="city.name"
-                        v-for="city in categoryStore?.citiesData?.cities || []"
-                        :key="city.id"
+                      المدينة
+                    </label>
+
+                    <div class="dropdown w-100">
+                      <button
+                        type="button"
+                        class="btn text-end w-100 position-relative bg-white city-dropdown"
+                        id="inputCityGroup"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :class="{ 'is-invalid': !!errors.city }"
                       >
-                        {{ city.name }}
-                      </option>
-                    </select>
-                    <div v-if="errors.city" class="invalid-feedback">
+                        <span v-if="form.city">{{ form.city }}</span>
+                        <span v-else class="text-muted">اختر المدينة</span>
+                      </button>
+
+                      <ul class="dropdown-menu w-100 mt-1 shadow-sm border-0">
+                        <li
+                          v-for="city in categoryStore?.citiesData?.cities ||
+                          []"
+                          :key="city.id"
+                        >
+                          <button
+                            class="dropdown-item text-end"
+                            type="button"
+                            @click="form.city = city.name"
+                          >
+                            {{ city.name }}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div v-if="errors.city" class="invalid-feedback d-block">
                       {{ errors.city }}
                     </div>
                   </div>
@@ -307,7 +349,7 @@ const formHandle = async () => {
                   </button>
                 </div>
 
-                <div class="text-center text-secondary mt-4 other-register">
+                <div class="text-center fw-medium mt-4 other-register">
                   أو التسجيل باستخدام
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-3">
@@ -399,6 +441,7 @@ const formHandle = async () => {
 }
 .other-register {
   position: relative;
+  color: #6e6e6e;
 }
 .other-register::before {
   content: "";
@@ -417,6 +460,14 @@ const formHandle = async () => {
   width: 40%;
   height: 1px;
   background-color: #e5e1e9;
+}
+.city-dropdown {
+  border: 1px solid #dbdfe9 !important;
+}
+.city-dropdown:hover {
+  background-color: white !important;
+  box-shadow: 0 0 0 0.1rem rgb(24 57 160 / 0.3) !important;
+  border: none !important;
 }
 li .active {
   position: relative;

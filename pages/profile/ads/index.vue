@@ -202,19 +202,19 @@ async function performDelete() {
       <div>
         <h3 class="fw-bold mb-1">إعلاناتي</h3>
         <div class="d-flex align-items-center my-9">
-          <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
             >الرئيسية</NuxtLink
           >
           <Icon
             name="mdi:chevron-left-circle-outline"
             class="fs-3 mx-3 text-secondary"
           />
-          <h2 class="fs-3 m-0 fw-normal text-muted">إعلاناتي</h2>
+          <h2 class="fs-5 m-0 fw-medium text-muted">إعلاناتي</h2>
         </div>
       </div>
     </div>
 
-    <div class="card rounded">
+    <div class="card rounded border-0">
       <div class="card-body p-0">
         <div class="table-responsive">
           <!-- Skeleton -->
@@ -235,76 +235,76 @@ async function performDelete() {
               </div>
             </div>
           </div>
-
-          <!-- جدول -->
-          <table
-            v-else-if="viewAds.length > 0"
-            class="table table-custom mb-0 align-middle table-hover"
-          >
-            <thead class="bg-white">
-              <tr>
-                <th>
-                  <input
-                    ref="masterRef"
-                    class="form-check-input ms-2"
-                    type="checkbox"
-                    :checked="allSelected"
-                    @change="toggleAll"
-                  />
-                </th>
-                <th>صورة الإعلان</th>
-                <th>اسم الإعلان</th>
-                <th>القسم</th>
-                <th>تاريخ النشر</th>
-                <th>العنوان</th>
-                <th>السعر</th>
-                <th>الحالة</th>
-                <th class="text-end">
-                  <button
-                    class="btn btn-muted p-0 d-inline-flex align-items-center justify-content-center"
-                    title="فلترة"
-                    data-bs-toggle="modal"
-                    data-bs-target="#fillterModal"
-                    @click="syncDraftsWhenOpen"
-                  >
-                    <Icon
-                      name="material-symbols-light:filter-list"
-                      class="display-6 text-secondary"
+          <div v-else>
+            <!-- جدول -->
+            <table
+              v-if="total > 0"
+              class="table table-custom mb-0 align-middle table-hover"
+            >
+              <thead class="bg-white">
+                <tr>
+                  <th>
+                    <input
+                      ref="masterRef"
+                      class="form-check-input ms-2"
+                      type="checkbox"
+                      :checked="allSelected"
+                      @change="toggleAll"
                     />
-                  </button>
-                </th>
-              </tr>
-            </thead>
+                  </th>
+                  <th>صورة الإعلان</th>
+                  <th>اسم الإعلان</th>
+                  <th>القسم</th>
+                  <th>تاريخ النشر</th>
+                  <th>العنوان</th>
+                  <th>السعر</th>
+                  <th>الحالة</th>
+                  <th class="text-end">
+                    <button
+                      class="btn btn-muted p-0 d-inline-flex align-items-center justify-content-center"
+                      title="فلترة"
+                      data-bs-toggle="modal"
+                      data-bs-target="#fillterModal"
+                      @click="syncDraftsWhenOpen"
+                    >
+                      <Icon
+                        name="material-symbols-light:filter-list"
+                        class="display-6 text-secondary"
+                      />
+                    </button>
+                  </th>
+                </tr>
+              </thead>
 
-            <tbody>
-              <!-- إن كان AdsRow يطلق حدث delete -->
-              <AdsRow
-                v-for="ad in viewAds"
-                :key="ad.id"
-                :ad="ad"
-                :selected="selectedIds.includes(ad.id)"
-                :deleting-ids="deleteTargetIds"
-                @toggle="toggleOne"
-                @delete="confirmDeleteOne"
-              />
-            </tbody>
-          </table>
-
-          <!-- لا توجد إعلانات -->
-          <div v-else class="text-center p-4">
-            <NuxtImg src="/media/empty-ads.png" alt="اعلانات فارغة" />
-            <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
-            <p class="text-muted">
-              انشر أول إعلان لتبدأ رحلتك مع الزبائن المهتمين!
-            </p>
-            <div>
-              <NuxtLink
-                to="/ads/create"
-                class="btn btn-lg mt-4 btn-main d-inline-flex align-items-center gap-2"
-              >
-                <Icon class="fs-3" name="fa-solid:plus" />
-                <span class="fs-3">إضافة إعلان</span>
-              </NuxtLink>
+              <tbody>
+                <!-- إن كان AdsRow يطلق حدث delete -->
+                <AdsRow
+                  v-for="ad in viewAds"
+                  :key="ad.id"
+                  :ad="ad"
+                  :selected="selectedIds.includes(ad.id)"
+                  :deleting-ids="deleteTargetIds"
+                  @toggle="toggleOne"
+                  @delete="confirmDeleteOne"
+                />
+              </tbody>
+            </table>
+            <!-- لا توجد إعلانات -->
+            <div v-else class="text-center p-4">
+              <NuxtImg src="/media/empty-ads.png" alt="اعلانات فارغة" width="200px" height="200px" />
+              <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
+              <p class="text-muted">
+                انشر أول إعلان لتبدأ رحلتك مع الزبائن المهتمين!
+              </p>
+              <div>
+                <NuxtLink
+                  to="/ads/create"
+                  class="btn btn-lg mt-4 btn-main d-inline-flex align-items-center gap-2"
+                >
+                  <Icon class="fs-3" name="fa-solid:plus" />
+                  <span class="fs-3">إضافة إعلان</span>
+                </NuxtLink>
+              </div>
             </div>
           </div>
         </div>
@@ -529,6 +529,9 @@ async function performDelete() {
 }
 .table-custom tbody tr {
   border-bottom: 1px solid var(--line);
+}
+.table-responsive {
+  overflow: inherit;
 }
 .table-custom td,
 .table-custom th {

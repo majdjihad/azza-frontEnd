@@ -14,7 +14,7 @@ const config = useRuntimeConfig();
               class="ms-2 logo-img"
             />
           </div>
-          <p class="text-muted fw-medium fs-6 p-md-4 p-lg-9 pt-3 pb-3 pb-md-0">
+          <p class="text-muted fw-medium fs-6 p-md-4 p-lg-9 pt-lg-0 pb-3 pb-md-0">
             موقعنا هو منصة إلكترونية متكاملة للإعلانات العربية تتيح للمستخدمين
             إضافة إعلاناتهم بسهولة وتصفح العروض الخاصة في مختلف التصنيفات مثل
             العقارات، الأجهزة، الأثاث، المفقودات والخدمات. نوفر بيئة موثوقة
@@ -193,6 +193,7 @@ li {
 }
 li a:hover {
   color: #1839a0 !important;
+  border-bottom: #1839a0 2px solid;
 }
 .text-muted {
   color: #6c757d !important;

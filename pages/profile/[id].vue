@@ -101,16 +101,16 @@ onMounted(() => {
 
 <template>
   <div class="container mx-auto p-4">
-    <div class="page-content" v-if="!loading && userInfo">
+    <div class="page-content my-6" v-if="!loading && userInfo">
       <div class="d-flex align-items-center my-9">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-3 mx-3 fw-medium text-muted"
         />
-        <h2 class="fs-3 m-0 fw-normal text-muted">{{ userInfo.name }}</h2>
+        <h2 class="fs-3 m-0 fw-medium text-muted">{{ userInfo.name }}</h2>
       </div>
       <div
         class="d-flex align-items-center justify-content-between flex-column flex-md-row"

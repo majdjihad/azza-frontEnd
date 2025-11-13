@@ -186,24 +186,24 @@ async function handleLogout() {
 
 <template>
   <div class="container mx-auto p-4">
-    <div class="page-content">
+    <div class="page-content my-6">
       <h1>تعديل الملف الشخصي</h1>
 
       <div class="mt-4">
         <div class="d-flex align-items-center mb-4">
-          <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+          <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
             >الرئيسية</NuxtLink
           >
           <Icon
             name="mdi:chevron-left-circle-outline"
-            class="fs-3 mx-3 text-secondary"
+            class="fs-3 mx-3 fw-medium text-muted"
           />
-          <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الملف الشخصي</h2>
+          <h2 class="fs-5 m-0 fw-medium text-primary d-inline">الملف الشخصي</h2>
           <Icon
             name="mdi:chevron-left-circle-outline"
-            class="fs-3 mx-3 text-secondary"
+            class="fs-3 mx-3 fw-medium text-muted"
           />
-          <h2 class="fs-3 m-0 fw-normal text-muted d-inline">
+          <h2 class="fs-5 m-0 fw-medium text-muted d-inline">
             تعديل الملف الشخصي
           </h2>
         </div>
@@ -215,7 +215,8 @@ async function handleLogout() {
           <img
             :src="avatarPreview"
             alt="userProfile"
-            width="100"
+            width="80"
+            height="80"
             class="rounded-circle"
           />
           <input
@@ -239,19 +240,19 @@ async function handleLogout() {
         </div>
       </div>
 
-      <div class="card card-soft my-4">
+      <div class="card card-soft border-0 my-4" style="background-color: #f8f8f8">
         <div class="card-body">
           <form @submit.prevent="onSubmit" novalidate>
-            <div class="row">
-              <div class="col-md-4 my-3">
+            <div class="row gap-md-4">
+              <div class="col-md-4 p-0 my-3">
                 <BaseText
-                  label="اسم المستخدم"
-                  placeholder="اسم المستخدم"
+                  label="الإسم الكامل"
+                  placeholder="الإسم الكامل"
                   v-model="form.name"
                   :error="errors.name"
                 />
               </div>
-              <div class="col-md-4 my-3">
+              <div class="col-md-4 p-0 my-3">
                 <BaseText
                   label="رقم الجوال"
                   placeholder="أدخل رقم الجوال"
@@ -261,37 +262,36 @@ async function handleLogout() {
                   inputmode="tel"
                 />
               </div>
-              <div>
-                <div class="col-md-4 my-3">
-                  <label
-                    class="form-label mb-2 fw-medium text-dark"
-                    for="inputCityGroup"
-                    >المدينة</label
+            </div>
+            <div>
+              <div class="col-md-4 p-0 my-3">
+                <label
+                  class="form-label mb-2 fw-medium fs-5 text-dark"
+                  for="inputCityGroup"
+                  >المدينة</label
+                >
+                <select
+                  class="form-select"
+                  :class="{ 'is-invalid': !!errors.city }"
+                  id="inputCityGroup"
+                  v-model="form.city"
+                >
+                  <option value="">اختر المدينة</option>
+                  <option
+                    :value="city.name"
+                    v-for="city in categoryStore?.citiesData?.cities || []"
+                    :key="city.id"
                   >
-                  <select
-                    class="form-select"
-                    :class="{ 'is-invalid': !!errors.city }"
-                    id="inputCityGroup"
-                    v-model="form.city"
-                  >
-                    <option value="">اختر المدينة</option>
-                    <option
-                      :value="city.name"
-                      v-for="city in categoryStore?.citiesData?.cities || []"
-                      :key="city.id"
-                    >
-                      {{ city.name }}
-                    </option>
-                  </select>
-                  <div v-if="errors.city" class="invalid-feedback">
-                    {{ errors.city }}
-                  </div>
+                    {{ city.name }}
+                  </option>
+                </select>
+                <div v-if="errors.city" class="invalid-feedback">
+                  {{ errors.city }}
                 </div>
               </div>
             </div>
-
-            <div class="d-flex mt-3">
-              <NuxtLink to="/profile" class="btn btn-outline-main px-4 ms-4"
+            <div class="d-flex mt-6">
+              <NuxtLink to="/profile" class="btn btn-outline-main px-8 ms-4"
                 >رجوع</NuxtLink
               >
               <button
@@ -321,7 +321,7 @@ async function handleLogout() {
       <!-- بطاقة تغيير كلمة المرور -->
       <div class="row g-3">
         <div class="col-12">
-          <div class="card card-soft action-tile">
+          <div class="card border-0 card-soft action-tile" style="background-color: #f8f8f8;">
             <div
               class="card-body d-flex align-items-center justify-content-between"
             >
@@ -350,7 +350,7 @@ async function handleLogout() {
 
         <!-- تسجيل الخروج -->
         <div class="col-12">
-          <div class="card card-soft action-tile">
+          <div class="card card-soft border-0 action-tile" style="background-color: #f8f8f8;">
             <div
               class="card-body d-flex align-items-center justify-content-between"
             >
@@ -513,5 +513,9 @@ li .active::after {
   position: absolute;
   right: 0;
   bottom: 0;
+}
+.form-select {
+  background-color: white !important;
+  color: #dbdfe9;
 }
 </style>

@@ -307,26 +307,27 @@ onMounted(() => {
 
     <div v-else>
       <div class="d-flex align-items-center py-9">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
+          v-if="listing.title"
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-3 fw-medium m-0 text-muted"
         />
-        <span class="fs-3 m-0 text-muted">
-          {{ listing.title || "..." }}
+        <span v-if="listing.title" class="fs-5 fw-medium m-0 text-muted">
+          {{ listing.title || "تفاصيل المنتج" }}
         </span>
       </div>
 
       <div class="row g-4 flex-row-reverse">
-        <main class="col-lg-9 order-1 order-lg-2">
-          <div class="card shadow-sm p-9">
+        <main class="col-lg-8 order-1 order-lg-2">
+          <div class="card border-0 p-9">
             <div
               class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
             >
               <div>
-                <h2 class="mb-1">{{ listing.title || "..." }}</h2>
+                <h2 class="mb-1" v-if="listing.title">{{ listing.title }}</h2>
                 <div class="small text-muted">
                   <div
                     class="d-inline-flex align-items-center ms-5"
@@ -366,10 +367,10 @@ onMounted(() => {
             <div class="row g-3 mb-3" v-if="listing.images?.length">
               <div class="col-md-8">
                 <div class="gallery-main">
-                  <img
-                    :src="listing.images[2] || listing.images[0]"
+                  <NuxtImg
+                    :src="listing.images[0]"
                     class="w-100 rounded-1"
-                    alt=""
+                    alt="الصورة الرئيسية"
                   />
                 </div>
               </div>
@@ -380,7 +381,7 @@ onMounted(() => {
                     :key="i"
                     :src="img"
                     class="w-100 rounded-1"
-                    alt=""
+                    alt="الصور الفرعية"
                   />
                 </div>
               </div>
@@ -388,16 +389,25 @@ onMounted(() => {
 
             <!-- الوصف -->
             <div class="my-4" v-if="listing.description">
-              <p class="mb-0 fs-4 small-note">{{ listing.description }}</p>
+              <p
+                class="mb-0 fs-7 small-note fw-normal"
+                style="color: #000000b2 !important"
+              >
+                {{ listing.description }}
+              </p>
             </div>
 
             <!-- تفاصيل إضافية -->
-            <div class="ads-data">
+            <div
+              class="ads-data"
+              v-if="productRaw?.product_custom_field_values?.length"
+            >
               <div class="py-4"><h4 class="pb-1">تفاصيل إضافية</h4></div>
 
               <template
                 v-if="productRaw?.product_custom_field_values?.length || false"
               >
+                {{ productRaw?.product_custom_field_values?.length }}
                 <!-- لو احتجت عرض حقول المنتج مباشرة من raw -->
               </template>
 
@@ -410,46 +420,53 @@ onMounted(() => {
           </div>
         </main>
 
-        <aside class="col-lg-3 order-2 order-lg-1">
+        <aside class="col-lg-4 order-2 order-lg-1">
           <div class="card mb-3">
-            <div class="card-body d-flex align-items-center">
-              <Icon name="ic:round-local-offer" class="fs-1 text-muted ms-1" />
-              <span class="fs-1 fw-bold text-primary">{{
-                listing.price ?? "—"
-              }}</span>
-              <span class="fs-9 text-primary fw-bold ms-1">{{
-                listing.currency
-              }}</span>
-              <span class="fs-3 me-3 text-muted" v-if="listing.price"
-                >(قابل للتفاوض)</span
-              >
+            <div
+              class="card-body d-flex justify-content-around align-items-center p-2 py-4"
+            >
+              <Icon name="ic:round-local-offer" class="ms-1 price-icon fs-1" />
+              <div class="d-flex align-items-cente">
+                <span class="fs-1 fw-bold text-primary">{{
+                  listing.price ?? "000.00"
+                }}</span>
+                <span class="fs-1 text-primary fw-bold ms-1">{{
+                  listing.currency
+                }}</span>
+                <span class="fs-8 me-1 text-muted" v-if="listing.price"
+                  >(قابل للتفاوض)</span
+                >
+              </div>
+              <Icon name="ic:round-local-offer" class="ms-1 big-price-icon" />
             </div>
           </div>
           <div class="card mb-3">
             <div class="card-body p-0">
-              <h3 class="mb-3 border-bottom border-dark pb-3 pt-8 mx-4">
+              <h3 class="mb-3 border-bottom pb-3 pt-8 mx-4 fs-4 fw-bold">
                 بيانات الناشر
               </h3>
-              <div class="mb-3 text-center">
-                <img
-                  src="~/public/media/avatars/logo.png"
-                  class="rounded-circle border"
-                  width="100"
-                  height="100"
-                  alt="azza"
-                />
-                <div><h3 class="fw-bold mt-3">AZZA</h3></div>
-              </div>
+              <NuxtLink to="/products" class="m-auto mb-3 text-center">
+                <div>
+                  <NuxtImg
+                    src="~/public/media/avatars/logo.png"
+                    class="rounded-circle border"
+                    width="83"
+                    height="83"
+                    :alt="listing.publisher.name"
+                  />
+                  <div><h3 class="fw-bold mt-3">AZZA</h3></div>
+                </div>
+              </NuxtLink>
               <NuxtLink
                 to="/products"
-                class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
+                class="d-block text-primary fw-medium my-3 text-decoration-underline text-center fs-6 mb-2"
               >
                 عرض جميع المنتجات
               </NuxtLink>
               <div class="user-data gap-2 my-3 pb-3 px-3">
                 <NuxtLink
                   :to="`tel:${runtimeConfig.public.companyPhone}`"
-                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                  class="user-phone d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 bg-primary rounded">
                     <Icon
@@ -458,8 +475,10 @@ onMounted(() => {
                     />
                   </span>
                   <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end">تواصل عبر الجوال</span>
-                    <span class="fw-semibold text-end fw-bold">{{
+                    <span class="text-muted fw-normal fs-7 text-end"
+                      >تواصل عبر الجوال</span
+                    >
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
                       runtimeConfig.public.companyPhone
                     }}</span>
                   </div>
@@ -468,21 +487,23 @@ onMounted(() => {
                   target="_blank"
                   rel="noopener noreferrer"
                   :to="`https://wa.me/${runtimeConfig.public.companyPhone}`"
-                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                  class="user-whatsapp d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #4fad52">
                     <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
                   </span>
                   <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end">تواصل عبر الواتساب</span>
-                    <span class="fw-semibold text-end fw-bold">{{
+                    <span class="text-muted fw-normal fs-7 text-end"
+                      >تواصل عبر الواتساب</span
+                    >
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
                       runtimeConfig.public.companyPhone
                     }}</span>
                   </div>
                 </NuxtLink>
                 <NuxtLink
                   :to="`mailto:runtimeConfig.public.companyEmail`"
-                  class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                  class="user-email d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                 >
                   <span class="p-6 rounded" style="background-color: #a5acb9">
                     <Icon
@@ -491,10 +512,10 @@ onMounted(() => {
                     />
                   </span>
                   <div class="d-flex flex-column rounded">
-                    <span class="text-muted text-end"
+                    <span class="text-muted fw-normal fs-7 text-end"
                       >تواصل عبر البريد الالكتروني</span
                     >
-                    <span class="fw-semibold text-end fw-bold">{{
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
                       runtimeConfig.public.companyEmail
                     }}</span>
                   </div>
@@ -566,12 +587,11 @@ onMounted(() => {
       >
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
-            <p class="fs-3 offers-subtitle text-muted">مقترحات لك</p>
-            <h2 class="fs-1 fw-bold mb-1">
+            <p class="fs-6 offers-subtitle text-muted">مقترحات لك</p>
+            <h2 class="fs-2 fw-medium mb-1">
               <template v-if="relatedProducts.length">منتجات مشابهة</template>
             </h2>
           </div>
-
           <div
             class="d-flex align-items-center gap-2 offers-toolbar"
             v-if="relatedProducts.length > perSlide"
@@ -700,12 +720,20 @@ onMounted(() => {
   justify-content: space-between;
 }
 .user-data div {
-  border: black 1px dashed !important;
   border-right: none !important;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   padding: 7px 10px;
   width: 100%;
+}
+.user-data .user-phone {
+  border: #1839a0 1px dashed !important;
+}
+.user-data .user-whatsapp {
+  border: #4fad52 1px dashed !important;
+}
+.user-data .user-email {
+  border: #a5acb9 1px dashed !important;
 }
 .small-note {
   line-height: 1.7;
@@ -846,6 +874,14 @@ onMounted(() => {
   border-radius: 0 0 12px 12px;
   animation: toast-progress 5s linear forwards;
 }
+.price-icon {
+  color: #a5acb9 !important;
+  transform: rotateY(180deg);
+}
+.big-price-icon {
+  font-size: 70px !important;
+  color: #a5acb91a !important;
+}
 @keyframes toast-progress {
   from {
     width: 100%;
@@ -853,6 +889,9 @@ onMounted(() => {
   to {
     width: 0%;
   }
+}
+.text-muted {
+  color: #73818c !important;
 }
 .share-toast-enter-from,
 .share-toast-leave-to {

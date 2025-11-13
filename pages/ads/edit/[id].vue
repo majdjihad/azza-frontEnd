@@ -500,14 +500,14 @@ function removeMain() {
 <template>
   <div class="container py-4">
     <div class="d-flex align-items-center pb-9">
-      <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+      <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
         >الرئيسية</NuxtLink
       >
       <Icon
         name="mdi:chevron-left-circle-outline"
-        class="fs-3 mx-3 text-secondary"
+        class="fs-3 mx-3 fw-medium text-muted"
       />
-      <span class="fs-3 m-0 fw-semibold text-muted">تعديل إعلان</span>
+      <span class="fs-5 m-0 fw-medium text-muted">تعديل إعلان</span>
     </div>
 
     <div v-if="loadingPage" class="text-center text-muted py-5">
@@ -787,7 +787,10 @@ function removeMain() {
 
       <!-- الخطوة 4: تفاصيل الإعلان -->
       <div v-show="step === 4" class="py-4">
-        <div class="card shadow-sm rounded-3 mb-4 border-0">
+        <div
+          class="card rounded-3 mb-4 border-0"
+          style="background-color: #f8f8f8"
+        >
           <div class="mb-3 px-9 py-5">
             <div class="d-flex align-items-center gap-2">
               <h5 class="m-0 fw-bold">
@@ -894,7 +897,8 @@ function removeMain() {
                   class="col-9"
                   req
                 />
-                <!-- <div
+                <div
+                  v-if="form.negotiable"
                   class="form-check-sm col-3 bg-secondary rounded-1 rounded-end-0 d-flex align-items-center align-self-center"
                   style="margin-top: 18px; padding: 11px"
                 >
@@ -907,7 +911,7 @@ function removeMain() {
                   <label class="form-check-label me-1 text-white" for="neg"
                     >قابل للتفاوض</label
                   >
-                </div> -->
+                </div>
               </div>
 
               <div class="col-md-6">
@@ -926,7 +930,8 @@ function removeMain() {
 
         <!-- حقول مخصصة -->
         <div
-          class="card shadow-sm rounded-3 mb-4 border-0"
+          class="card rounded-3 mb-4 border-0"
+          style="background-color: #f8f8f8"
           v-if="customFields.length"
         >
           <div class="mb-3 px-9 py-5">

@@ -36,6 +36,20 @@ function setSort(key, dir) {
   sortKey.value = key;
   sortDir.value = dir;
 }
+// حالة ظهور الفلتر الجانبي
+const isSidebarVisible = ref(false);
+
+onMounted(() => {
+  const collapseEl = document.getElementById("collapseExample");
+  if (collapseEl) {
+    collapseEl.addEventListener("shown.bs.collapse", () => {
+      isSidebarVisible.value = true;
+    });
+    collapseEl.addEventListener("hidden.bs.collapse", () => {
+      isSidebarVisible.value = false;
+    });
+  }
+});
 
 /* دوال مقارنة عامة */
 function toNumber(v, fallback = 0) {
@@ -160,22 +174,23 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
 
 <template>
   <div class="container py-4 py-md-5">
-    <div class="page-content">
+    <div class="page-content my-6">
       <div class="d-flex align-items-center mb-4">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-3 fw-medium mx-3 text-muted"
         />
-        <span class="fs-3 m-0 text-muted">الإعلانات</span>
+        <span class="fs-5 fw-medium m-0 text-muted">تصفح الإعلانات</span>
       </div>
 
       <div
-        class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
+        class="d-flex align-items-center justify-content-between p-4 my-9 rounded-0"
+        style="background-color: #f9f9f9"
       >
-        <span class="fs-3">بيع وشراء أي شيء في فلسطين (10,000)</span>
+        <span class="fs-3 fw-medium">بيع وشراء أي شيء في فلسطين (10,000)</span>
 
         <!-- زر الترتيب (فرز محلي بدون أي استدعاء API) -->
         <!-- أزرار التحكم (الترتيب وعدد الإعلانات) -->
@@ -258,14 +273,13 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
               <li v-for="n in [3, 6, 9, 12]" :key="n">
                 <button
                   type="button"
-                  class="dropdown-item text-end"
+                  class="dropdown-item text-end fs-4"
                   :class="{ active: itemsPerPage === n }"
                   @click="setItemsPerPage(n)"
                 >
-                <span>
-
-                  {{ n }}
-                </span>
+                  <span>
+                    {{ n }}
+                  </span>
                 </button>
               </li>
             </ul>
@@ -285,24 +299,27 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
             <template v-if="sortedProducts?.length">
               <div class="row g-4">
                 <div
-                  v-for="pro in sortedProducts.slice(0, 3)"
+                  v-for="pro in sortedProducts.slice(
+                    0,
+                    isSidebarVisible ? 3 : 4
+                  )"
                   :key="pro.id"
-                  class="col-12 col-md-6 col-xl-4"
+                  class="col-12 col-md-6 mb-4"
+                  :class="isSidebarVisible ? 'col-xl-4' : 'col-xl-3'"
                 >
                   <ProductCard :item="pro" />
                 </div>
               </div>
             </template>
           </section>
-
-          <!-- الإعلانات (نرتّب محليًا القائمة الحالية فقط) -->
           <section class="ads-section px-4">
             <template v-if="sortedAds?.length">
               <div class="row g-4">
                 <div
                   v-for="ad in visibleAds"
                   :key="ad.id"
-                  class="col-12 col-md-6 col-xl-4"
+                  class="col-12 col-md-6 p-0"
+                  :class="isSidebarVisible ? 'col-xl-4' : 'col-xl-3'"
                 >
                   <AdsCard :ad="ad" />
                 </div>
@@ -313,14 +330,13 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
                 <div
                   v-for="n in 12"
                   :key="'skeleton-' + n"
-                  class="col-12 col-md-6 col-xl-4"
+                  class="col-12 col-md-6 col-xl-3"
                 >
                   <SkeletonAdCard />
                 </div>
               </div>
             </template>
 
-            <!-- ترقيم الصفحات (يبقى كما هو، فالفرز محلي لا يغيّر بيانات الـ pager) -->
             <nav aria-label="Page navigation example" v-if="lastPage > 1">
               <ul class="pagination my-9">
                 <li class="page-item" :class="{ disabled: currentPage <= 1 }">

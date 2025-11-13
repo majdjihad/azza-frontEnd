@@ -97,66 +97,93 @@ const formHandle = async () => {
 <template>
   <section class="py-5 pb-9">
     <div class="container">
-      <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-5">
+      <div
+        class="row flex-column-reverse flex-md-row g-9 justify-content-center align-items-stretch"
+      >
+        <div class="col-lg-4">
           <div class="info-panel h-100 text-white rounded-3">
             <div class="info-panel__content">
-              <h2 class="fw-normal mb-3 text-white">
-                <span class="fw-bold fs-1 d-block"
-                  >اكتشــــــف آلاف الإعلانــــــات</span
-                >
-                من المستخدمين في مختلف الفئات وبأفضل الأسعار
+              <h2 class="mb-3 text-white fs-3 lh-base">
+                <span class="fw-bold">اكتشــــــف آلاف الإعلانــــــات </span>
+                <span class="fw-light">من المستخدمين</span>
+                <br />
+                <span class="fw-light"> في مختلف الفئات وبأفضل الأسعار </span>
               </h2>
 
-              <ul class="list-unstyled lh-lg mb-0 mt-4 p-0">
+              <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span class="fs-6 fw-medium"
+                    >انضم إلى ملايين المستخدمين على منصتنا</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>تسجيل الدخول سهل وآمن وسريع</span>
+                  <span class="fs-6 fw-medium">
+                    تسجيل الدخول يعزز الأمان والمصداقيــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابــــــــع الرسائــــــــل والعـــــروض بسهـولــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>استعرض العروض في المنطقة الأقرب لك</span>
+                  <span class="fs-6 fw-medium"
+                    >نظّـــــم إعلاناتــــك المفضلــــة والمحفوظــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span class="fs-6 fw-medium"
+                    >اعرض أي شــــيء للبيـــع، للإيجــار، أو حتـــى لإعلان
+                    وظيفة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span>اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابع أداء إعلاناتـك وعدّلهـــا فـــي أي وقــــت</span
+                  >
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-6 fw-medium"
+                    >أضف الصور ومواصفات الإعلان لجذب المزيد من المهتمين</span
+                  >
                 </li>
               </ul>
             </div>
           </div>
         </div>
         <div class="col-lg-7 py-9">
-          <div class="card py-9 h-100">
+          <div
+            class="card border-0 py-9 h-100"
+            style="background-color: #f8f8f8"
+          >
             <div class="card-body p-4 p-md-5">
               <form @submit.prevent="onSubmit" novalidate>
                 <div>

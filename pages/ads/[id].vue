@@ -265,38 +265,41 @@ onBeforeUnmount(() => {
     <div v-else-if="loadError" class="alert alert-warning">
       تعذّر الجلب من الـ API.
     </div>
-
     <div v-else>
       <div class="d-flex align-items-center py-9">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
           v-if="listing.category"
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-3 mx-3 text-muted"
         />
-        <span v-if="listing.category" class="fs-3 m-0 text-muted">
-          {{ listing.category || "—" }}
-        </span>
+        <NuxtLink
+          :to="`/ads/category/${listing.category.replace(/\s+/g, '-')}`"
+          v-if="listing.category"
+          class="fs-3 fw-medium m-0 text-muted"
+        >
+          {{ listing.category }}
+        </NuxtLink>
         <Icon
           v-if="listing.title"
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <span v-if="listing.title" class="fs-3 m-0 text-muted">
-          {{ listing.title || "..." }}
+        <span v-if="listing.title" class="fs-5 fw-medium m-0 text-muted">
+          {{ listing.title }}
         </span>
       </div>
 
       <div class="row g-4 flex-row-reverse">
-        <main class="col-lg-9 order-1 order-lg-2">
-          <div class="card shadow-sm p-9">
+        <main class="col-lg-8 order-1 order-lg-2">
+          <div class="card border-0 p-9">
             <div
               class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-8"
             >
               <div>
-                <h2 class="mb-1">{{ listing.title || "..." }}</h2>
+                <h2 class="mb-1" v-if="listing.title">{{ listing.title }}</h2>
                 <div class="small text-muted">
                   <div
                     class="d-inline-flex align-items-center ms-5"
@@ -339,7 +342,7 @@ onBeforeUnmount(() => {
                   <NuxtImg
                     :src="listing.images[0]"
                     class="w-100 rounded-1"
-                    alt=""
+                    alt="الصورة الرئيسية"
                   />
                 </div>
               </div>
@@ -350,7 +353,7 @@ onBeforeUnmount(() => {
                     :key="i"
                     :src="img"
                     class="w-100 rounded-1"
-                    alt=""
+                    alt="الصور الفرعية"
                   />
                 </div>
               </div>
@@ -358,7 +361,12 @@ onBeforeUnmount(() => {
 
             <!-- الوصف -->
             <div class="my-4" v-if="listing.description">
-              <p class="mb-0 fs-4 small-note">{{ listing.description }}</p>
+              <p
+                class="mb-0 fs-7 small-note fw-normal"
+                style="color: #000000b2 !important"
+              >
+                {{ listing.description }}
+              </p>
             </div>
 
             <!-- تفاصيل إضافية -->
@@ -391,25 +399,29 @@ onBeforeUnmount(() => {
           </div>
         </main>
 
-        <aside class="col-lg-3 order-2 order-lg-1">
+        <aside class="col-lg-4 order-2 order-lg-1">
           <div class="card mb-3">
-            <div class="card-body d-flex align-items-center">
-              <Icon name="ic:round-local-offer" class="fs-1 text-muted ms-1" />
-              <span class="fs-1 fw-bold text-primary">{{
-                listing.price ?? "—"
-              }}</span>
-              <span class="fs-9 text-primary fw-bold ms-1">{{
-                listing.currency
-              }}</span>
-              <span class="fs-3 me-3 text-muted" v-if="listing.price"
-                >(قابل للتفاوض)</span
-              >
+            <div
+              class="card-body d-flex justify-content-around align-items-center p-2 py-4"
+            >
+              <Icon name="ic:round-local-offer" class="ms-1 price-icon fs-1" />
+              <div class="d-flex align-items-center">
+                <span class="fs-1 fw-bold text-primary">{{
+                  listing.price ?? "000.00"
+                }}</span>
+                <span class="fs-1 text-primary fw-bold ms-1">{{
+                  listing.currency
+                }}</span>
+                <span class="fs-8 me-1 text-muted" v-if="listing.price"
+                  >(قابل للتفاوض)</span
+                >
+              </div>
+              <Icon name="ic:round-local-offer" class="ms-1 big-price-icon" />
             </div>
           </div>
-
           <div class="card mb-3">
             <div class="card-body p-0">
-              <h3 class="mb-3 border-bottom border-dark pb-3 pt-8 mx-4">
+              <h3 class="mb-3 border-bottom pb-3 pt-8 mx-4 fs-4 fw-bold">
                 بيانات الناشر
               </h3>
 
@@ -422,8 +434,8 @@ onBeforeUnmount(() => {
                     <NuxtImg
                       :src="listing.publisher.avatar"
                       class="rounded-circle border"
-                      width="100"
-                      height="100"
+                      width="83"
+                      height="83"
                       :alt="listing.publisher.name"
                     />
                     <h3 class="fw-bold mt-3">{{ listing.publisher.name }}</h3>
@@ -432,15 +444,14 @@ onBeforeUnmount(() => {
 
                 <NuxtLink
                   :to="`/profile/${listing.publisher.id}`"
-                  class="d-block text-primary fw-bold my-3 text-decoration-underline text-center fs-3 mb-2"
+                  class="d-block text-primary fw-medium my-3 text-decoration-underline text-center fs-6 mb-2"
                 >
-                  عرض جميع المنتجات
+                  الملف الشخصي
                 </NuxtLink>
-
                 <div class="user-data gap-2 my-3 pb-3 px-3">
                   <NuxtLink
                     :to="`tel:${listing.publisher?.phone}`"
-                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                    class="user-phone d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.phone"
                   >
                     <span class="p-6 bg-primary rounded">
@@ -450,8 +461,10 @@ onBeforeUnmount(() => {
                       />
                     </span>
                     <div class="d-flex flex-column rounded">
-                      <span class="text-muted text-end">تواصل عبر الجوال</span>
-                      <span class="fw-semibold text-end fw-bold">{{
+                      <span class="text-muted fw-normal fs-7 text-end"
+                        >تواصل عبر الجوال</span
+                      >
+                      <span class="fw-semibold text-end fw-medium fs-6">{{
                         listing.publisher.phone
                       }}</span>
                     </div>
@@ -460,7 +473,7 @@ onBeforeUnmount(() => {
                   <NuxtLink
                     rel="noopener noreferrer"
                     :to="`https://wa.me/${listing.publisher?.whatsapp}`"
-                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                    class="user-whatsapp d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.whatsapp"
                     target="_blank"
                   >
@@ -468,18 +481,17 @@ onBeforeUnmount(() => {
                       <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
                     </span>
                     <div class="d-flex flex-column rounded">
-                      <span class="text-muted text-end"
+                      <span class="text-muted fw-normal fs-7 text-end"
                         >تواصل عبر الواتساب</span
                       >
-                      <span class="fw-semibold text-end fw-bold">{{
+                      <span class="fw-semibold text-end fw-medium fs-6">{{
                         listing.publisher.whatsapp
                       }}</span>
                     </div>
                   </NuxtLink>
-
                   <NuxtLink
                     :to="`mailto:${listing.publisher?.email}`"
-                    class="d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                    class="user-email d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
                     v-if="listing.publisher?.email"
                   >
                     <span class="p-6 rounded" style="background-color: #a5acb9">
@@ -489,10 +501,10 @@ onBeforeUnmount(() => {
                       />
                     </span>
                     <div class="d-flex flex-column rounded">
-                      <span class="text-muted text-end"
+                      <span class="text-muted fw-normal fs-7 text-end"
                         >تواصل عبر البريد الالكتروني</span
                       >
-                      <span class="fw-semibold text-end fw-bold">{{
+                      <span class="fw-semibold text-end fw-medium fs-6">{{
                         listing.publisher.email
                       }}</span>
                     </div>
@@ -511,15 +523,15 @@ onBeforeUnmount(() => {
           <div class="card">
             <div class="card-body">
               <h4 class="mb-3">إرشادات مهمة للمستخدمين</h4>
-              <ul class="list-unstyled small-note p-0 م-0">
+              <ul class="list-unstyled small-note p-0 m-0">
                 <li class="row gap-0">
                   <Icon
                     name="material-symbols:check-circle"
                     class="fs-2 text-primary col-md-2 col-1"
                   />
                   <p class="p-0 col-10 text-muted">
-                    قابل البائع أو المشتري في مكان عام وآمن مثل المولات ومحطات
-                    الوقود.
+                    قابل البائع أو المشتـــري في مكان عام وآمــن مثــل المولات
+                    محطات الوقود، أو بالقرب من المترو.
                   </p>
                 </li>
                 <li class="row gap-0">
@@ -528,7 +540,7 @@ onBeforeUnmount(() => {
                     class="fs-2 text-primary col-md-2 col-1"
                   />
                   <p class="p-0 col-10 text-muted">
-                    يفضل اصطحاب شخص آخر عند اللقاء.
+                    يُفضل أن تصطحب معك شخصًا آخـر عنـد إتمــام أي لقــاء.
                   </p>
                 </li>
                 <li class="row gap-0">
@@ -537,7 +549,8 @@ onBeforeUnmount(() => {
                     class="fs-2 text-primary col-md-2 col-1"
                   />
                   <p class="p-0 col-10 text-muted">
-                    تحقق من المنتج بعناية قبل الشراء.
+                    تحقّق من المنتج بعناية قبــل الشــراء، وتأكــد من أنه
+                    يطابــق المواصفات المتفق عليها والسعر المعروض.
                   </p>
                 </li>
                 <li class="row gap-0">
@@ -546,7 +559,8 @@ onBeforeUnmount(() => {
                     class="fs-2 text-primary col-md-2 col-1"
                   />
                   <p class="p-0 col-10 text-muted">
-                    لا تدفع أي مبلغ قبل المعاينة والتأكد من المنتج.
+                    لا ترسل أو تدفع أي مبلغ مالي قبل معاينة المنتــج والتأكــد
+                    منه بشكل كامل.
                   </p>
                 </li>
                 <li class="row gap-0">
@@ -555,7 +569,8 @@ onBeforeUnmount(() => {
                     class="fs-2 text-primary col-md-2 col-1"
                   />
                   <p class="p-0 col-10 text-muted">
-                    تأكد من أن المنتج غير مسروق أو مخالف للقانون.
+                    تأكد أيضًا مـن أن المنتج غيــر مســــروق أو مخالــف
+                    للقوانيـــن المحلية.
                   </p>
                 </li>
               </ul>
@@ -570,8 +585,8 @@ onBeforeUnmount(() => {
       >
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
-            <p class="fs-3 offers-subtitle text-muted">مقترحات لك</p>
-            <h2 class="fs-1 fw-bold mb-1">
+            <p class="fs-6 offers-subtitle text-muted">مقترحات لك</p>
+            <h2 class="fs-2 fw-medium mb-1">
               <template v-if="relatedProducts.length">منتجات مشابهة</template>
               <template v-else-if="relatedAds.length">إعلانات ذات صلة</template>
               <template v-else>لا توجد عناصر ذات صلة</template>
@@ -587,7 +602,7 @@ onBeforeUnmount(() => {
                 <div
                   v-for="item in group"
                   :key="item.id"
-                  class="col-12 col-sm-6 col-lg-3"
+                  class="col-12 col-sm-6 col-lg-3 col-md-4"
                 >
                   <ProductCard :item="item" />
                 </div>
@@ -637,7 +652,7 @@ onBeforeUnmount(() => {
                   <div
                     v-for="ad in group"
                     :key="ad.id"
-                    class="col-12 col-sm-6 col-lg-3"
+                    class="col-12 col-sm-6 col-lg-3 col-md-4"
                   >
                     <AdsCard :ad="ad" />
                   </div>
@@ -726,12 +741,20 @@ onBeforeUnmount(() => {
   justify-content: space-between;
 }
 .user-data div {
-  border: black 1px dashed !important;
   border-right: none !important;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   padding: 7px 10px;
   width: 100%;
+}
+.user-data .user-phone {
+  border: #1839a0 1px dashed !important;
+}
+.user-data .user-whatsapp {
+  border: #4fad52 1px dashed !important;
+}
+.user-data .user-email {
+  border: #a5acb9 1px dashed !important;
 }
 .small-note {
   line-height: 1.7;
@@ -872,6 +895,14 @@ onBeforeUnmount(() => {
   border-radius: 0 0 12px 12px;
   animation: toast-progress 5s linear forwards;
 }
+.price-icon {
+  color: #a5acb9 !important;
+  transform: rotateY(180deg);
+}
+.big-price-icon {
+  font-size: 70px !important;
+  color: #a5acb91a !important;
+}
 @keyframes toast-progress {
   from {
     width: 100%;
@@ -879,6 +910,9 @@ onBeforeUnmount(() => {
   to {
     width: 0%;
   }
+}
+.text-muted {
+  color: #73818c !important;
 }
 .share-toast-enter-from,
 .share-toast-leave-to {

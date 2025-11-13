@@ -140,7 +140,7 @@ function onPaste(e) {
   line-height: 1;
   border: 0;
   border-radius: 1rem;
-  background-color: #fff;
+  background-color: white !important;
 }
 .otp-input:focus {
   outline: 0;

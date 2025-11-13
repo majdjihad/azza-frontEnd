@@ -65,15 +65,19 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
     >
       <div class="d-flex align-items-center">
         <template v-if="!isLoggedIn">
-          <NuxtLink to="/register" class="text-dark fs-5 mx-2"
+          <NuxtLink to="/register" class="text-dark fs-6 ps-3"
             >إنشاء حساب</NuxtLink
           >
         </template>
 
-        <NuxtLink to="/terms-of-use" class="text-dark fs-5 trems-link px-2">
+        <NuxtLink
+          to="/terms-of-use"
+          class="text-dark fs-6 px-3"
+          :class="isLoggedIn ? 'trems-link-login' : 'trems-link'"
+        >
           شروط الاستخدام
         </NuxtLink>
-        <NuxtLink to="/privacy-policy" class="text-dark fs-5 mx-2">
+        <NuxtLink to="/privacy-policy" class="text-dark fs-6 pe-3">
           سياسة الخصوصية
         </NuxtLink>
       </div>
@@ -130,7 +134,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             height="40"
           />
         </NuxtLink>
-        <div class="d-flex align-items-center gap-9">
+        <div class="d-flex align-items-center gap-md-9 gap-3">
           <!-- Favorites -->
           <div class="position-relative dropdown" v-if="isLoggedIn">
             <button
@@ -139,7 +143,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
               :class="favoritesMenuVisible ? 'text-primary' : 'text-secondary'"
             >
               <Icon name="fa-solid:heart" class="fs-2" />
-              <span class="fs-5 mt-4"> المفضلة </span>
+              <span class="fw-normal fs-6 mt-4"> المفضلة </span>
             </button>
 
             <FavoritesMenu
@@ -162,7 +166,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             class="btn btn-link text-dark text-decoration-none d-flex flex-column align-items-center"
           >
             <Icon name="fa-solid:book" class="text-secondary fs-2" />
-            <span class="text-secondary fs-5 mt-4">أعلانتي</span>
+            <span class="text-secondary fw-normal fs-6 mt-4">إعلاناتي</span>
           </NuxtLink>
 
           <!-- حساب المستخدم -->
@@ -174,8 +178,8 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             <img
               :src="profile?.avatar || defaultAvatar"
               alt="userProfile"
-              width="40"
-              height="40"
+              width="43"
+              height="43"
               class="rounded-circle"
             />
             <div>
@@ -203,9 +207,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
                 <div
                   class="text-dark text-decoration-none d-none d-md-flex flex-column align-items-start justify-content-center ps-md-9"
                 >
-                  <span class="text-dark fw-medium fs-5"
-                    >الحساب</span
-                  >
+                  <span class="text-dark fw-medium fs-5">الحساب</span>
                   <span class="text-secondary fs-7">تسجيل الدخول</span>
                 </div>
               </div>
@@ -214,7 +216,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
         </div>
       </div>
       <!-- Row 3 -->
-      <nav class="navbar navbar-expand-md px-md-9 bg-white py-3">
+      <nav class="navbar navbar-expand-md px-md-9 bg-white py-2 shadow-bottom">
         <div
           class="container-fluid d-flex justify-content-between align-items-center px-3 p-md-0"
         >
@@ -239,7 +241,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
             aria-controls="collapseExample"
           >
             <Icon class="fs-1 ms-2" name="fluent:navigation-32-filled" />
-            <span class="fs-3 h5 m-0">كل الأقسام</span>
+            <span class="fs-3 fw-medium m-0">فلتر الأقسام</span>
           </div>
           <div class="order-md-2" v-if="showAddButton">
             <NuxtLink :to="isLoggedIn ? '/ads/create' : '/login'">
@@ -256,7 +258,7 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
           <div
             class="collapse navbar-collapse order-md-1 justify-content-center py-5"
             id="mainNavbar"
-            :class="{'border-end ': allowedPaths.includes(route.name)}"
+            :class="{ 'border-end ': allowedPaths.includes(route.name) }"
           >
             <ul class="navbar-nav me-0 pe-0 mb-2 mb-lg-0 gap-md-6">
               <li class="nav-item px-9 mb-3">
@@ -339,10 +341,16 @@ li a:hover {
   color: #1839a0 !important;
 }
 .trems-link {
-  border-left: #0000001a 2px solid;
-  border-right: #0000001a 2px solid;
+  border-left: #0000001c 1px solid;
+  border-right: #0000001c 1px solid;
+}
+.trems-link-login {
+  border-left: #0000001c 1px solid;
 }
 .bar-link {
   background-color: #fafafa;
+}
+.shadow-bottom {
+  box-shadow: 0 8px 15px 7px #00000008;
 }
 </style>

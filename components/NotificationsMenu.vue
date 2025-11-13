@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
     >
       <Icon name="fa-solid:bell" class="fs-2" />
       <span v-if="unreadCount > 0" class="notif-badge">{{ unreadCount }}</span>
-      <span class="fs-5 mt-4">الإشعارات</span>
+      <span class="fw-normal fs-6 mt-4">الإشعارات</span>
     </button>
 
     <!-- القائمة -->

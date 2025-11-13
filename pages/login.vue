@@ -153,15 +153,17 @@ const loginGoogle = async () => {
 <template>
   <section class="py-5 pb-9">
     <div class="container">
-      <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
-        <div class="col-lg-5">
+      <div
+        class="row flex-column-reverse flex-md-row g-9 justify-content-center align-items-stretch"
+      >
+        <div class="col-lg-4">
           <div class="info-panel h-100 text-white rounded-3">
             <div class="info-panel__content">
-              <h2 class="fw-normal mb-3 text-white">
-                <span class="fw-bold fs-1 d-block"
-                  >اكتشــــــف آلاف الإعلانــــــات</span
-                >
-                من المستخدمين في مختلف الفئات <br />وبأفضل الأسعار
+              <h2 class="mb-3 text-white fs-3 lh-base">
+                <span class="fw-bold">اكتشــــــف آلاف الإعلانــــــات </span>
+                <span class="fw-light">من المستخدمين</span>
+                <br />
+                <span class="fw-light"> في مختلف الفئات وبأفضل الأسعار </span>
               </h2>
 
               <ul class="list-unstyled lh-lg mb-0 mt-9 me-0 p-0">
@@ -170,59 +172,88 @@ const loginGoogle = async () => {
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span class="fs-6 fw-medium"
+                    >انضم إلى ملايين المستخدمين على منصتنا</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >تسجيل الدخول سهل وآمن وسريع</span>
+                  <span class="fs-6 fw-medium">
+                    تسجيل الدخول يعزز الأمان والمصداقيــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابــــــــع الرسائــــــــل والعـــــروض بسهـولــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >استعرض العروض في المنطقة الأقرب لك</span>
+                  <span class="fs-6 fw-medium"
+                    >نظّـــــم إعلاناتــــك المفضلــــة والمحفوظــــة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span class="fs-6 fw-medium"
+                    >اعرض أي شــــيء للبيـــع، للإيجــار، أو حتـــى لإعلان
+                    وظيفة</span
+                  >
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span class="fs-6 fw-medium"
+                    >تابع أداء إعلاناتـك وعدّلهـــا فـــي أي وقــــت</span
+                  >
+                </li>
+                <li class="d-flex align-items-start my-4">
+                  <Icon
+                    name="material-symbols:check-circle"
+                    class="text-info fs-3 mt-1 ms-2"
+                  />
+                  <span class="fs-6 fw-medium"
+                    >أضف الصور ومواصفات الإعلان لجذب المزيد من المهتمين</span
+                  >
                 </li>
               </ul>
             </div>
           </div>
         </div>
         <div class="col-lg-7 py-9">
-          <div class="card py-9 h-100">
+          <div
+            class="card border-0 py-9 h-100"
+            style="background-color: #f8f8f8"
+          >
             <div class="card-body p-4 p-md-5">
               <h1 class="fw-bold text-end mb-4">
-                <span class="display-4">👋</span>مرحبًا بك
+                <span class="display-4">👋</span>
+                <span>مرحبًا بك</span>
               </h1>
               <ul class="nav nav-underline justify-content-start mb-4 p-0">
                 <li class="nav-item">
-                  <span class="nav-link active fw-bold">تسجيل الدخول</span>
+                  <span class="nav-link active fw-medium">تسجيل الدخول</span>
                 </li>
                 <li class="nav-item d-flex align-items-center">
-                  <NuxtLink class="text-secondary fw-bold" to="/register"
+                  <NuxtLink
+                    class="fw-medium"
+                    style="color: #6e6e6e"
+                    to="/register"
                     >إنشاء حساب</NuxtLink
                   >
                 </li>
@@ -284,7 +315,7 @@ const loginGoogle = async () => {
                     />
                   </button>
                 </div>
-                <div class="text-center text-secondary mt-4 other-login">
+                <div class="text-center fw-medium mt-4 other-login">
                   أو التسجيل باستخدام
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-3">
@@ -392,6 +423,7 @@ li .active::after {
 }
 .other-login {
   position: relative;
+  color: #6e6e6e;
 }
 .other-login::before {
   content: "";
@@ -412,11 +444,11 @@ li .active::after {
   background-color: #e5e1e9;
 }
 @media (max-width: 575px) {
-.other-login::before {
-  width: 33%;
-}
-.other-login::after {
-  width: 33%;
-}
+  .other-login::before {
+    width: 33%;
+  }
+  .other-login::after {
+    width: 33%;
+  }
 }
 </style>

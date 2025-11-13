@@ -58,17 +58,26 @@ const slides = computed(() =>
   chunk(mainStore?.homePageData?.products_section, 4)
 );
 const carouselId = "offersCarousel";
-const selectedCategoryName = ref("اسم القسم");
+const selectedCategoryName = ref("أختر القسم");
 
 const selectCategory = (id, name) => {
   categoryIdSelected.value = id;
   selectedCategoryName.value = name;
 };
+const selectedCityName = ref("أختر المدينة");
+
+const selectCity = (id, name) => {
+  cityIdSelected.value = id;
+  selectedCityName.value = name;
+};
 </script>
 
 <template>
   <div>
-    <section class="hero-section position-relative text-white">
+    <section
+      class="hero-section position-relative text-white"
+      style="height: 600px"
+    >
       <div
         class="hero-background-grid position-absolute top-0 start-0 w-100 h-100 z-n1"
       >
@@ -152,9 +161,16 @@ const selectCategory = (id, name) => {
               <div class="input-group d-flex align-items-stretch h-100">
                 <label
                   for="input-search"
-                  class="input-group-text p-3 py-0 text-secondary rounded-0 border-0 border-end"
+                  class="input-group-text ms-2 p-0 pe-3 text-secondary rounded-0 border-0 border-end"
                 >
-                  <Icon name="mdi:form-textbox-password" class="fs-1 fw-bold" />
+                  <Icon
+                    name="mdi:form-textbox-password"
+                    class="fs-1 fw-bold"
+                    :class="{
+                      'text-secondary': !inputQuery,
+                      'text-dark': inputQuery,
+                    }"
+                  />
                 </label>
                 <input
                   type="text"
@@ -172,85 +188,108 @@ const selectCategory = (id, name) => {
               class="col-md-3 d-flex justify-content-center align-items-stretch"
             >
               <div class="input-group row gap-0 w-100">
-                <div
-                  class="input-group-prepend col-3 d-flex align-items-center justify-content-center border-end"
-                >
-                  <Icon
-                    name="mdi:tag-multiple"
-                    class="fs-1 fw-bold text-secondary"
-                  />
-                </div>
-
-                <div class="col-9 p-0 d-flex align-items-center justify-content-center">
-                  <div class="dropdown w-100">
-                    <button
-                      class="btn dropdown-toggle w-100 h-100 text-end border-0 fs-4 p-0 placeholder-btn"
-                      type="button"
-                      id="dropdownCategory"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <span
+                <div class="dropdown w-100 p-0">
+                  <button
+                    class="btn dropdown-toggle w-100 h-100 text-end border-0 fs-4 d-flex align-items-center justify-content-between placeholder-btn"
+                    type="button"
+                    id="dropdownCategory"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background: #f1f1f4 !important"
+                  >
+                    <span class="border-dropdown">
+                      <!-- الأيقونة -->
+                      <Icon
+                        name="mdi:tag-multiple"
+                        class="fs-1 fw-bold ms-2"
                         :class="{
-                          'text-muted': selectedCategoryName === 'اسم القسم',
-                          'text-dark': selectedCategoryName !== 'اسم القسم',
+                          'text-secondary':
+                            selectedCategoryName === 'أختر القسم',
+                          'text-dark': selectedCategoryName !== 'أختر القسم',
                         }"
-                      >
-                        {{ selectedCategoryName }}
-                      </span>
-                    </button>
-
-                    <ul
-                      class="dropdown-menu w-100 text-end"
-                      aria-labelledby="dropdownCategory"
+                      />
+                    </span>
+                    <!-- النص -->
+                    <span
+                      class="flex-grow-1 text-end"
+                      :class="{
+                        'text-muted': selectedCategoryName === 'أختر القسم',
+                        'text-dark': selectedCategoryName !== 'أختر القسم',
+                      }"
                     >
-                      <li v-for="cat in categories" :key="cat.id">
-                        <a
-                          class="dropdown-item fs-5 py-2"
-                          href="#"
-                          @click.prevent="selectCategory(cat.id, cat.name)"
-                        >
-                          {{ cat.name }}
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                      {{ selectedCategoryName }}
+                    </span>
+                  </button>
+
+                  <ul
+                    class="dropdown-menu w-100 text-end"
+                    aria-labelledby="dropdownCategory"
+                  >
+                    <li v-for="cat in categories" :key="cat.id">
+                      <a
+                        class="dropdown-item fs-5 py-2"
+                        href="#"
+                        @click.prevent="selectCategory(cat.id, cat.name)"
+                      >
+                        {{ cat.name }}
+                      </a>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
             <!-- اختيار المدينة -->
-            <div class="col-md-3 d-flex justify-content-center">
-              <div class="input-group row gap-0">
-                <div
-                  class="input-group-prepend input-group-loc col-3 text-center d-flex justify-content-start w-auto align-items-center p-0 border-end"
-                >
-                  <label
-                    class="input-group-text p-3 py-0 d-flex justify-content-center text-secondary rounded-0 border-0 border-end"
-                    for="inputCityGroup"
+            <div
+              class="col-md-3 d-flex justify-content-center align-items-stretch"
+            >
+              <div class="input-group row gap-0 w-100">
+                <div class="dropdown w-100 p-0">
+                  <button
+                    class="btn dropdown-toggle w-100 h-100 text-end border-0 fs-4 d-flex align-items-center justify-content-between placeholder-btn"
+                    type="button"
+                    id="dropdownCity"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background: #f1f1f4 !important"
                   >
-                    <Icon
-                      name="material-symbols:location-on"
-                      class="fs-1 fw-bold loc-icon"
-                    />
-                  </label>
-                </div>
+                    <span class="border-dropdown">
+                      <!-- الأيقونة -->
+                      <Icon
+                        name="material-symbols:location-on"
+                        class="fs-1 fw-bold ms-2"
+                        :class="{
+                          'text-secondary': selectedCityName === 'أختر المدينة',
+                          'text-dark': selectedCityName !== 'أختر المدينة',
+                        }"
+                      />
+                    </span>
+                    <!-- النص -->
+                    <span
+                      class="flex-grow-1 text-end"
+                      :class="{
+                        'text-muted': selectedCityName === 'أختر المدينة',
+                        'text-dark': selectedCityName !== 'أختر المدينة',
+                      }"
+                    >
+                      {{ selectedCityName }}
+                    </span>
+                  </button>
 
-                <select
-                  id="inputCityGroup"
-                  v-model="cityIdSelected"
-                  class="text-dark py-6 col-9 text-end fs-3 rounded-0 border-0"
-                  :class="{ 'text-muted': !cityIdSelected }"
-                >
-                  <!-- placeholder -->
-                  <option disabled value="">اختر المدينة</option>
-                  <option
-                    v-for="city in cities"
-                    :key="city.id ?? city.value ?? city.name"
-                    :value="String(city.id ?? city.value ?? city.name)"
+                  <ul
+                    class="dropdown-menu w-100 text-end"
+                    aria-labelledby="dropdownCity"
                   >
-                    {{ city.name }}
-                  </option>
-                </select>
+                    <li v-for="city in cities" :key="city.id">
+                      <a
+                        class="dropdown-item fs-5 py-2"
+                        href="#"
+                        @click.prevent="selectCity(city.id, city.name)"
+                      >
+                        {{ city.name }}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -270,7 +309,7 @@ const selectCategory = (id, name) => {
     </section>
 
     <!-- الأقسام -->
-    <section class="categories-section">
+    <section class="categories-section my-9 py-9 px-3 px-sm-4">
       <div class="container my-5">
         <div
           class="row g-3 py-4 justify-content-center"
@@ -285,7 +324,7 @@ const selectCategory = (id, name) => {
               :to="`ads/category/${cat.slug}`"
               class="category-card h-150px text-center border rounded d-flex flex-column align-items-center justify-content-between mx-2"
             >
-              <div class="bg-white px-2" style="position: relative; top: -25px">
+              <div class="bg-white px-2 cat-img">
                 <NuxtImg
                   src="https://dashboard.azza-ak.com/storage/categories/1zhSnwYRc2pitDINXDdVhG2DsmP5Z1zbKNrbQtf1.jpg"
                   style="width: 50px"
@@ -508,11 +547,8 @@ const selectCategory = (id, name) => {
 .btn:hover {
   color: white !important;
 }
-.hero-section {
-  height: 80vh;
-  overflow: hidden;
-}
 .img-home {
+  height: 300px !important;
   border-left: 2px #fff solid;
   border-right: 2px #fff solid;
 }
@@ -523,20 +559,12 @@ const selectCategory = (id, name) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 80vh;
+  min-height: 600px;
 }
 
 .category-card:hover button {
   background-color: var(--bs-primary);
   color: white;
-}
-
-/* إزالة سهم الـ select الافتراضي */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: none !important;
 }
 
 /* لمسة بصرية عندما تكون القيمة فارغة */
@@ -545,7 +573,6 @@ select {
 }
 
 input:focus,
-select:focus,
 label:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -605,6 +632,61 @@ label:focus {
 .btn-view-all:hover {
   background: var(--bs-primary-hover);
 }
+.border-dropdown {
+  border-right: 2px lch(70.1 7.6 265.62 / 0.4) solid;
+  padding-right: 5px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.placeholder-btn {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  text-align: right !important;
+  padding-right: 0 !important;
+  font-weight: 400;
+}
+.cat-img {
+  position: relative;
+  top: -25px;
+}
+.placeholder-btn::after {
+  display: none !important; /* إخفاء السهم الصغير */
+}
+
+.dropdown-menu {
+  max-height: 250px;
+  overflow-y: auto;
+  border-radius: 0;
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+.hero-section,
+.hero-content {
+  overflow: visible !important;
+}
+.dropdown-item:hover {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+.input-group,
+.input-group input,
+.input-group label {
+  background: #f1f1f4 !important;
+}
+.search-input {
+  padding: 10.3px 0 10.3px 19px !important;
+}
+.search-input::placeholder {
+  color: #6e6e6e !important;
+  font-size: 14px !important;
+  font-weight: 400;
+}
+.offers-section {
+  background-color: #f7f7f7;
+}
 
 /* Mobile */
 @media (max-width: 768px) {
@@ -643,49 +725,12 @@ label:focus {
     margin: 0 1rem 2rem;
     padding: 15px;
   }
-}
-.placeholder-btn {
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  text-align: right !important;
-}
-
-.placeholder-btn::after {
-  display: none !important; /* إخفاء السهم الصغير */
-}
-
-.dropdown-menu {
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.dropdown-item:hover {
-  background-color: var(--bs-primary);
-  color: #fff;
-}
-
-.input-group,
-.input-group input,
-.input-group select,
-.input-group label {
-  background: #f1f1f4 !important;
-}
-.search-input::placeholder,
-select {
-  color: #6e6e6e !important;
-  font-size: 14px !important;
-  font-weight: 400;
-}
-.input-group-cat,
-.input-group-loc {
-  margin: 10px 0;
-  border-right: 1px #89909dcc solid !important;
-}
-.input-group-cat option:hover {
-  background-color: red !important;
-}
-.offers-section {
-  background-color: #f7f7f7;
+  .cat-img {
+    top: -45px;
+  }
+  .search-input,
+  .search-input::placeholder {
+    font-size: 11.4px !important;
+  }
 }
 </style>

@@ -128,18 +128,18 @@ async function handleLogout() {
 
 <template>
   <div class="container mx-auto p-4">
-    <div class="page-content">
+    <div class="page-content my-6">
       <h1>الملف الشخصي</h1>
 
       <div class="d-flex align-items-center mb-4">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-3 mx-3 fw-medium text-muted"
         />
-        <span class="fs-3 m-0 text-muted">الملف الشخصي</span>
+        <span class="fs-5 m-0 text-muted text-muted">الملف الشخصي</span>
       </div>
 
       <!-- حالة تحميل: Skeleton -->
@@ -184,9 +184,6 @@ async function handleLogout() {
                     <div class="skeleton skeleton-line w-240"></div>
                   </div>
                 </div>
-                <div
-                  class="skeleton skeleton-pill w-80 h-32 d-none d-md-block"
-                ></div>
               </div>
             </div>
           </div>
@@ -196,21 +193,23 @@ async function handleLogout() {
       <!-- المحتوى -->
       <template v-else-if="mainStore.profile">
         <div class="d-flex align-items-center justify-content-between mt-8">
-          <div class="d-flex justify-center align-items-center gap-3">
+          <div
+            class="d-flex flex-column flex-md-row justify-center align-items-center gap-3"
+          >
             <img
               :src="mainStore.profile.avatar"
-              alt="mainStore.profile.fullName"
-              width="60"
-              height="60"
+              :alt="mainStore.profile.fullName"
+              width="73"
+              height="73"
               class="rounded-circle"
             />
             <div
               class="text-dark d-flex flex-column align-items-start justify-content-center"
             >
-              <span class="text-dark fs-4">{{
+              <span class="text-dark fs-3 fw-bold">{{
                 mainStore.profile.fullName
               }}</span>
-              <span class="text-secondary fs-5">{{
+              <span class="text-muted fs-3 mt-2">{{
                 mainStore.profile.phone
               }}</span>
             </div>
@@ -222,40 +221,43 @@ async function handleLogout() {
           </NuxtLink>
         </div>
 
-        <div class="card card-soft my-4">
+        <div class="card card-soft border-0 my-4" style="background: #f8f8f8">
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-12 mt-4 col-md-6">
-                <div class="label-muted fw-bold fs-4 mb-2">الاسم الكامل</div>
-                <div class="form-tile bg-muted p-4 rounded">
+              <div class="col-12 my-3 col-md-5">
+                <div class="label-muted fw-medium fs-5 mb-2">الإسم الكامل</div>
+                <div class="text-muted bg-white p-4 rounded fs-6">
                   {{ mainStore.profile.fullName }}
                 </div>
               </div>
-              <div class="col-12 mt-4 col-md-6">
-                <div class="label-muted fw-bold fs-4 mb-2">رقم الجوال</div>
-                <div class="form-tile bg-muted p-4 rounded">
+              <div class="col-12 my-3 col-md-5">
+                <div class="label-muted fw-medium fs-5 mb-2">رقم الجوال</div>
+                <div class="text-muted bg-white p-4 rounded fs-6">
                   {{ mainStore.profile.phone }}
                 </div>
               </div>
-              <div class="col-12 mt-4 col-md-6">
-                <div class="label-muted fw-bold fs-4 mb-2">
+            </div>
+            <div class="row g-3">
+              <div class="col-12 my-3 col-md-5">
+                <div class="label-muted fw-medium fs-5 mb-2">
                   البريد الإلكتروني
                 </div>
-                <div class="form-tile bg-muted p-4 rounded">
+                <div class="text-muted bg-white p-4 rounded fs-6">
                   {{ mainStore.profile.email }}
                 </div>
               </div>
-              <div class="col-12 mt-4 col-md-6" v-if="mainStore.profile?.city">
-                <div class="label-muted fw-bold fs-4 mb-2">المدينة</div>
-                <div class="form-tile bg-muted p-4 rounded">
+              <div class="col-12 my-3 col-md-5" v-if="mainStore.profile?.city">
+                <div class="label-muted fw-medium fs-5 mb-2">المدينة</div>
+                <div class="text-muted bg-white p-4 rounded fs-6">
                   {{ mainStore.profile?.city }}
                 </div>
               </div>
-              <div class="col-12 mt-4 col-md-6">
-                <div class="label-muted fw-bold fs-4 mb-2">تاريخ الانضمام</div>
-                <div class="form-tile bg-muted p-4 rounded">
-                  {{ mainStore.profile.joinedAt }}
-                </div>
+            </div>
+
+            <div class="col-12 my-3 col-md-5">
+              <div class="label-muted fw-medium fs-5 mb-2">تاريخ الانضمام</div>
+              <div class="text-muted bg-white p-4 rounded fs-6">
+                {{ mainStore.profile.joinedAt }}
               </div>
             </div>
           </div>
@@ -264,7 +266,10 @@ async function handleLogout() {
         <!-- إجراءات -->
         <div class="row g-3">
           <div class="col-12">
-            <div class="card card-soft action-tile">
+            <div
+              class="card card-soft border-0 action-tile"
+              style="background-color: #f8f8f8"
+            >
               <div
                 class="card-body d-flex align-items-center justify-content-between"
               >
@@ -293,7 +298,10 @@ async function handleLogout() {
 
           <!-- تسجيل الخروج -->
           <div class="col-12">
-            <div class="card card-soft action-tile">
+            <div
+              class="card card-soft border-0 action-tile"
+              style="background-color: #f8f8f8"
+            >
               <div
                 class="card-body d-flex align-items-center justify-content-between"
               >
@@ -526,5 +534,8 @@ async function handleLogout() {
   border-radius: 0.5rem;
   color: #2563eb;
   background: #f8fbff;
+}
+.bg-muted {
+  background-color: #f9f9fa !important;
 }
 </style>

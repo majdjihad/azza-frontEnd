@@ -200,6 +200,11 @@ async function chooseSubcategory(sub) {
   step.value = 3;
 }
 
+// --- تحققات --- //
+function isEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
 /* تحقق قبل الإرسال */
 function validate() {
   Object.keys(errors).forEach((k) => delete errors[k]);
@@ -207,6 +212,8 @@ function validate() {
   if (!form.title || form.title.trim().length < 3)
     errors.title = "أدخل عنواناً مناسباً";
   if (!form.city) errors.city = "اختر المدينة";
+  if (!form.email) errors.email = "أدخل بريد إلكتروني صالح";
+  else if (!isEmail(form.email)) errors.email = "البريد الإلكتروني غير صالح";
   if (!form.durationDays || Number(form.durationDays) <= 0)
     errors.durationDays = "أدخل مدة بالأيام (أكبر من 0)";
   if (!form.details || form.details.trim().length < 10)
@@ -258,7 +265,7 @@ async function submit() {
     fd.append("duration_days", String(form.durationDays));
     fd.append("currency", form.currency);
     fd.append("user_id", user.value.id);
-    fd.append("negotiable",form.negotiable)
+    fd.append("negotiable", form.negotiable);
     if (form.email) fd.append("email", form.email);
 
     // === الصورة الرئيسية (مع التحقق والاسم) ===
@@ -353,12 +360,12 @@ function resetAll() {
   <div class="container py-4">
     <h1 class="mb-4">إضافة إعلان جديد</h1>
     <div class="d-flex align-items-center pb-9">
-      <h2 class="fs-3 m-0 fw-normal text-primary d-inline">الرئيسية</h2>
+      <h2 class="fs-5 m-0 fw-medium text-primary d-inline">الرئيسية</h2>
       <Icon
         name="mdi:chevron-left-circle-outline"
         class="fs-3 mx-3 text-secondary"
       />
-      <span class="fs-3 m-0 text-muted">إضافة إعلان جديد</span>
+      <span class="fs-5 m-0 fw-medium text-muted">إضافة إعلان جديد</span>
     </div>
     <!-- شريط تقدم -->
     <div class="d-flex align-items-center gap-3 mb-4">
@@ -623,7 +630,10 @@ function resetAll() {
 
     <!-- الخطوة 4: تفاصيل الإعلان + الحقول المخصصة + الإرسال -->
     <div v-show="step === 4" class="py-4">
-      <div class="card shadow-sm rounded-3 mb-4 border-0">
+      <div
+        class="card rounded-3 mb-4 border-0"
+        style="background-color: #f8f8f8"
+      >
         <div class="mb-3 px-9 py-5">
           <div class="d-flex align-items-center gap-2">
             <h5 class="m-0 fw-bold">
@@ -693,6 +703,7 @@ function resetAll() {
               <input
                 type="number"
                 class="form-control"
+                palaceholder="أدخل مدة الإعلان بالأيام ..."
                 :class="{ 'is-invalid': errors.durationDays }"
                 v-model="form.durationDays"
                 min="1"
@@ -884,7 +895,6 @@ function resetAll() {
   background: #ef4444;
   color: #fff;
 }
-
 /* تخصيص شكل FilePond داخليًا */
 :deep(.filepond--panel-root) {
   background: transparent !important;
@@ -969,5 +979,8 @@ function resetAll() {
 }
 .shadow-xs {
   box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+}
+.form-control {
+  background-color: white !important;
 }
 </style>

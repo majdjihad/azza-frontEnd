@@ -7,6 +7,7 @@ import SkeletonSidebar from "./Skeleton/SkeletonSidebar.vue";
 const categoryStore = useCategoryStore();
 const mainStore = useMainStore();
 const route = useRoute();
+const config = useRuntimeConfig();
 
 /* حفظ/استعادة موضع التمرير */
 let _savedScroll = 0;
@@ -235,9 +236,12 @@ function applyFilters() {
       "
     >
       <!-- الأقسام -->
-      <div class="card border-0 mb-3 bg-muted">
+      <div
+        class="card border-0 mb-3 rounded-0"
+        style="background-color: #f9f9f9"
+      >
         <div class="card-body">
-          <h4 class="fw-bold pb-3 mb-3 border-bottom">الأقسام</h4>
+          <h4 class="fw-medium pb-3 mb-3 border-bottom">الأقسام</h4>
 
           <div class="form-check form-check-reverse mb-2">
             <input
@@ -327,42 +331,82 @@ function applyFilters() {
       </div>
 
       <!-- المدينة والسعر -->
-      <div class="border bg-muted my-5 rounded">
-        <div class="card bg-muted border-0 my-9">
+      <div class="border my-5 rounded shadow-sm">
+        <div class="card border-0 my-9 bg-white">
           <div class="card-body py-0">
-            <h4 class="fw-bold mb-3">المدينة</h4>
-            <div class="input-group">
+            <h4 class="fw-medium mb-3">المدينة</h4>
+            <div class="input-group input-group-city w-100 align-items-center">
               <span
-                class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+                class="input-group-text city-icon text-secondary p-3 bg-white"
               >
                 <Icon name="material-symbols:location-on-outline" size="18" />
               </span>
-              <select
-                class="form-control rounded-0 text-muted border-end-0 rounded-start p-0 bg-white"
-                id="inputCityGroup"
-                v-model="filters.city_id"
-              >
-                <option value="">اختر المدينة</option>
-                <option
-                  :value="city.id"
-                  v-for="city in categoryStore?.citiesData?.cities || []"
-                  :key="city.id"
+
+              <div class="dropdown w-100 rounded-0">
+                <button
+                  class="city-dropdown btn w-100 text-end border-0 fs-4 bg-white d-flex align-items-center justify-content-between"
+                  type="button"
+                  id="dropdownCity"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style="box-shadow: none"
                 >
-                  {{ city.name }}
-                </option>
-              </select>
+                  <span
+                    :class="{
+                      'text-muted': !filters.city_id,
+                      'text-dark': filters.city_id,
+                    }"
+                    class="flex-grow-1 city-placeholder text-end p-3 pe-0 fw-medium"
+                  >
+                    {{
+                      filters.city_id
+                        ? categoryStore.citiesData.cities.find(
+                            (c) => c.id === filters.city_id
+                          )?.name
+                        : "ابحث عن المدينة..."
+                    }}
+                  </span>
+                </button>
+
+                <ul
+                  class="dropdown-menu w-100 text-end shadow-sm"
+                  aria-labelledby="dropdownCity"
+                >
+                  <li>
+                    <a
+                      class="dropdown-item fs-5 py-2 text-muted fw-medium"
+                      href="#"
+                      @click.prevent="filters.city_id = ''"
+                    >
+                      ابحث عن المدينة...
+                    </a>
+                  </li>
+                  <li
+                    v-for="city in categoryStore?.citiesData?.cities || []"
+                    :key="city.id"
+                  >
+                    <a
+                      class="dropdown-item fs-5 py-2 fw-medium"
+                      href="#"
+                      @click.prevent="filters.city_id = city.id"
+                    >
+                      {{ city.name }}
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- السعر -->
-        <div class="card bg-muted border-0 my-9">
+        <div class="card border-0 my-9">
           <div class="card-body py-0">
-            <h4 class="fw-bold mb-3">السعر</h4>
+            <h4 class="fw-medium mb-3">السعر</h4>
             <div class="d-flex align-items-stretch gap-2 w-75">
               <div class="input-group">
                 <span
-                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end bg-white px-2"
                   >من...</span
                 >
                 <input
@@ -375,7 +419,7 @@ function applyFilters() {
               </div>
               <div class="input-group">
                 <span
-                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end border-start-0 bg-white"
+                  class="input-group-text text-secondary rounded-0 border-secondary rounded-end bg-white px-2"
                   >إلى...</span
                 >
                 <input
@@ -389,26 +433,39 @@ function applyFilters() {
             </div>
           </div>
         </div>
-
-        <button
-          class="btn btn-main w-100 d-flex algin-items-center justify-content-center mt-3"
-          @click.stop="applyFilters()"
-        >
-          بحث
-        </button>
       </div>
+      <button
+        class="btn btn-main w-100 d-flex algin-items-center justify-content-center my-3"
+        @click.stop="applyFilters()"
+      >
+        بحث
+      </button>
 
       <div class="text-center">
-        <img
-          src="~/public/media/bg-home/jawwal1.jpg"
-          class="w-100 mb-3 rounded-1"
-          alt="jawwal"
-        />
-        <img
-          src="~/public/media/bg-home/jawwal2.jpg"
-          class="w-100 mb-3 rounded-1"
-          alt="jawwal"
-        />
+        <nuxt-link
+          rel="noopener noreferrer"
+          :to="config.public.whatsappUrl"
+          aria-label="تواصل"
+          target="_blank"
+        >
+          <img
+            src="~/public/media/bg-home/ads.jpg"
+            class="w-100 mb-3 rounded-1"
+            alt="ads"
+          />
+        </nuxt-link>
+        <nuxt-link
+          rel="noopener noreferrer"
+          :to="config.public.whatsappUrl"
+          aria-label="تواصل"
+          target="_blank"
+        >
+          <img
+            src="~/public/media/bg-home/ads.jpg"
+            class="w-100 mb-3 rounded-1"
+            alt="ads"
+          />
+        </nuxt-link>
       </div>
     </div>
 
@@ -428,6 +485,26 @@ function applyFilters() {
 }
 .child-item {
   padding-right: 50px;
+}
+.dropdown-menu {
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+.city-dropdown {
+  padding: 0 !important;
+  border: 0 !important;
+}
+.city-icon {
+  border: 0 !important;
+}
+.input-group-city {
+  flex-wrap: nowrap;
+  border: #dbdfe9 1px solid !important;
+  border-radius: 5px !important;
+}
+.city-placeholder {
+  border-left: #dbdfe9 1px solid !important;
+  border-radius: 5px !important;
 }
 @media (min-width: 992px) {
   .filters-sidebar {

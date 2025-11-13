@@ -1,6 +1,10 @@
 <template>
   <div class="mb-3">
-    <label v-if="label" :for="id" class="form-label mb-2 fw-medium text-dark">
+    <label
+      v-if="label"
+      :for="id"
+      class="form-label mb-2 fw-medium fs-5 text-dark"
+    >
       {{ label }}
       <span v-if="req" class="text-danger">*</span>
     </label>
@@ -71,11 +75,12 @@ defineEmits(["update:modelValue"]);
 
 <style scoped>
 .form-control {
-  background-color: #f6f6f6;
+  background-color: white !important;
 }
 .form-control::placeholder {
-  color: #a5acb9;
+  color: rgba(110, 110, 110, 0.8) !important;
   opacity: 1;
-  font-size: 14px;
+  font-weight: 400;
+  font-size: 12px;
 }
 </style>

@@ -16,7 +16,7 @@ defineEmits(["update:modelValue"]);
 
 <template>
   <div class="mb-3">
-    <label v-if="label" :for="id" class="form-label">
+    <label v-if="label" :for="id" class="form-label fw-medium fs-5">
       {{ label }}
       <span v-if="req" class="text-danger">*</span>
     </label>

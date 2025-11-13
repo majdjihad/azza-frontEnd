@@ -110,22 +110,23 @@ const keyword = computed(() => searchParams.value.query || "");
 
 <template>
   <div class="container py-4 py-md-5">
-    <div class="page-content">
+    <div class="page-content my-6">
       <div class="d-flex align-items-center mb-4">
-        <h1 class="fs-3 m-0 fw-normal text-primary d-inline">نتائج البحث</h1>
+        <h1 class="fs-5 m-0 fw-normal text-primary d-inline">نتائج البحث</h1>
         <Icon
           name="mdi:chevron-left-circle-outline"
           class="fs-3 mx-3 text-secondary"
         />
-        <span class="fs-3 m-0 fw-semibold text-muted">
+        <span class="fs-5 m-0 fw-medium text-muted">
           {{ keyword ? `عن: "${keyword}"` : "كل النتائج" }}
         </span>
       </div>
 
       <div
-        class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
+        class="d-flex align-items-center justify-content-between p-4 my-9 rounded-0"
+        style="background-color: #f9f9f9"
       >
-        <span class="fs-3">بيع وشراء أي شيء في فلسطين</span>
+        <span class="fs-3 fw-medium">بيع وشراء أي شيء في فلسطين (10,000)</span>
 
         <!-- زر الترتيب (فرز محلي) -->
         <div class="btn-group">
@@ -193,7 +194,6 @@ const keyword = computed(() => searchParams.value.query || "");
         <div class="d-flex flex-column flex-grow-1">
           <div v-if="mainStore.searchProducts">
             <section class="product-section px-4" v-if="sortedProducts?.length">
-              <h5 class="mb-3 text-muted">منتجات</h5>
               <div class="row g-4">
                 <div
                   v-for="pro in sortedProducts"
@@ -206,7 +206,6 @@ const keyword = computed(() => searchParams.value.query || "");
             </section>
             <section class="ads-section px-4">
               <template v-if="sortedAds?.length">
-                <h5 class="mb-3 text-muted">إعلانات</h5>
                 <div class="row g-4">
                   <div
                     v-for="ad in sortedAds"

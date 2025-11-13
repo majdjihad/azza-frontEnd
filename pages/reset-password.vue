@@ -93,7 +93,9 @@ const formHandle = async () => {
 <template>
   <section class="py-5 pb-9">
     <div class="container">
-      <div class="row flex-column-reverse flex-md-row g-9 align-items-stretch">
+      <div
+        class="row flex-column-reverse flex-md-row g-9 justify-content-center align-items-stretch"
+      >
         <div class="col-lg-5">
           <div class="info-panel h-100 text-white rounded-3">
             <div class="info-panel__content">
@@ -110,42 +112,42 @@ const formHandle = async () => {
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >انضم إلى مئات المستخدمين على منصتنا</span>
+                  <span>انضم إلى مئات المستخدمين على منصتنا</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >تسجيل الدخول سهل وآمن وسريع</span>
+                  <span>تسجيل الدخول سهل وآمن وسريع</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >نشر الإعلانات ورفع الصور بسهولة</span>
+                  <span>نشر الإعلانات ورفع الصور بسهولة</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >استعرض العروض في المنطقة الأقرب لك</span>
+                  <span>استعرض العروض في المنطقة الأقرب لك</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >إدارة إعلاناتك وتتبعها في أي وقت</span>
+                  <span>إدارة إعلاناتك وتتبعها في أي وقت</span>
                 </li>
                 <li class="d-flex align-items-start my-4">
                   <Icon
                     name="material-symbols:check-circle"
                     class="text-info fs-3 mt-1 ms-2"
                   />
-                  <span >اضف التفاصيل والصور لوصف إعلانك بدقة</span>
+                  <span>اضف التفاصيل والصور لوصف إعلانك بدقة</span>
                 </li>
               </ul>
             </div>

@@ -136,22 +136,23 @@ function goToPage(n) {
 
 <template>
   <div class="container py-4 py-md-5">
-    <div class="page-content">
+    <div class="page-content my-6">
       <div class="d-flex align-items-center mb-4">
-        <NuxtLink to="/" class="fs-3 m-0 fw-normal text-primary d-inline"
+        <NuxtLink to="/" class="fs-5 m-0 fw-medium text-primary d-inline"
           >الرئيسية</NuxtLink
         >
         <Icon
           name="mdi:chevron-left-circle-outline"
-          class="fs-3 mx-3 text-secondary"
+          class="fs-5 fw-medium mx-3 text-secondary"
         />
         <span class="fs-3 m-0 text-muted">قائمة المنتجات</span>
       </div>
 
       <div
-        class="d-flex align-items-center justify-content-between bg-muted p-4 my-9 rounded"
+        class="d-flex align-items-center justify-content-between p-4 my-9 rounded-0"
+        style="background-color: #f9f9f9"
       >
-        <span class="fs-3">تصفح واشتري ما يناسبك</span>
+        <span class="fs-3 fw-medium">تصفح واشتري ما يناسبك</span>
 
         <!-- زر الترتيب (فرز محلي بدون أي استدعاء API) -->
         <div class="btn-group">
