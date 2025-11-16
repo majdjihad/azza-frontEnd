@@ -61,23 +61,25 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
   <header class="header">
     <!-- Row 1 -->
     <div
-      class="d-flex justify-content-between bar-link align-items-center py-3 px-3 px-md-9"
+      class="d-flex justify-content-between bar-link align-items-center py-3 px-3 px-md-3"
     >
       <div class="d-flex align-items-center">
         <template v-if="!isLoggedIn">
-          <NuxtLink to="/register" class="text-dark fs-6 ps-3"
+          <NuxtLink
+            to="/register"
+            class="text-dark fs-9 fs-md-6 px-1 px-md-3"
             >إنشاء حساب</NuxtLink
           >
         </template>
 
         <NuxtLink
           to="/terms-of-use"
-          class="text-dark fs-6 px-3"
+          class="text-dark fs-9 fs-md-6 px-1 px-md-3"
           :class="isLoggedIn ? 'trems-link-login' : 'trems-link'"
         >
           شروط الاستخدام
         </NuxtLink>
-        <NuxtLink to="/privacy-policy" class="text-dark fs-6 pe-3">
+        <NuxtLink to="/privacy-policy" class="text-dark fs-9 fs-md-6 px-1 px-md-3 pe-1 pe-md-3">
           سياسة الخصوصية
         </NuxtLink>
       </div>

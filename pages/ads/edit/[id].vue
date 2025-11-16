@@ -581,7 +581,7 @@ function removeMain() {
         <template v-if="categories.length">
           <div class="row g-3">
             <div
-              class="col-6 col-md-3 my-3 p-0"
+              class="col-6 col-md-3 col-lg-2-4 my-3 p-0"
               v-for="(cat, index) in categories"
               :key="cat.id"
             >
@@ -651,7 +651,7 @@ function removeMain() {
           </div>
           <div v-else class="row g-3">
             <div
-              class="col-6 col-md-3 my-3 p-0"
+              class="col-6 col-md-3 col-lg-2-4 my-3 p-0"
               v-for="(sub, i) in subcategories"
               :key="sub.id"
             >
@@ -1128,5 +1128,11 @@ function removeMain() {
 }
 .shadow-xs {
   box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+}
+@media (min-width: 992px) {
+  .col-lg-2-4 {
+    flex: 0 0 auto;
+    width: 20%; /* 100 ÷ 5 */
+  }
 }
 </style>

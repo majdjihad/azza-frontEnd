@@ -131,7 +131,7 @@ const config = useRuntimeConfig();
         </ul>
       </div>
       <div
-        class="py-2 px-6 text-center bg-primary text-white d-flex flex-column-reverse flex-lg-row justify-content-between align-items-center"
+        class="py-3 px-6 text-center bg-primary text-white d-flex flex-column-reverse flex-lg-row justify-content-between align-items-center"
       >
         <p class="mb-0 text-white d-block">
           جميع الحقوق محفوظة © 2025 - Azza – إحدى مشاريع مجموعة Akhlaa

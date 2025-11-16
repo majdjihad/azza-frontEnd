@@ -103,7 +103,7 @@ onMounted(() => {
     <NuxtLink :to="`/products/${item.id}`" class="offer-media">
       <NuxtImg
         class="product-img p-3"
-        src="/media/bg-home/bg1.png"
+        :src="item?.image || item?.main_image"
         :alt="item.title || item.name"
       />
     </NuxtLink>

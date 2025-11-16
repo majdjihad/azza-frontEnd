@@ -326,7 +326,7 @@ const selectCity = (id, name) => {
             >
               <div class="bg-white px-2 cat-img">
                 <NuxtImg
-                  src="https://dashboard.azza-ak.com/storage/categories/1zhSnwYRc2pitDINXDdVhG2DsmP5Z1zbKNrbQtf1.jpg"
+                  :src="cat.image_url"
                   style="width: 50px"
                   :alt="cat.name"
                 />

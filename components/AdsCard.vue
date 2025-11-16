@@ -141,7 +141,7 @@ function translateTimeAgo(englishTime) {
     <div class="position-relative">
       <NuxtLink :to="`/ads/${ad?.id}`">
         <NuxtImg
-          src="/media/bg-home/bg1.png"
+          :src="ad?.image || ad?.main_image"
           class="card-img-top"
           :alt="ad?.title"
         />

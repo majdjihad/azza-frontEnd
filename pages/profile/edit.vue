@@ -334,7 +334,7 @@ async function handleLogout() {
                 >
                   <Icon
                     name="material-symbols:lock-person-outline-sharp"
-                    class="display-4 text-primary"
+                    class="display-6 text-primary"
                   />
                 </button>
                 <div>
@@ -362,7 +362,7 @@ async function handleLogout() {
                 >
                   <Icon
                     name="octicon:sign-out-16"
-                    class="display-4 text-primary"
+                    class="display-6 text-primary"
                   />
                 </button>
                 <div>
