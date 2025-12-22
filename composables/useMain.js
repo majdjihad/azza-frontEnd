@@ -1,7 +1,8 @@
 // composables/useMain.js
 import { $larafetch } from "~/utils/$larafetch";
-
+import { useMainStore } from "~/stores/mainStore";
 export const useMain = () => {
+  const mainStore = useMainStore();
   /** الصفحة الرئيسية */
   async function getHomePageData() {
     return await $larafetch(`api/home`, { method: "get" });
@@ -70,8 +71,14 @@ export const useMain = () => {
       query: q,
     });
   }
+  async function getAds() {
+    console.log("test");
+    return await $larafetch("api/ads", {
+      method: "get",
+    });
+  }
 
-  /** فلترة الإعلانات */
+  // فلتر الاعلانات
   async function filterAds(params = {}) {
     const {
       category_id,
@@ -82,7 +89,30 @@ export const useMain = () => {
       page = 1,
     } = params;
 
-    return await $larafetch(`/api/filter`, {
+    return await $larafetch(`/api/ads/filter`, {
+      method: "get",
+      query: {
+        category_id,
+        "subcategory_ids[]": subcategory_ids,
+        city_id,
+        min_price,
+        max_price,
+        page,
+      },
+    });
+  }
+  // فلتر المنتجات
+  async function filterProducts(params = {}) {
+    const {
+      category_id,
+      subcategory_ids = [],
+      city_id,
+      min_price,
+      max_price,
+      page = 1,
+    } = params;
+
+    return await $larafetch(`/api/products/filter`, {
       method: "get",
       query: {
         category_id,
@@ -197,7 +227,9 @@ export const useMain = () => {
     getUserData,
     toggleAdsFavorite,
     getSearch,
+    getAds,
     filterAds,
+    filterProducts,
     getCustomFiled,
     createAd,
     updateAd,

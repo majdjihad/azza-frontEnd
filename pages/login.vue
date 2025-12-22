@@ -315,7 +315,7 @@ const loginGoogle = async () => {
                     />
                   </button>
                 </div>
-                <div class="text-center fw-medium mt-4 other-login">
+                <!-- <div class="text-center fw-medium mt-4 other-login">
                   أو التسجيل باستخدام
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-3">
@@ -331,7 +331,7 @@ const loginGoogle = async () => {
                       alt="google-icon"
                     />
                   </button>
-                </div>
+                </div> -->
               </form>
             </div>
           </div>

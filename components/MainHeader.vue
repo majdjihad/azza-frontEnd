@@ -43,7 +43,7 @@ async function toggleFavoritesMenu() {
 }
 
 const route = useRoute();
-const allowedPaths = ["ads", "ads-category-slug"];
+const allowedPaths = ["ads", "ads-category-slug","products"];
 const defaultAvatar = "/media/avatars/user.png";
 const profile = computed(() => {
   const u = user.value;

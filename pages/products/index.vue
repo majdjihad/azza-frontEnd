@@ -60,13 +60,54 @@ const currentPage = computed(() => {
   return Number.isNaN(p) || p < 1 ? 1 : p;
 });
 
+function buildParamsFromQuery(query = {}) {
+  return {
+    category_id: query.category_id
+      ? String(query.category_id)
+          .split(",")
+          .map(Number)
+          .filter(Boolean)
+      : undefined,
+
+    subcategory_ids: query.subcategory_ids
+      ? String(query.subcategory_ids)
+          .split(",")
+          .map(Number)
+          .filter(Boolean)
+      : undefined,
+
+    city_id: query.city_id ? Number(query.city_id) : undefined,
+    min_price: query.min_price ? Number(query.min_price) : undefined,
+    max_price: query.max_price ? Number(query.max_price) : undefined,
+    page: query.page ? Number(query.page) : 1,
+  };
+}
+const isLoading = ref(false);
+
 watch(
-  () => currentPage.value,
+  () => route.query,
   async () => {
-    await mainStore.getProducts(currentPage.value);
-    if (process.client) window.scrollTo({ top: 0, behavior: "smooth" });
+    isLoading.value = true;
+
+    if (
+      route.query.category_id ||
+      route.query.city_id ||
+      route.query.min_price ||
+      route.query.max_price
+    ) {
+      const params = buildParamsFromQuery(route.query);
+      await mainStore.getFilteredProducts(params);
+    } else {
+      await mainStore.getProducts(1);
+    }
+
+    isLoading.value = false;
+
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 
 const productsPager = computed(() => {
@@ -127,11 +168,35 @@ const lastPage = computed(() => {
   }
   return 1;
 });
+function onFiltersChange(f) {
+  const q = {
+    page: 1,
+    city_id: f.city_id ?? undefined,
+    min_price: f.min_price ?? undefined,
+    max_price: f.max_price ?? undefined,
+  };
+  if (Array.isArray(f.category_id) && f.category_id.length) {
+    q.category_id = f.category_id.join(",");
+  }
+  if (Array.isArray(f.subcategory_ids) && f.subcategory_ids.length) {
+    q.subcategory_ids = f.subcategory_ids.join(",");
+  }
+
+  router.push({ path: route.path, query: q });
+}
 
 function goToPage(n) {
   const page = Math.max(1, Math.min(lastPage.value, Number(n) || 1));
   router.push({ path: route.path, query: { ...route.query, page } });
 }
+
+const itemsPerPage = ref(9); // القيمة الافتراضية
+
+function setItemsPerPage(n) {
+  itemsPerPage.value = n;
+}
+const visibleProducts = computed(() => sortedProducts.value.slice(0, itemsPerPage.value));
+
 </script>
 
 <template>
@@ -155,6 +220,7 @@ function goToPage(n) {
         <span class="fs-3 fw-medium">تصفح واشتري ما يناسبك</span>
 
         <!-- زر الترتيب (فرز محلي بدون أي استدعاء API) -->
+        <div class="d-flex align-items-center gap-4">
         <div class="btn-group">
           <button
             type="button"
@@ -214,23 +280,46 @@ function goToPage(n) {
             </li>
           </ul>
         </div>
-      </div>
+                  <div class="btn-group">
+            <button
+              type="button"
+              class="dropdown-toggle fs-3"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <span>عرض {{ itemsPerPage }}</span>
+              <Icon class="fs-1 icon-down" name="mdi:chevron-down" />
+              <Icon class="fs-1 icon-up" name="mdi:chevron-up" />
+            </button>
 
-      <div class="d-flex flex-column">
-        <!-- شبكة المنتجات -->
+            <ul class="dropdown-menu">
+              <li v-for="n in [3, 6, 9, 12]" :key="n">
+                <button
+                  type="button"
+                  class="dropdown-item text-end fs-4"
+                  :class="{ active: itemsPerPage === n }"
+                  @click="setItemsPerPage(n)"
+                >
+                  <span>
+                    {{ n }}
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+      <div class="d-lg-flex align-items-start justify-content-between">
+        <div class="collapse collapse-horizontal" id="collapseExample">
+          <SidebarFilters
+            class="sidebar-filters"
+            @update:filters="onFiltersChange"
+          />
+        </div>
+      <div class="d-flex flex-column w-100">
         <section class="product-section px-4">
-          <template v-if="sortedProducts?.length">
-            <div class="row g-4">
-              <div
-                v-for="pro in sortedProducts"
-                :key="pro.id ?? pro.slug ?? JSON.stringify(pro)"
-                class="col-12 col-md-4 col-xl-3"
-              >
-                <ProductCard :item="pro" />
-              </div>
-            </div>
-          </template>
-          <template v-else>
+          <template v-if="isLoading">
             <div class="row g-4 my-4">
               <div
                 v-for="n in 12"
@@ -241,6 +330,27 @@ function goToPage(n) {
               </div>
             </div>
           </template>
+          <template v-else-if="!isLoading && sortedProducts.length === 0">
+  <div class="text-center my-6 py-6">
+    <Icon name="mdi:alert-circle-outline" size="48" class="text-primary mb-3" />
+    <h4 class="fw-medium text-muted">لا توجد منتجات مطابقة لبحثك</h4>
+    <p class="text-muted fs-4">
+      جرّب تغيير الفلاتر أو توسيع نطاق البحث
+    </p>
+  </div>
+</template>
+          <template v-else>
+            <div class="row g-4">
+              <div
+                v-for="pro in visibleProducts"
+                :key="pro.id ?? pro.slug ?? JSON.stringify(pro)"
+                class="col-12 col-md-4 col-xl-3"
+              >
+                <ProductCard :item="pro" />
+              </div>
+            </div>
+          </template>
+
         </section>
 
         <!-- ترقيم الصفحات -->
@@ -299,6 +409,7 @@ function goToPage(n) {
             </li>
           </ul>
         </nav>
+      </div>
       </div>
     </div>
   </div>

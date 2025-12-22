@@ -51,17 +51,6 @@ const errors = reactive({
   password_confirmation: "",
 });
 
-const cities = [
-  { value: "جباليا", label: "جباليا" },
-  { value: "خانيونس", label: "خانيونس" },
-  { value: "النصيرات", label: "النصيرات" },
-  { value: "رفح", label: "رفح" },
-  { value: "دير البلح", label: "دير البلح" },
-  { value: "مدينة غزة", label: "مدينة غزة" },
-  { value: "بيت لاهيا", label: "بيت لاهيا" },
-  { value: "بيت حانون", label: "بيت حانون" },
-];
-
 // switch error msg
 function resetErrors() {
   Object.keys(errors).forEach((k) => (errors[k] = ""));
@@ -348,8 +337,7 @@ const formHandle = async () => {
                     />
                   </button>
                 </div>
-
-                <div class="text-center fw-medium mt-4 other-register">
+                <!-- <div class="text-center fw-medium mt-4 other-register">
                   أو التسجيل باستخدام
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-3">
@@ -365,7 +353,7 @@ const formHandle = async () => {
                       alt="google-icon"
                     />
                   </button>
-                </div>
+                </div> -->
               </form>
             </div>
           </div>

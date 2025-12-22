@@ -70,7 +70,7 @@ const formHandle = async () => {
       onSuccess: (response) => {
         // Handle the response
         router.push({
-          path: "/",
+          path: "/login",
         });
         showToast("success", response.message);
       },

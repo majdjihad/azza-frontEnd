@@ -230,9 +230,13 @@ const keyword = computed(() => searchParams.value.query || "");
               </template>
 
               <template v-else-if="!sortedProducts?.length">
-                <div class="py-5 text-center text-muted">
-                  لا توجد نتائج مطابقة.
-                </div>
+  <div class="text-center my-6 py-6">
+    <Icon name="mdi:alert-circle-outline" size="80" class="text-primary mb-3" />
+    <h4 class="fw-medium text-muted">لا توجد إعلانات مطابقة لبحثك</h4>
+    <p class="text-muted fs-4">
+      جرّب تغيير الفلاتر أو توسيع نطاق البحث
+    </p>
+  </div>
               </template>
 
               <!-- ترقيم الصفحات (من السيرفر: نعتمد الأكبر بين ads/products) -->

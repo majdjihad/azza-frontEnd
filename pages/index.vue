@@ -326,13 +326,13 @@ const selectCity = (id, name) => {
             >
               <div class="bg-white px-2 cat-img">
                 <NuxtImg
-                  :src="cat.image_url"
+                  :src="cat.icon"
                   style="width: 50px"
                   :alt="cat.name"
                 />
               </div>
               <div class="position-absolute bottom-0">
-                <p class="fs-4 fw-semibold">{{ cat.name }}</p>
+                <p class="fs-4 fw-semibold text-dark">{{ cat.name }}</p>
                 <div
                   class="btn-category bg-white px-3 d-flex justify-content-center"
                 >

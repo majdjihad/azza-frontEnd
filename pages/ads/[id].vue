@@ -1,177 +1,234 @@
-<script setup lang="js">
-import { useRoute, useHead, onMounted, onBeforeUnmount, ref, reactive, computed, watch } from '#imports'
-import { useRuntimeConfig } from '#app'
-import { useMain } from '~/composables/useMain'
+<script setup>
+import {
+  useRoute,
+  useHead,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  reactive,
+  computed,
+  watch,
+} from "#imports";
+import { useRuntimeConfig } from "#app";
+import { useAuth } from "~/composables/useAuth";
+import { useMain } from "~/composables/useMain";
+import { useMainStore } from "~/stores/mainStore";
 
 /* ================== الأساسيات ================== */
-const route = useRoute()
-const runtimeConfig = useRuntimeConfig()
-const { getAdDetails } = useMain()
+const route = useRoute();
+const runtimeConfig = useRuntimeConfig();
+const mainStore = useMainStore();
+const { getAdDetails } = useMain();
+const { isLoggedIn } = useAuth();
 
-const pending = ref(true)
-const loadError = ref(false)
+const pending = ref(true);
+const loadError = ref(false);
 
 /* ================== نموذج العرض ================== */
 const listing = reactive({
   id: route.params.id,
-  title: '',
-  location: '',
-  publishedAt: '',
+  title: "",
+  location: "",
+  publishedAt: "",
   price: null,
-  currency: '',
-  category: '',
+  currency: "",
+  category: "",
   images: [],
-  description: '',
+  description: "",
   publisher: null, // { id, name, avatar, phone, whatsapp, email }
   details: {},
-  customFields: [] // [{ label, value }]
-})
+  customFields: [], // [{ label, value }]
+});
 
-const relatedProducts = ref([])
-const relatedAds = ref([])
+const relatedProducts = ref([]);
+const relatedAds = ref([]);
 
 /* ================== توابع مساعدة ================== */
 function humanDate(d) {
-  if (!d) return ''
+  if (!d) return "";
   try {
-    const LOCALE = 'ar-EG-u-nu-latn'
-    const dt = new Date(d)
+    const LOCALE = "ar-EG-u-nu-latn";
+    const dt = new Date(d);
     const dateStr = new Intl.DateTimeFormat(LOCALE, {
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-    }).format(dt)
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(dt);
     const timeRaw = new Intl.DateTimeFormat(LOCALE, {
-      hour: '2-digit', minute: '2-digit', hour12: true
-    }).format(dt)
-    const time = timeRaw.replace(/\s([صم])$/, '$1')
-    return `${dateStr} - ${time}`
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(dt);
+    const time = timeRaw.replace(/\s([صم])$/, "$1");
+    return `${dateStr} - ${time}`;
   } catch {
-    return String(d)
+    return String(d);
   }
 }
 
 function mapAdToListing(d) {
-  const ad = d?.ad ?? d
+  const ad = d?.ad ?? d;
 
-  const gallery = Array.isArray(ad?.gallery) ? ad.gallery : []
+  const gallery = Array.isArray(ad?.gallery) ? ad.gallery : [];
   const galleryUrls = gallery
-    .map(it => (typeof it === 'string' ? it : it?.url || it?.path || ''))
-    .filter(Boolean)
-  const images = [ad?.main_image, ...galleryUrls].filter(Boolean)
-  const publisher = ad?.publisher || ad?.user || null
+    .map((it) => (typeof it === "string" ? it : it?.url || it?.path || ""))
+    .filter(Boolean);
+  const images = [ad?.main_image, ...galleryUrls].filter(Boolean);
+  const publisher = ad?.publisher || ad?.user || null;
 
   return {
     id: ad?.id,
-    title: ad?.title || ad?.name || '',
-    location: ad?.city_name || ad?.city?.name || '',
-    publishedAt: ad?.approved_at || '',
+    title: ad?.title || ad?.name || "",
+    location: ad?.city_name || ad?.city?.name || "",
+    publishedAt: ad?.approved_at || "",
     price: ad?.price ?? null,
-    currency: ad?.currency || '',
+    currency: ad?.currency || "",
     category:
       ad?.category_name ||
       ad?.subcategory?.category?.name ||
       ad?.subcategory?.category_name ||
-      '',
+      "",
     images,
-    description: ad?.description || '',
+    description: ad?.description || "",
     publisher: publisher
       ? {
-          id: ad?.user_id || publisher?.id || '',
-          name: ad?.user_name || publisher?.name || '',
-          avatar: ad?.user_photo || publisher?.image || publisher?.photo || '/media/avatars/logo.png',
-          phone: ad?.whatsapp || '',
-          whatsapp: ad?.whatsapp || '',
-          email: ad?.email || ''
+          id: ad?.user_id || publisher?.id || "",
+          name: ad?.user_name || publisher?.name || "",
+          avatar:
+            ad?.user_photo ||
+            publisher?.image ||
+            publisher?.photo ||
+            "/media/avatars/logo.png",
+          phone: ad?.whatsapp || "",
+          whatsapp: ad?.whatsapp || "",
+          email: ad?.email || "",
         }
       : null,
     details: {},
     customFields: Array.isArray(ad?.ad_custom_field_values)
       ? ad.ad_custom_field_values
-          .map(row => ({ label: row?.custom_field?.name || '', value: row?.value ?? '' }))
-          .filter(x => x.label && String(x.value).length)
-      : []
-  }
+          .map((row) => ({
+            label: row?.custom_field?.name || "",
+            value: row?.value ?? "",
+          }))
+          .filter((x) => x.label && String(x.value).length)
+      : [],
+  };
 }
+// فحص الإعلان في المفضلة
+function isAdInFavorites(adId, favoritesResponse) {
+  if (
+    !favoritesResponse ||
+    !favoritesResponse.data ||
+    !favoritesResponse.data.ads ||
+    !Array.isArray(favoritesResponse.data.ads.data)
+  ) {
+    return false;
+  }
+
+  return favoritesResponse.data.ads.data.some((item) => item.id == adId);
+}
+
+const favorites = await mainStore.getAllAdsFavorites();
+
+const isFavorite = ref(isAdInFavorites(route.params.id, favorites));
 
 /* ================== الجلب ================== */
 async function fetchDetails() {
-  pending.value = true
-  loadError.value = false
+  pending.value = true;
+  loadError.value = false;
   try {
-    const res = await getAdDetails(route.params.id)
-    const data = res?.data ?? res
-    const payload = data?.data ?? data
-    if (payload && typeof payload === 'object') {
-      Object.assign(listing, mapAdToListing(payload))
-      relatedProducts.value = Array.isArray(payload.products) ? payload.products : []
-      relatedAds.value = Array.isArray(payload.related_ads) ? payload.related_ads : []
+    const res = await getAdDetails(route.params.id);
+    const data = res?.data ?? res;
+    const payload = data?.data ?? data;
+    if (payload && typeof payload === "object") {
+      Object.assign(listing, mapAdToListing(payload));
+      relatedProducts.value = Array.isArray(payload.products)
+        ? payload.products
+        : [];
+      relatedAds.value = Array.isArray(payload.related_ads)
+        ? payload.related_ads
+        : [];
     } else {
-      loadError.value = true
+      loadError.value = true;
     }
   } catch {
-    loadError.value = true
+    loadError.value = true;
   } finally {
-    pending.value = false
+    pending.value = false;
   }
 }
 
-onMounted(fetchDetails)
+onMounted(fetchDetails);
 watch(
   () => route.params.id,
   async (id) => {
-    listing.id = id
-    await fetchDetails()
+    listing.id = id;
+    await fetchDetails();
   }
-)
+);
 
 /* ================== SEO / HEAD ================== */
 // بناء origin مناسب للـ SSR/Client
 function getOrigin() {
-  if (process.client && typeof window !== 'undefined') return window.location.origin
-  return runtimeConfig.public?.siteUrl || 'https://azza-ak.com/'
+  if (process.client && typeof window !== "undefined")
+    return window.location.origin;
+  return runtimeConfig.public?.siteUrl || "https://azza-ak.com/";
 }
 const adUrl = computed(() => {
-  const origin = getOrigin()
+  const origin = getOrigin();
   try {
-    return new URL(`/ads/${listing.id || ''}`, origin).href
+    return new URL(`/ads/${listing.id || ""}`, origin).href;
   } catch {
-    return `${origin}/ads/${listing.id || ''}`
+    return `${origin}/ads/${listing.id || ""}`;
   }
-})
-const mainImage = computed(() => listing.images?.[0] || '/media/avatars/logo.png')
+});
+const mainImage = computed(
+  () => listing.images?.[0] || "/media/avatars/logo.png"
+);
 const metaDescription = computed(() => {
-  const base = (listing.description || listing.title || 'شاهد تفاصيل هذا الإعلان على منصتنا.').trim()
-  return base.length > 180 ? base.slice(0, 177) + '…' : base
-})
+  const base = (
+    listing.description ||
+    listing.title ||
+    "شاهد تفاصيل هذا الإعلان على منصتنا."
+  ).trim();
+  return base.length > 180 ? base.slice(0, 177) + "…" : base;
+});
 
 // ✅ تعريف الميتا بعد تهيئة listing — لا استخدام قبل التعريف
 useHead(() => {
-  const title = listing.title ? `${listing.title} ` : 'تفاصيل الإعلان'
-  const desc = metaDescription.value
-  const img = mainImage.value
-  const url = adUrl.value
+  const title = listing.title ? `${listing.title} ` : "تفاصيل الإعلان";
+  const desc = metaDescription.value;
+  const img = mainImage.value;
+  const url = adUrl.value;
 
   return {
     title,
-    link: [{ rel: 'canonical', href: url }],
+    link: [{ rel: "canonical", href: url }],
     meta: [
-      { property: 'og:type', content: 'product' },
-      { property: 'og:title', content: title },
-      { property: 'og:description', content: desc },
-      { property: 'og:image', content: img },
-      { property: 'og:url', content: url },
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: title },
-      { name: 'twitter:description', content: desc },
-      { name: 'twitter:image', content: img },
-      listing.price != null ? { property: 'product:price:amount', content: String(listing.price) } : undefined,
-      listing.currency ? { property: 'product:price:currency', content: listing.currency } : undefined
+      { property: "og:type", content: "product" },
+      { property: "og:title", content: title },
+      { property: "og:description", content: desc },
+      { property: "og:image", content: img },
+      { property: "og:url", content: url },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: desc },
+      { name: "twitter:image", content: img },
+      listing.price != null
+        ? { property: "product:price:amount", content: String(listing.price) }
+        : undefined,
+      listing.currency
+        ? { property: "product:price:currency", content: listing.currency }
+        : undefined,
     ].filter(Boolean),
     script: [
       {
-        type: 'application/ld+json',
+        type: "application/ld+json",
         innerHTML: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Product',
+          "@context": "https://schema.org",
+          "@type": "Product",
           name: title,
           description: desc,
           image: img,
@@ -179,84 +236,111 @@ useHead(() => {
           offers:
             listing.price != null
               ? {
-                  '@type': 'Offer',
+                  "@type": "Offer",
                   price: String(listing.price),
-                  priceCurrency: listing.currency || 'USD',
-                  availability: 'https://schema.org/InStock'
+                  priceCurrency: listing.currency || "USD",
+                  availability: "https://schema.org/InStock",
                 }
-              : undefined
-        })
-      }
-    ]
-  }
-})
+              : undefined,
+        }),
+      },
+    ],
+  };
+});
 
 /* ================== سلايدر العناصر ذات الصلة ================== */
 const chunk = (arr, size) => {
-  const out = []
-  if (!Array.isArray(arr)) return out
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
-  return out
-}
-const perSlide = 4
-const productSlides = computed(() => chunk(relatedProducts.value, perSlide))
-const relatedAdSlides = computed(() => chunk(relatedAds.value, perSlide))
-const carouselId = 'offersCarousel'
+  const out = [];
+  if (!Array.isArray(arr)) return out;
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+};
+const perSlide = 4;
+const productSlides = computed(() => chunk(relatedProducts.value, perSlide));
+const relatedAdSlides = computed(() => chunk(relatedAds.value, perSlide));
+const carouselId = "offersCarousel";
 
 /* ================== مشاركة (Toast) ================== */
 const shareText = computed(() => {
-  const parts = []
-  if (listing.title) parts.push(listing.title)
-  if (listing.category) parts.push(`(${listing.category})`)
-  if (listing.price != null) parts.push(`السعر: ${listing.price} ${listing.currency || ''}`.trim())
-  if (listing.location) parts.push(`المكان: ${listing.location}`)
-  return parts.join(' • ')
-})
+  const parts = [];
+  if (listing.title) parts.push(listing.title);
+  if (listing.category) parts.push(`(${listing.category})`);
+  if (listing.price != null)
+    parts.push(`السعر: ${listing.price} ${listing.currency || ""}`.trim());
+  if (listing.location) parts.push(`المكان: ${listing.location}`);
+  return parts.join(" • ");
+});
 const shareUrls = computed(() => ({
-  fb: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(adUrl.value)}&quote=${encodeURIComponent(shareText.value)}`,
-  wa: `https://wa.me/?text=${encodeURIComponent(`${shareText.value} ${adUrl.value}`)}`
-}))
+  fb: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+    adUrl.value
+  )}&quote=${encodeURIComponent(shareText.value)}`,
+  wa: `https://wa.me/?text=${encodeURIComponent(
+    `${shareText.value} ${adUrl.value}`
+  )}`,
+}));
 
-const shareToastOpen = ref(false)
-let hideTimer = null
-let startedAt = 0
-let remaining = 5000
+const shareToastOpen = ref(false);
+let hideTimer = null;
+let startedAt = 0;
+let remaining = 5000;
 
 function openShareToast() {
-  shareToastOpen.value = true
-  clearTimeout(hideTimer)
-  remaining = 5000
-  startedAt = Date.now()
-  hideTimer = setTimeout(() => (shareToastOpen.value = false), remaining)
+  shareToastOpen.value = true;
+  clearTimeout(hideTimer);
+  remaining = 5000;
+  startedAt = Date.now();
+  hideTimer = setTimeout(() => (shareToastOpen.value = false), remaining);
 }
 function closeShareToast() {
-  shareToastOpen.value = false
-  clearTimeout(hideTimer)
+  shareToastOpen.value = false;
+  clearTimeout(hideTimer);
 }
+/* ====== قلب المفضلة (بدون loader) ====== */
+const handleToggleFavorite = async () => {
+  // قلب محلي فوري
+  isFavorite.value = !isFavorite.value;
+  try {
+    await mainStore.changeFavoriteAds(route?.params?.id);
+  } catch (e) {
+    console.error("Error toggling favorite:", e);
+    // رجوع للحالة السابقة إذا صار خطأ
+    props.ad.is_favorite = !props.ad.is_favorite;
+  }
+};
+
 function onToastMouseEnter() {
-  clearTimeout(hideTimer)
-  remaining -= Date.now() - startedAt
+  clearTimeout(hideTimer);
+  remaining -= Date.now() - startedAt;
 }
 function onToastMouseLeave() {
-  startedAt = Date.now()
-  clearTimeout(hideTimer)
-  hideTimer = setTimeout(() => (shareToastOpen.value = false), Math.max(0, remaining))
+  startedAt = Date.now();
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(
+    () => (shareToastOpen.value = false),
+    Math.max(0, remaining)
+  );
 }
 function shareTo(platform) {
-  const url = shareUrls.value[platform]
-  if (!url) return
-  if (process.client) window.open(url, '_blank', 'noopener,noreferrer')
-  closeShareToast()
+  const url = shareUrls.value[platform];
+  if (!url) return;
+  if (process.client) window.open(url, "_blank", "noopener,noreferrer");
+  closeShareToast();
+}
+// ✅ تحميل المفضلات تلقائياً عند تسجيل الدخول
+if (isLoggedIn?.value) {
+  await mainStore.getAllAdsFavorites();
+} else {
+  mainStore.adsFavorites = {}; // تصفير عند تسجيل الخروج
 }
 
 /* Esc لإغلاق التوست */
-const onKey = (e) => e.key === 'Escape' && closeShareToast()
+const onKey = (e) => e.key === "Escape" && closeShareToast();
 onMounted(() => {
-  window.addEventListener('keydown', onKey)
-})
+  window.addEventListener("keydown", onKey);
+});
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', onKey)
-})
+  window.removeEventListener("keydown", onKey);
+});
 </script>
 
 <template>
@@ -322,8 +406,22 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
               </div>
-
               <div class="d-flex align-items-center gap-2">
+                <button
+                  v-if="isLoggedIn"
+                  :class="isFavorite ? 'bg-primary' : 'btn-outline-secondary'"
+                  class="btn text-muted border d-flex align-items-center"
+                  title="مشاركة"
+                  @click="handleToggleFavorite"
+                >
+                  <Icon
+                    v-if="isFavorite"
+                    name="mdi:cards-heart"
+                    class="fs-2 text-primary"
+                  />
+                  <Icon v-else name="mdi:heart-outline" class="fs-2" />
+                  <span class="fs-3 text-muted me-2">المفضلة</span>
+                </button>
                 <button
                   class="btn btn-outline-secondary text-muted border d-flex align-items-center"
                   title="مشاركة"
@@ -586,11 +684,10 @@ onBeforeUnmount(() => {
         <div class="d-flex justify-content-between offers-header mb-3">
           <div>
             <p class="fs-6 offers-subtitle text-muted">مقترحات لك</p>
-            <h2 class="fs-2 fw-medium mb-1">
+            <div class="fs-2 fw-medium mb-1">
               <template v-if="relatedProducts.length">منتجات مشابهة</template>
               <template v-else-if="relatedAds.length">إعلانات ذات صلة</template>
-              <template v-else>لا توجد عناصر ذات صلة</template>
-            </h2>
+            </div>
           </div>
           <template v-if="relatedProducts.length">
             <div
@@ -609,7 +706,6 @@ onBeforeUnmount(() => {
               </div>
             </div>
           </template>
-
           <div
             class="d-flex align-items-center gap-2 offers-toolbar"
             v-if="relatedProducts.length > 4 || relatedAds.length > 4"
@@ -661,7 +757,6 @@ onBeforeUnmount(() => {
             </template>
           </div>
         </div>
-
         <div v-else class="text-center text-muted py-5">
           لا توجد عناصر ذات صلة لعرضها.
         </div>
@@ -898,6 +993,9 @@ onBeforeUnmount(() => {
 .price-icon {
   color: #a5acb9 !important;
   transform: rotateY(180deg);
+}
+.bg-primary {
+  background-color: #1839a030 !important;
 }
 .big-price-icon {
   font-size: 70px !important;

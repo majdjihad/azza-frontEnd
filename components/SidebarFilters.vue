@@ -149,40 +149,49 @@ const categories = computed(() => {
 const selectedCategories = ref([...filters.categories]);
 const expanded = reactive({});
 
+const selectedParentIds = ref([]);        // category_id[]
+const selectedSubcategoryIds = ref([]);   // subcategory_ids[]
+
 function toggleParent(p, e) {
   e?.stopPropagation?.();
-  const childVals = (p.children || []).map((ch) => ch.value);
-  if (!childVals.length) {
-    const exists = selectedCategories.value.includes(p.value);
-    selectedCategories.value = exists
-      ? selectedCategories.value.filter((v) => v !== p.value)
-      : [...selectedCategories.value, p.value];
-    return;
+
+  if (selectedParentIds.value.includes(p.value)) {
+    selectedParentIds.value =
+      selectedParentIds.value.filter(id => id !== p.value);
+  } else {
+    selectedParentIds.value.push(p.value);
   }
-  const allSelected = childVals.every((v) =>
-    selectedCategories.value.includes(v)
-  );
-  selectedCategories.value = allSelected
-    ? selectedCategories.value.filter((v) => !childVals.includes(v))
-    : Array.from(new Set([...selectedCategories.value, ...childVals]));
+}
+function toggleChild(id) {
+  if (selectedSubcategoryIds.value.includes(id)) {
+    selectedSubcategoryIds.value =
+      selectedSubcategoryIds.value.filter(v => v !== id);
+  } else {
+    selectedSubcategoryIds.value.push(id);
+  }
 }
 
 function isParentChecked(p) {
-  const childVals = (p.children || []).map((ch) => ch.value);
-  if (!childVals.length) return selectedCategories.value.includes(p.value);
-  return (
-    childVals.length &&
-    childVals.every((v) => selectedCategories.value.includes(v))
-  );
+  return selectedParentIds.value.includes(p.value);
 }
+
 function isParentIndeterminate(p) {
-  const childVals = (p.children || []).map((ch) => ch.value);
+  const childVals = (p.children || []).map(ch => ch.value);
   if (!childVals.length) return false;
-  const hit = childVals.filter((v) =>
-    selectedCategories.value.includes(v)
+
+  const hit = childVals.filter(v =>
+    selectedSubcategoryIds.value.includes(v)
   ).length;
+
   return hit > 0 && hit < childVals.length;
 }
+
+watch(selectedCategories, (val) => {
+  if (val.length > 0) {
+    filters.category_id = "";
+  }
+});
+
 
 const allValues = computed(() => {
   const vals = [];
@@ -192,32 +201,66 @@ const allValues = computed(() => {
   }
   return vals;
 });
-const allChecked = computed(
-  () =>
-    allValues.value.length > 0 &&
-    allValues.value.every((v) => selectedCategories.value.includes(v))
+const allChecked = ref(false);
+const isIndeterminate = ref(false);
+
+watch(
+  selectedCategories,
+  (val) => {
+    allChecked.value =
+      val.length > 0 && val.length === allValues.value.length;
+    isIndeterminate.value =
+      val.length > 0 && val.length < allValues.value.length;
+  },
+  { deep: true }
 );
-const isIndeterminate = computed(
-  () => selectedCategories.value.length > 0 && !allChecked.value
+const allValuesCount = computed(() => {
+  return categories.value.reduce((acc, p) => {
+    if (p.children?.length) return acc + p.children.length;
+    return acc + 1;
+  }, 0);
+});
+
+watch(
+  [selectedParentIds, selectedSubcategoryIds],
+  () => {
+    const totalSelected =
+      selectedParentIds.value.length + selectedSubcategoryIds.value.length;
+    allChecked.value = totalSelected === allValuesCount.value;
+    isIndeterminate.value =
+      totalSelected > 0 && totalSelected < allValuesCount.value;
+  },
+  { deep: true }
 );
+
 function toggleAll(e) {
   e?.stopPropagation?.();
-  selectedCategories.value = e.target.checked ? [...allValues.value] : [];
+  if (e.target.checked) {
+    // حدد كل الآباء والأبناء
+    selectedParentIds.value = categories.value.map(p => p.value);
+    selectedSubcategoryIds.value = categories.value
+      .flatMap(p => p.children ? p.children.map(ch => ch.value) : []);
+  } else {
+    // أفرغ التحديد
+    selectedParentIds.value = [];
+    selectedSubcategoryIds.value = [];
+  }
 }
 
 /* ====== تطبيق الفلاتر عند النقر فقط ====== */
 function applyFilters() {
-  filters.categories = [...selectedCategories.value];
-  filters.priceMin = priceMinText.value ? Number(priceMinText.value) : null;
-  filters.priceMax = priceMaxText.value ? Number(priceMaxText.value) : null;
-
   emit("update:filters", {
-    categories: filters.categories,
+    category_id: selectedParentIds.value.length
+      ? [...selectedParentIds.value]
+      : undefined,
+
+    subcategory_ids: selectedSubcategoryIds.value.length
+      ? [...selectedSubcategoryIds.value]
+      : undefined,
+
     city_id: filters.city_id || undefined,
-    priceMin: filters.priceMin ?? undefined,
-    priceMax: filters.priceMax ?? undefined,
-    currency: filters.currency,
-    category_id: filters.category_id || undefined,
+    min_price: priceMinText.value ? Number(priceMinText.value) : undefined,
+    max_price: priceMaxText.value ? Number(priceMaxText.value) : undefined,
   });
 }
 </script>
@@ -262,20 +305,20 @@ function applyFilters() {
             </label>
           </div>
 
-          <div v-for="(p, i) in categories" :key="p.value || i" class="mb-2">
+          <div  v-for="(p, i) in categories" :key="p.value" class="mb-2">
             <div
               class="d-flex align-items-center justify-content-between app-item"
             >
               <div class="form-check form-check-reverse m-0">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  :id="`p-${i}`"
-                  :checked="isParentChecked(p)"
-                  :indeterminate.prop="isParentIndeterminate(p)"
-                  @change.stop="toggleParent(p, $event)"
-                />
-                <label
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    :checked="isParentChecked(p)"
+                    :indeterminate.prop="isParentIndeterminate(p)"
+                    @change.stop="toggleParent(p, $event)"
+                    :id="`p-${i}`"
+                  />                
+                  <label
                   class="form-check-label d-inline-flex gap-2"
                   :for="`p-${i}`"
                 >
@@ -303,22 +346,21 @@ function applyFilters() {
             </div>
 
             <div
-              v-if="p.children && p.children.length && expanded[p.value]"
+              v-if="p.children && p.children.length"
               class="mt-2 ps-4"
             >
               <div
                 v-for="(ch, j) in p.children"
-                :key="ch.value || j"
+                :key="ch.value"
                 class="form-check child-item form-check-reverse mb-2"
               >
-                <input
-                  class="form-check-input ms-2"
-                  type="checkbox"
-                  :id="`c-${i}-${j}`"
-                  :value="ch.value"
-                  v-model="selectedCategories"
-                />
-                <label
+<input
+  class="form-check-input ms-2"
+  type="checkbox"
+  :checked="selectedSubcategoryIds.includes(ch.value)"
+  @change.stop="toggleChild(ch.value)"
+  :id="`c-${i}-${j}`"
+/>                <label
                   class="form-check-label w-100 d-flex"
                   :for="`c-${i}-${j}`"
                 >

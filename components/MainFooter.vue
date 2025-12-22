@@ -4,7 +4,7 @@ const config = useRuntimeConfig();
 <template>
   <footer class="footer bg-white border-top pt-9 shadow">
     <div class="">
-      <div class="row text-end px-6">
+      <div class="row text-end px-6 gap-9">
         <div class="col-md-4 col-10 mb-4">
           <div class="mb-3 pe-md-9">
             <img
@@ -14,18 +14,22 @@ const config = useRuntimeConfig();
               class="ms-2 logo-img"
             />
           </div>
-          <p class="text-muted fw-medium fs-6 p-md-4 p-lg-9 pt-lg-0 pb-3 pb-md-0">
+          <p
+            class="text-muted fw-medium fs-6 p-md-4 p-lg-9 pt-lg-0 pb-3 pb-md-0"
+          >
             موقعنا هو منصة إلكترونية متكاملة للإعلانات العربية تتيح للمستخدمين
             إضافة إعلاناتهم بسهولة وتصفح العروض الخاصة في مختلف التصنيفات مثل
             العقارات، الأجهزة، الأثاث، المفقودات والخدمات. نوفر بيئة موثوقة
             وآمنة للتواصل المباشر بين البائعين والمشترين.
           </p>
         </div>
-        <div class="col-4 col-md-3 ps-sm-0 mb-4">
+        <div class="col-4 col-md-2 ps-sm-0 mb-4">
           <h5 class="fw-bold mb-3">الصفحات</h5>
           <ul class="list-unstyled p-0">
             <li>
-              <NuxtLink to="/" class="fs-6 text-muted fw-medium text-decoration-none"
+              <NuxtLink
+                to="/"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >الرئيسية</NuxtLink
               >
             </li>
@@ -37,7 +41,9 @@ const config = useRuntimeConfig();
               >
             </li>
             <li>
-              <NuxtLink to="/ads" class="fs-6 text-muted fw-medium text-decoration-none"
+              <NuxtLink
+                to="/ads"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >تصفح الإعلانات</NuxtLink
               >
             </li>
@@ -64,7 +70,7 @@ const config = useRuntimeConfig();
             </li>
           </ul>
         </div>
-        <div class="col-4 col-md-3 p-0 mb-4">
+        <div class="col-4 col-md-2 p-0 mb-4">
           <h5 class="fw-bold mb-3">روابط سريعة</h5>
           <ul class="list-unstyled p-0">
             <li>
@@ -75,12 +81,16 @@ const config = useRuntimeConfig();
               >
             </li>
             <li>
-              <NuxtLink to="/ads" class="fs-6 text-muted fw-medium text-decoration-none"
+              <NuxtLink
+                to="/ads"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >الإعلانات</NuxtLink
               >
             </li>
             <li>
-              <NuxtLink to="/" class="fs-6 text-muted fw-medium text-decoration-none"
+              <NuxtLink
+                to="/"
+                class="fs-6 text-muted fw-medium text-decoration-none"
                 >الرئيسية</NuxtLink
               >
             </li>
@@ -116,7 +126,7 @@ const config = useRuntimeConfig();
                 class="text-white"
               />
             </span>
-            <span class="ms-1 text-muted">{{
+            <span class="fs-6 ms-1 text-muted">{{
               config.public.companyPhone
             }}</span>
           </li>
@@ -124,7 +134,7 @@ const config = useRuntimeConfig();
             <span class="ms-2 px-2 py-1 bg-primary rounded-circle">
               <Icon name="bi:envelope-fill" class="text-white" />
             </span>
-            <span class="ms-1 text-muted">{{
+            <span class="fs-6 ms-1 text-muted">{{
               config.public.companyEmail
             }}</span>
           </li>

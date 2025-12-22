@@ -163,7 +163,9 @@ onMounted(() => {
                 </p>
                 <p class="ms-1 text-muted">
                   {{
-                    userInfo.whatsapp || "لم يتم اضافة واتساب من قبل المستخدم"
+                    userInfo.whatsapp ||
+                    userInfo.phone ||
+                    "لم يتم اضافة واتساب من قبل المستخدم"
                   }}
                 </p>
               </li>

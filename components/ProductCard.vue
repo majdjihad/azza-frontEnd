@@ -123,7 +123,7 @@ onMounted(() => {
       <div>
         <div class="text-muted small d-flex align-items-center gap-1">
           <Icon name="material-symbols:location-on" size="20" class="fw-bold" />
-          <span class="fs-6">غزة - فلسطين</span>
+          <span class="fs-6">{{ item?.city || "غزة" }} - فلسطين</span>
         </div>
         <div class="text-end text-primary mt-1 pe-1">
           <span class="price ms-1 fs-6 fw-bold">{{ formattedPrice }}</span>

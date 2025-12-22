@@ -99,28 +99,52 @@ const currentPage = computed(() => {
 });
 
 function buildParamsFromQuery(query = {}) {
-  let subIds = query["subcategory_ids[]"] ?? query.subcategory_ids ?? [];
-  if (!Array.isArray(subIds)) subIds = [subIds].filter(Boolean);
-  const city_id = query.city_id ? Number(query.city_id) : undefined;
   return {
-    category_id: query.category_id ? Number(query.category_id) : undefined,
-    subcategory_ids: subIds
-      .map((x) => Number(x))
-      .filter((x) => !Number.isNaN(x)),
-    city_id,
+    category_id: query.category_id
+      ? String(query.category_id)
+          .split(",")
+          .map(Number)
+          .filter(Boolean)
+      : undefined,
+
+    subcategory_ids: query.subcategory_ids
+      ? String(query.subcategory_ids)
+          .split(",")
+          .map(Number)
+          .filter(Boolean)
+      : undefined,
+
+    city_id: query.city_id ? Number(query.city_id) : undefined,
     min_price: query.min_price ? Number(query.min_price) : undefined,
     max_price: query.max_price ? Number(query.max_price) : undefined,
-    page: query.page ? Math.max(1, Number(query.page)) : 1,
-    // ملاحظة: لا نرسل أي مفاتيح للترتيب — الفرز محلي فقط
+    page: query.page ? Number(query.page) : 1,
   };
 }
+
+const isLoading = ref(false);
 
 watch(
   () => route.query,
   async () => {
-    const params = buildParamsFromQuery(route.query);
-    await mainStore.getFilteredAds(params);
-    if (process.client) window.scrollTo({ top: 0, behavior: "smooth" });
+    isLoading.value = true;
+
+    if (
+      route.query.category_id ||
+      route.query.city_id ||
+      route.query.min_price ||
+      route.query.max_price
+    ) {
+      const params = buildParamsFromQuery(route.query);
+      await mainStore.getFilteredAds(params);
+    } else {
+      await mainStore.getAds(1);
+    }
+
+    isLoading.value = false;
+
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   },
   { immediate: true, deep: true }
 );
@@ -144,24 +168,21 @@ const lastPage = computed(() => {
 
 function onFiltersChange(f) {
   const q = {
-    ...route.query,
     page: 1,
-    min_price: f.priceMin ?? undefined,
-    max_price: f.priceMax ?? undefined,
-    city_id: f.city_id || undefined,
+    city_id: f.city_id ?? undefined,
+    min_price: f.min_price ?? undefined,
+    max_price: f.max_price ?? undefined,
   };
-
-  if (f.category_id) q.category_id = f.category_id;
-  else delete q.category_id;
-
-  delete q["subcategory_ids[]"];
-  if (Array.isArray(f.categories) && f.categories.length) {
-    q["subcategory_ids[]"] = f.categories.map(String);
+  if (Array.isArray(f.category_id) && f.category_id.length) {
+    q.category_id = f.category_id.join(",");
+  }
+  if (Array.isArray(f.subcategory_ids) && f.subcategory_ids.length) {
+    q.subcategory_ids = f.subcategory_ids.join(",");
   }
 
   router.push({ path: route.path, query: q });
 }
-/* ========= عدد الإعلانات المعروضة ========= */
+
 const itemsPerPage = ref(9); // القيمة الافتراضية
 
 function setItemsPerPage(n) {
@@ -256,7 +277,7 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
             </ul>
           </div>
 
-          <!-- ✅ زر عرض عدد الإعلانات -->
+          <!-- ✅ زر عرض عدد المنتجات -->
           <div class="btn-group">
             <button
               type="button"
@@ -294,7 +315,7 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
             @update:filters="onFiltersChange"
           />
         </div>
-        <div class="d-flex flex-column">
+        <div class="d-flex flex-column w-100">
           <section class="product-section px-4">
             <template v-if="sortedProducts?.length">
               <div class="row g-4">
@@ -313,19 +334,7 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
             </template>
           </section>
           <section class="ads-section px-4">
-            <template v-if="sortedAds?.length">
-              <div class="row g-4">
-                <div
-                  v-for="ad in visibleAds"
-                  :key="ad.id"
-                  class="col-12 col-md-6 p-0"
-                  :class="isSidebarVisible ? 'col-xl-4' : 'col-xl-3'"
-                >
-                  <AdsCard :ad="ad" />
-                </div>
-              </div>
-            </template>
-            <template v-else>
+            <template v-if="isLoading">
               <div class="row g-4 my-4">
                 <div
                   v-for="n in 12"
@@ -336,7 +345,27 @@ const visibleAds = computed(() => sortedAds.value.slice(0, itemsPerPage.value));
                 </div>
               </div>
             </template>
-
+<template v-else-if="!sortedAds.length">
+  <div class="text-center my-6 py-6">
+    <Icon name="mdi:alert-circle-outline" size="80" class="text-primary mb-3" />
+    <h4 class="fw-medium text-muted">لا توجد إعلانات مطابقة لبحثك</h4>
+    <p class="text-muted fs-4">
+      جرّب تغيير الفلاتر أو توسيع نطاق البحث
+    </p>
+  </div>
+</template>
+<template v-else>
+  <div class="row g-4">
+    <div
+      v-for="ad in visibleAds"
+      :key="ad.id"
+      class="col-12 col-md-6 p-0"
+      :class="isSidebarVisible ? 'col-xl-4' : 'col-xl-3'"
+    >
+      <AdsCard :ad="ad" />
+    </div>
+  </div>
+</template>
             <nav aria-label="Page navigation example" v-if="lastPage > 1">
               <ul class="pagination my-9">
                 <li class="page-item" :class="{ disabled: currentPage <= 1 }">

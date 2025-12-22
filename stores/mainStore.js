@@ -112,6 +112,7 @@ export const useMainStore = defineStore("useMain", () => {
     toggleAdsFavorite,
     getDataFilter,
     filterAds,
+    filterProducts,
     getAllProducts,
     getSearch,
   } = useMain();
@@ -348,11 +349,24 @@ export const useMainStore = defineStore("useMain", () => {
     adsPageData.value = res;
     syncFavoritesMarkersEverywhere();
   }
+  function setProductsData(res) {
+  productsPageData.value = res;
+}
 
   async function getFilteredAds(params = {}) {
     try {
       const res = await filterAds(params);
       setAdsData(res);
+      return res;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function getFilteredProducts(params = {}) {
+    try {
+      const res = await filterProducts(params);
+      setProductsData(res);
       return res;
     } catch (e) {
       console.log(e);
@@ -395,6 +409,7 @@ export const useMainStore = defineStore("useMain", () => {
     getFilterData,
     getSearchResults,
     getFilteredAds,
+    getFilteredProducts,
     setAdsData,
 
     buildFilterParamsFromQuery,
