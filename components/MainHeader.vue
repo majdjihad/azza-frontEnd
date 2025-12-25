@@ -162,15 +162,19 @@ const showAddButton = computed(() => !allowedPaths.includes(route.name ?? ""));
           <NotificationsMenu v-if="isLoggedIn" />
 
           <!-- إعلاناتي -->
-          <NuxtLink
-            v-if="isLoggedIn"
-            :to="isLoggedIn ? '/profile/ads' : '/login'"
-            class="btn btn-link text-dark text-decoration-none d-flex flex-column align-items-center"
-          >
-            <Icon name="fa-solid:book" class="text-secondary fs-2" />
-            <span class="text-secondary fw-normal fs-6 mt-4">إعلاناتي</span>
-          </NuxtLink>
-
+<NuxtLink
+  v-if="isLoggedIn"
+  to="/profile/ads"
+  class="btn btn-link text-decoration-none d-flex flex-column align-items-center"
+  :class="$route.path.includes('/profile/ads') ? 'text-primary' : 'text-secondary'"
+>
+  <Icon
+    name="fa-solid:book"
+    class="fs-2"
+    :class="$route.path.includes('/profile/ads') ? 'text-primary' : 'text-secondary'"
+  />
+  <span class="fw-normal fs-6 mt-4">إعلاناتي</span>
+</NuxtLink>
           <!-- حساب المستخدم -->
           <NuxtLink
             to="/profile"

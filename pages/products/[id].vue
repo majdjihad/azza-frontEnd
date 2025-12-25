@@ -374,17 +374,27 @@ onMounted(() => {
                   />
                 </div>
               </div>
-              <div class="col-md-4 col-6">
+                            <div class="col-md-4 col-6" v-if="listing.images.length > 1">
                 <div class="gallery-thumbs d-md-grid d-flex gap-3">
-                  <img
-                    v-for="(img, i) in listing.images.slice(0, 2)"
+                  <NuxtImg
+                    v-for="(img, i) in listing.images.slice(1, 3)"
                     :key="i"
-                    :src="img"
+                     :src="img"
                     class="w-100 rounded-1"
                     alt="الصور الفرعية"
                   />
                 </div>
               </div>
+                <div class="gallery-thumbs row p-0" v-if="listing.images.length > 3">
+                  <NuxtImg
+                    v-for="(img, i) in listing.images.slice(3, listing.images.length)"
+                    :src="img"
+                    :key="i"
+                    style="border-radius: 10px !important"
+                    class="col-4 px-2 rounded-1"
+                    alt="الصور الفرعية"
+                  />
+                </div>
             </div>
 
             <!-- الوصف -->
@@ -452,7 +462,7 @@ onMounted(() => {
                     class="rounded-circle border"
                     width="83"
                     height="83"
-                    :alt="listing.publisher.name"
+                    :alt="listing.publisher?.name"
                   />
                   <div><h3 class="fw-bold mt-3">AZZA</h3></div>
                 </div>

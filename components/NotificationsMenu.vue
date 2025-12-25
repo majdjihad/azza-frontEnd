@@ -121,6 +121,7 @@ async function handleMarkAll() {
   await fetchAll(pagination.value.current_page);
 }
 async function handleDeleteAll() {
+mappedItems.value = [];
   await deleteAllNotifications();
   await fetchAll(1);
 }
@@ -248,6 +249,7 @@ onBeforeUnmount(() => {
 
           <!-- Delete all -->
           <span
+          v-if="mappedItems.length > 0"
             class="d-inline-block"
             data-bs-toggle="tooltip"
             data-bs-placement="top"

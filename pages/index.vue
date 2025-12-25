@@ -2,7 +2,6 @@
 import { useMainStore } from "~/stores/mainStore";
 
 useHead({ title: "الرئيسية" });
-definePageMeta({ middleware: ["auth"] });
 
 // ✅ SEO للصفحة الرئيسية
 useSeo({

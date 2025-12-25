@@ -447,14 +447,24 @@ onBeforeUnmount(() => {
               <div class="col-md-4 col-6" v-if="listing.images.length > 1">
                 <div class="gallery-thumbs d-md-grid d-flex gap-3">
                   <NuxtImg
-                    v-for="(img, i) in listing.images"
+                    v-for="(img, i) in listing.images.slice(1, 3)"
                     :key="i"
-                    :src="img"
+                     :src="img"
                     class="w-100 rounded-1"
                     alt="الصور الفرعية"
                   />
                 </div>
               </div>
+                <div class="gallery-thumbs row p-0" v-if="listing.images.length > 3">
+                  <NuxtImg
+                    v-for="(img, i) in listing.images.slice(3, listing.images.length)"
+                    :src="img"
+                    :key="i"
+                    style="border-radius: 10px !important"
+                    class="col-4 px-2 rounded-1"
+                    alt="الصور الفرعية"
+                  />
+                </div>
             </div>
 
             <!-- الوصف -->
@@ -611,9 +621,89 @@ onBeforeUnmount(() => {
               </template>
 
               <template v-else>
-                <div class="text-center text-muted py-5">
-                  لا تتوفر بيانات ناشر.
+          <div class="card mb-3">
+            <div class="card-body p-0">
+              <h3 class="mb-3 border-bottom pb-3 pt-8 mx-4 fs-4 fw-bold">
+                بيانات الناشر
+              </h3>
+              <NuxtLink to="/products" class="m-auto mb-3 text-center">
+                <div>
+                  <NuxtImg
+                    src="~/public/media/avatars/logo.png"
+                    class="rounded-circle border"
+                    width="83"
+                    height="83"
+                    :alt="listing.publisher.name"
+                  />
+                  <div><h3 class="fw-bold mt-3">AZZA</h3></div>
                 </div>
+              </NuxtLink>
+              <NuxtLink
+                to="/products"
+                class="d-block text-primary fw-medium my-3 text-decoration-underline text-center fs-6 mb-2"
+              >
+                عرض جميع المنتجات
+              </NuxtLink>
+              <div class="user-data gap-2 my-3 pb-3 px-3">
+                <NuxtLink
+                  :to="`tel:${runtimeConfig.public.companyPhone}`"
+                  class="user-phone d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                >
+                  <span class="p-6 bg-primary rounded">
+                    <Icon
+                      name="material-symbols:phone-in-talk-watchface-indicator"
+                      class="text-white fs-1"
+                    />
+                  </span>
+                  <div class="d-flex flex-column rounded">
+                    <span class="text-muted fw-normal fs-7 text-end"
+                      >تواصل عبر الجوال</span
+                    >
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
+                      runtimeConfig.public.companyPhone
+                    }}</span>
+                  </div>
+                </NuxtLink>
+                <NuxtLink
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  :to="`https://wa.me/${runtimeConfig.public.companyPhone}`"
+                  class="user-whatsapp d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                >
+                  <span class="p-6 rounded" style="background-color: #4fad52">
+                    <Icon name="bx:bxl-whatsapp" class="text-white fs-1" />
+                  </span>
+                  <div class="d-flex flex-column rounded">
+                    <span class="text-muted fw-normal fs-7 text-end"
+                      >تواصل عبر الواتساب</span
+                    >
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
+                      runtimeConfig.public.companyPhone
+                    }}</span>
+                  </div>
+                </NuxtLink>
+                <NuxtLink
+                  :to="`mailto:runtimeConfig.public.companyEmail`"
+                  class="user-email d-flex w-md-100 w-75 mx-auto align-items-center btn p-0 mb-4"
+                >
+                  <span class="p-6 rounded" style="background-color: #a5acb9">
+                    <Icon
+                      name="material-symbols:stacked-email-rounded"
+                      class="text-white fs-1"
+                    />
+                  </span>
+                  <div class="d-flex flex-column rounded">
+                    <span class="text-muted fw-normal fs-7 text-end"
+                      >تواصل عبر البريد الالكتروني</span
+                    >
+                    <span class="fw-semibold text-end fw-medium fs-6">{{
+                      runtimeConfig.public.companyEmail
+                    }}</span>
+                  </div>
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
               </template>
             </div>
           </div>

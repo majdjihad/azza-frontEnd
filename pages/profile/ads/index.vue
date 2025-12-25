@@ -85,6 +85,10 @@ const viewAds = computed(() => {
   }
   return list;
 });
+const hasAnyAds = computed(() => ads.value.length > 0);
+const isFilterEmpty = computed(
+  () => hasAnyAds.value && viewAds.value.length === 0
+);
 
 // ====== إدارة التحديد ======
 const selectedIds = ref([]);
@@ -291,20 +295,56 @@ async function performDelete() {
             </table>
             <!-- لا توجد إعلانات -->
             <div v-else class="text-center p-4">
-              <NuxtImg src="/media/empty-ads.png" alt="اعلانات فارغة" width="200px" height="200px" />
-              <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
-              <p class="text-muted">
-                انشر أول إعلان لتبدأ رحلتك مع الزبائن المهتمين!
-              </p>
-              <div>
-                <NuxtLink
-                  to="/ads/create"
-                  class="btn btn-lg mt-4 btn-main d-inline-flex align-items-center gap-2"
-                >
-                  <Icon class="fs-3" name="fa-solid:plus" />
-                  <span class="fs-3">إضافة إعلان</span>
-                </NuxtLink>
-              </div>
+<!-- لا توجد نتائج بسبب الفلترة -->
+<div v-if="isFilterEmpty" class="text-center p-4">
+  <NuxtImg
+    src="/media/empty-ads.png"
+    alt="اعلانات فارغة"
+    width="200"
+    height="200"
+  />
+  <h3 class="fw-bold">لا توجد إعلانات مطابقة</h3>
+  <p class="text-muted">
+    لا يوجد إعلانات
+    <strong>
+      {{
+        selectedStatus === "approved"
+          ? "نشطة"
+          : selectedStatus === "pending"
+          ? "قيد المراجعة"
+          : selectedStatus === "expired"
+          ? "منتهية"
+          : selectedStatus === "rejected"
+          ? "مرفوضة"
+          : ""
+      }}
+    </strong>
+    حسب الفلترة المختارة.
+  </p>
+</div>
+
+<!-- لا توجد إعلانات أصلًا -->
+<div v-else class="text-center p-4">
+  <NuxtImg
+    src="/media/empty-ads.png"
+    alt="اعلانات فارغة"
+    width="200"
+    height="200"
+  />
+  <h3>صفحتـك الإعلانيـة ما زالـت فارغـة</h3>
+  <p class="text-muted">
+    انشر أول إعلان لتبدأ رحلتك مع الزبائن المهتمين!
+  </p>
+  <div>
+    <NuxtLink
+      to="/ads/create"
+      class="btn btn-lg mt-4 btn-main d-inline-flex align-items-center gap-2"
+    >
+      <Icon class="fs-3" name="fa-solid:plus" />
+      <span class="fs-3">إضافة إعلان</span>
+    </NuxtLink>
+  </div>
+</div>
             </div>
           </div>
         </div>
