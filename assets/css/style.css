@@ -1,45 +1,50 @@
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+   direction: rtl;
+}
 @font-face {
   font-family: 'Expo Arabic';
-  src: url('../fonts/Expo Arabic Light.ttf') format('truetype');
+  src: url('/fonts/ExpoArabic-Light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Expo Arabic';
-  src: url('../fonts/Expo Arabic Book.ttf') format('truetype');
+  src: url('/fonts/ExpoArabic-Book.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Expo Arabic';
-  src: url('../fonts/Expo Arabic Medium.ttf') format('truetype');
+  src: url('/fonts/ExpoArabic-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Expo Arabic';
-  src: url('../fonts/ExpoArabic-SemiBold.ttf') format('truetype');
+  src: url('/fonts/ExpoArabic-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
-
-:root{
+:root {
   --bs-body-font-family: 'Expo Arabic', Arial, Helvetica, sans-serif;
   --bs-font-sans-serif: 'Expo Arabic', Arial, Helvetica, sans-serif;
   --bs-primary: #1839a0; --bs-primary-hover: #264fcf; --bs-secondary: #a5acb9; --bs-info: #f5bc48; --bs-info-hover: #f2bb4d;
+  --font-main: 'Expo Arabic', Arial, sans-serif;
 }
 
-html { direction: rtl; }
-body { background-color: white; }
 
-*,
-*::before,
-*::after {
-  font-family: var(--bs-body-font-family) !important;
+body {
+ background-color: white;
+  font-family: var(--bs-body-font-family);
 }
 
 .text-primary {

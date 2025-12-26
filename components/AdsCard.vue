@@ -3,8 +3,6 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useMainStore } from "~/stores/mainStore";
 import { useAuth } from "~/composables/useAuth";
 
-definePageMeta({ layout: false });
-
 const mainStore = useMainStore();
 const { isLoggedIn } = useAuth();
 const props = defineProps({

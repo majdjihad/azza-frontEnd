@@ -491,7 +491,7 @@ function applyFilters() {
           target="_blank"
         >
           <img
-            src="~/public/media/bg-home/ads.jpg"
+            src="/media/bg-home/ads.jpg"
             class="w-100 mb-3 rounded-1"
             alt="ads"
           />
@@ -503,7 +503,7 @@ function applyFilters() {
           target="_blank"
         >
           <img
-            src="~/public/media/bg-home/ads.jpg"
+            src="/media/bg-home/ads.jpg"
             class="w-100 mb-3 rounded-1"
             alt="ads"
           />

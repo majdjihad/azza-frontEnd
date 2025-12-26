@@ -144,7 +144,7 @@ const selectCity = (id, name) => {
           <h2
             class="hero-subtitle bg-primary d-inline p-5 px-9 text-white fw-normal"
           >
-            أكثر من 100,000 إعلان نشط
+            أكثر من 10,000 إعلان نشط
           </h2>
           <h1 class="text-center hero-title fs-1 fw-bold my-9 py-9 text-white">
             منصـة إعلانيـة تجمـع لـك كـل مـا تحتاجـه مـن حولـك، وتمنحـك مساحـة

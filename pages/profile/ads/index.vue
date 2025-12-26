@@ -297,6 +297,45 @@ async function performDelete() {
             <div v-else class="text-center p-4">
 <!-- لا توجد نتائج بسبب الفلترة -->
 <div v-if="isFilterEmpty" class="text-center p-4">
+            <table
+              class="table table-custom mb-0 align-middle table-hover d-flex flex-column align-items-center"
+            >
+              <thead class="bg-white">
+                <tr class="w-100">
+                  <th>
+                    <input
+                      ref="masterRef"
+                      class="form-check-input ms-2"
+                      type="checkbox"
+                      :checked="allSelected"
+                      @change="toggleAll"
+                    />
+                  </th>
+                  <th>صورة الإعلان</th>
+                  <th>اسم الإعلان</th>
+                  <th>القسم</th>
+                  <th>تاريخ النشر</th>
+                  <th>العنوان</th>
+                  <th>السعر</th>
+                  <th>الحالة</th>
+                  <th class="text-end">
+                    <button
+                      class="btn btn-muted p-0 d-inline-flex align-items-center justify-content-center"
+                      title="فلترة"
+                      data-bs-toggle="modal"
+                      data-bs-target="#fillterModal"
+                      @click="syncDraftsWhenOpen"
+                    >
+                      <Icon
+                        name="material-symbols-light:filter-list"
+                        class="display-6 text-secondary"
+                      />
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
   <NuxtImg
     src="/media/empty-ads.png"
     alt="اعلانات فارغة"
@@ -306,7 +345,7 @@ async function performDelete() {
   <h3 class="fw-bold">لا توجد إعلانات مطابقة</h3>
   <p class="text-muted">
     لا يوجد إعلانات
-    <strong>
+    <strong class="p-0">
       {{
         selectedStatus === "approved"
           ? "نشطة"
@@ -321,6 +360,8 @@ async function performDelete() {
     </strong>
     حسب الفلترة المختارة.
   </p>
+              </tbody>
+            </table>
 </div>
 
 <!-- لا توجد إعلانات أصلًا -->

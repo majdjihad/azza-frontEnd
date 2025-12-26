@@ -18,7 +18,7 @@ useSeo(() => {
     product: {
       name: v.title || "",
       description: v.description || "",
-      image: v.images?.[0] || "/media/avatars/logo.png",
+      image: v.images?.[0] || "~/media/avatars/logo.png",
       price: v.price ?? undefined,
       priceCurrency: v.currency || undefined,
     },
@@ -458,7 +458,7 @@ onMounted(() => {
               <NuxtLink to="/products" class="m-auto mb-3 text-center">
                 <div>
                   <NuxtImg
-                    src="~/public/media/avatars/logo.png"
+                    src="/media/avatars/logo.png"
                     class="rounded-circle border"
                     width="83"
                     height="83"
