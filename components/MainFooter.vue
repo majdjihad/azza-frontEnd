@@ -123,7 +123,7 @@ const config = useRuntimeConfig();
             <span class="ms-2 px-3 py-2 bg-primary rounded-circle">
               <Icon
                 name="material-symbols:phone-in-talk-watchface-indicator"
-                class="text-white fs-3"
+                class="text-white fs-4"
               />
             </span>
             <span class="fs-6 ms-1 text-muted">{{
@@ -132,7 +132,7 @@ const config = useRuntimeConfig();
           </li>
           <li class="d-flex align-items-center mb-1">
             <span class="ms-2 px-3 py-2 bg-primary rounded-circle">
-              <Icon name="bi:envelope-fill" class="text-white" />
+              <Icon name="bi:envelope-fill" class="text-white fs-4" />
             </span>
             <span class="fs-6 ms-1 text-muted">{{
               config.public.companyEmail

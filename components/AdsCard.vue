@@ -134,7 +134,7 @@ function translateTimeAgo(englishTime) {
 </script>
 
 <template>
-  <div class="ad-card mx-4 shadow-sm">
+  <div class="ad-card mx-2 shadow-sm">
     <!-- Top Image + Chips + Avatar -->
     <div class="position-relative">
       <NuxtLink :to="`/ads/${ad?.id}`">

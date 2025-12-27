@@ -130,9 +130,23 @@ function isAdInFavorites(adId, favoritesResponse) {
   return favoritesResponse.data.ads.data.some((item) => item.id == adId);
 }
 
-const favorites = await mainStore.getAllAdsFavorites();
+const isFavorite = ref(false);
 
-const isFavorite = ref(isAdInFavorites(route.params.id, favorites));
+watch(
+  isLoggedIn,
+  async (logged) => {
+    if (logged) {
+      const favorites = await mainStore.getAllAdsFavorites();
+      isFavorite.value = isAdInFavorites(route.params.id, favorites);
+    } else {
+      isFavorite.value = false;
+      mainStore.adsFavorites = {};
+    }
+  },
+  { immediate: true }
+);
+
+
 
 /* ================== الجلب ================== */
 async function fetchDetails() {
@@ -297,14 +311,13 @@ function closeShareToast() {
 }
 /* ====== قلب المفضلة (بدون loader) ====== */
 const handleToggleFavorite = async () => {
-  // قلب محلي فوري
   isFavorite.value = !isFavorite.value;
+
   try {
-    await mainStore.changeFavoriteAds(route?.params?.id);
+    await mainStore.changeFavoriteAds(route.params.id);
   } catch (e) {
-    console.error("Error toggling favorite:", e);
-    // رجوع للحالة السابقة إذا صار خطأ
-    props.ad.is_favorite = !props.ad.is_favorite;
+    console.error(e);
+    isFavorite.value = !isFavorite.value;
   }
 };
 
@@ -325,12 +338,6 @@ function shareTo(platform) {
   if (!url) return;
   if (process.client) window.open(url, "_blank", "noopener,noreferrer");
   closeShareToast();
-}
-// ✅ تحميل المفضلات تلقائياً عند تسجيل الدخول
-if (isLoggedIn?.value) {
-  await mainStore.getAllAdsFavorites();
-} else {
-  mainStore.adsFavorites = {}; // تصفير عند تسجيل الخروج
 }
 
 /* Esc لإغلاق التوست */
@@ -783,7 +790,7 @@ onBeforeUnmount(() => {
             <div
               v-for="(group, idx) in productSlides"
               :key="'p-' + idx"
-              :class="['carousel-item', { active: idx === 0 }]"
+              :class="['carousel-item', { active: idx === 0 }]" style="margin-top: 60px"
             >
               <div class="row g-3 g-md-4">
                 <div
