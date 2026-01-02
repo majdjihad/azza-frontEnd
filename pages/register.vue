@@ -98,10 +98,7 @@ const formHandle = async () => {
       onSuccess: (response) => {
         // Handle the response
         router.push({
-          path: "/verify-code",
-          query: {
-            email: form.email,
-          },
+          path: "/"
         });
         showToast("success", response.message);
       },

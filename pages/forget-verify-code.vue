@@ -9,7 +9,6 @@ useSeo({
   title: "رمز التحقق | منصّة AZZA",
   description: "أدخل رمز التحقق لإتمام تسجيل الدخول بأمان.",
   image: "/media/avatars/logo.png",
-  canonicalPath: "/verify-code",
   type: "website",
   noindex: true,
 });

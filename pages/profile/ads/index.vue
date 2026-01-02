@@ -333,26 +333,30 @@ async function performDelete() {
                 </tr>
               </thead>
 
-              <tbody class="py-9">
-  <h3 class="fw-bold">لا توجد إعلانات مطابقة</h3>
-  <p class="text-muted">
-    لا يوجد إعلانات
-    <strong class="p-0">
-      {{
-        selectedStatus === "approved"
-          ? "نشطة"
-          : selectedStatus === "pending"
-          ? "قيد المراجعة"
-          : selectedStatus === "expired"
-          ? "منتهية"
-          : selectedStatus === "rejected"
-          ? "مرفوضة"
-          : ""
-      }}
-    </strong>
-    حسب الفلترة المختارة.
-  </p>
-              </tbody>
+<tbody>
+  <tr>
+    <td colspan="6" class="text-center py-9">
+      <h3 class="fw-bold">لا توجد إعلانات مطابقة</h3>
+      <p class="text-muted mb-0">
+        لا يوجد إعلانات
+        <strong class="p-0">
+          {{
+            selectedStatus === "approved"
+              ? "نشطة"
+              : selectedStatus === "pending"
+              ? "قيد المراجعة"
+              : selectedStatus === "expired"
+              ? "منتهية"
+              : selectedStatus === "rejected"
+              ? "مرفوضة"
+              : ""
+          }}
+        </strong>
+        حسب الفلترة المختارة.
+      </p>
+    </td>
+  </tr>
+</tbody>
             </table>
 </div>
 
